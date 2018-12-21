@@ -1,13 +1,13 @@
 <template>
-  <Regression />
+  <GenViz />
 </template>
 
 <script>
-import Regression from './components/Regression.vue'
+import GenViz from './components/GenViz.vue'
 
 export default {
   components: {
-    Regression
+    GenViz
   }
 }
 </script>

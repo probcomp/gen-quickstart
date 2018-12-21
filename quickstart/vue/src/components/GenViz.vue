@@ -1,6 +1,6 @@
 <template>
-  <div>
-      <slot :traces="traces" :info="info"></slot>
+  <div ref="genviz">
+      <GridViz :traces="traces" :info="info" />
   </div>
 </template>
 
@@ -19,8 +19,27 @@ window.onbeforeunload = function(){
     window.socket.close();
 }
 
+window.getCSS = function() {
+  var css= [];
+  for (var sheeti= 0; sheeti<document.styleSheets.length; sheeti++) {
+      var sheet= document.styleSheets[sheeti];
+      var rules= ('cssRules' in sheet)? sheet.cssRules : sheet.rules;
+      for (var rulei= 0; rulei<rules.length; rulei++) {
+          var rule= rules[rulei];
+          if ('cssText' in rule)
+              css.push(rule.cssText);
+          else
+              css.push(rule.selectorText+' {\n'+rule.style.cssText+'\n}\n');
+      }
+  }
+  return css.join('\n');
+}
+
+import GridViz from './GridViz.vue'
+
 export default {
   name: 'GenViz',
+  components: {GridViz},
   data() { 
     return {
       traces: {},
@@ -37,6 +56,10 @@ export default {
     },
     removeTrace(tId) {
       this.$delete(this.traces, tId)
+    },
+    sendHTML() {
+      let html = this.$refs["genviz"].innerHTML + `<style>${window.getCSS()}</style>`
+      window.socket.send(JSON.stringify({"clientId": window.clientId, "vizId": window.vizId, "action": "save", "content": html}))
     }
   },
   mounted () {
@@ -52,6 +75,9 @@ export default {
             break;
           case 'removeTrace':
             this.removeTrace(msg.tId)
+            break;
+          case 'saveHTML':
+            this.sendHTML()
             break;
         }
       }

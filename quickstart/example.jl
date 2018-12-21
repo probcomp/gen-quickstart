@@ -40,8 +40,10 @@ ys = [8.23, 5.87, 3.99, 2.59, 0.23, -0.66, -3.53, -6.91, -7.24, -9.90]
 
 # start visualization server
 server = VizServer(8000)
-viz = Viz(server, joinpath(@__DIR__, "vue/dist"), Dict("xs" => xs, "ys" => ys, "num" => length(xs), "xlim" => [minimum(xs), maximum(xs)], "ylim" => [minimum(ys), maximum(ys)]))
-println("Open http://localhost:8000/$(viz.id)/ in a browser to view visualization")
+sleep(1)
 
-(slope, intercept) = my_inference_program(xs, ys, 100000000, viz)
+viz = Viz(server, joinpath(@__DIR__, "vue/dist"), Dict("xs" => xs, "ys" => ys, "num" => length(xs), "xlim" => [minimum(xs), maximum(xs)], "ylim" => [minimum(ys), maximum(ys)]))
+openInBrowser(viz)
+
+(slope, intercept) = my_inference_program(xs, ys, 1000000, viz)
 println("slope: $slope, intercept: $slope")

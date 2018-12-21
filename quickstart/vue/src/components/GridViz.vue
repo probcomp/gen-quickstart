@@ -1,28 +1,26 @@
 <template>
 <div>
-  <GenViz>
-    <div slot-scope="gen">
-      <h1>Traces (Grid View)</h1>
-      <div id="traces">
-          <div v-for="(t, tId) in gen.traces" :key="tId">
-              <slot v-bind:trace="t" v-bind:info="gen.info" v-bind:size="traceSize" v-bind:tId="tId">
-          </div>
-      </div>
+    <h1>Traces (Grid View)</h1>
+    <div id="traces">
+        <div v-for="(t, tId) in traces" :key="tId">
+            <Trace :trace="t" :info="info" :size="traceSize" :tId="tId">
+        </div>
     </div>
-  </GenViz>
 </div>
 </template>
 
 <script>
-import GenViz from './GenViz.vue'
+import Trace from './Trace.vue'
+
 export default {
   name: 'GridViz',
-  components: {GenViz},
-  data() { 
+  components: {Trace},
+  data() {
     return {
       windowSize: {height: window.innerHeight, width: window.innerWidth},
     }
   },
+  props: ['traces', 'info'],
   computed: {
       traceSize() {
          return {h: this.windowSize.height/5, w: this.windowSize.width/5}
