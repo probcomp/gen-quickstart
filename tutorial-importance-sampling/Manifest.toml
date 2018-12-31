@@ -100,11 +100,29 @@ path = "/home/marcoct/dev/Gen"
 uuid = "ea4f424c-a589-11e8-07c0-fd5c91b9da4a"
 version = "0.2.1"
 
+[[GenViz]]
+deps = ["HTTP", "IJulia", "JSON", "Logging", "UUIDs"]
+path = "/home/marcoct/dev/GenViz"
+uuid = "5a9e95f6-02e7-11e9-1dd5-5f044de1bd85"
+version = "0.1.0"
+
+[[HTTP]]
+deps = ["Base64", "Dates", "Distributed", "IniFile", "MbedTLS", "Sockets", "Test"]
+git-tree-sha1 = "b881f69331e85642be315c63d05ed65d6fc8a05b"
+uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+version = "0.7.1"
+
 [[IJulia]]
 deps = ["Base64", "Compat", "Conda", "Dates", "InteractiveUtils", "JSON", "Markdown", "MbedTLS", "Pkg", "Printf", "REPL", "Random", "SoftGlobalScope", "Test", "UUIDs", "ZMQ"]
 git-tree-sha1 = "38d1ce0fbbefcb67f5ab46f1093cbce0335092e0"
 uuid = "7073ff75-c697-5162-941a-fcdaad2a7d2a"
 version = "1.14.1"
+
+[[IniFile]]
+deps = ["Test"]
+git-tree-sha1 = "098e4d2c533924c921f9f9847274f2ad89e018b8"
+uuid = "83e8ac13-25f8-5344-8a64-a9f2b223428f"
+version = "0.5.0"
 
 [[InteractiveUtils]]
 deps = ["LinearAlgebra", "Markdown"]
