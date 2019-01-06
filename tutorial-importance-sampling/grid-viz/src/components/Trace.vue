@@ -1,6 +1,9 @@
 <template>
   <svg :height="size.w" :width="size.w">
 
+	<!-- Draw border -->
+	<rect :x="0" :y="0" :width="size.w" :height="size.w" style="fill-opacity:0.0;stroke:black"/>
+
 	<!-- Draw obstacles  -->
 	<polygon v-for="(obs, i) in trace.scene.obstacles" :key="i"
 			 :points="svgPoints(obs)" style="fill:rgba(100,100,100,1)" />
@@ -13,24 +16,24 @@
 				  :x2="xLogicalToPixel(trace.path[n].x)"   
 				  :y2="yLogicalToPixel(trace.path[n].y)" 
 				  style="stroke-width:2;stroke:rgba(100,100,100,0.4)"/>
-		</g>
+	</g>
 
-		<!-- Goal (end) point -->
-		<!-- <circle :cx="xLogicalToPixel(t.stop.x)" 
-				:cy="yLogicalToPixel(t.stop.y)" 
-				r="3" fill="rgba(255,0,0,0.5)" /> -->
+	<!-- Destination point -->
+	<circle :cx="xLogicalToPixel(trace.dest.x)" 
+			:cy="yLogicalToPixel(trace.dest.y)" 
+			r="3" fill="rgba(255,0,0,0.5)" />
 	
-	<!-- Start point (same for all traces) -->
-	<!-- <circle :cx="xLogicalToPixel(info.start.x)" 
-			:cy="yLogicalToPixel(info.start.y)" 
-			r="3" fill="blue" /> -->
+	<!-- Start point -->
+	<circle :cx="xLogicalToPixel(trace.start.x)" 
+			:cy="yLogicalToPixel(trace.start.y)" 
+			r="3" fill="blue" />
 	
-	<!-- Observations (same for all traces) -->
-	<!-- <circle v-for="(m, i) in info.measurements" 
+	<!-- Observations -->
+  <circle v-for="(m, i) in trace.measurements" 
 			:key="i" 
 			:cx="xLogicalToPixel(m.x)" 
 			:cy="yLogicalToPixel(m.y)" 
-			r="2" fill="black" /> -->
+			r="2" fill="black" />
 </svg>
 </template>
 
