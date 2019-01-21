@@ -58,7 +58,7 @@ Create a [Python virtual environment](https://virtualenv.pypa.io/en/latest/) for
 After setting up the Python environment with the Python packages listed above, instruct the PyCall Julia package to use this Python environment by running the following from the `gen-examples/` directory:
 ```
 JULIA_PROJECT=$(pwd) julia -e 'using Pkg; ENV["PYTHON"] = "<python>"; Pkg.build("PyCall")'
-JULIA_PROJECT=$(pwd) julia -e 'using Pkg; Pkg.add("PyPlot")'
+JULIA_PROJECT=$(pwd) julia -e 'using Pkg; ENV["PYTHON"] = "<python>"; Pkg.build("PyPlot")'
 ```
 where `<python>` is the absolute path to the python3 executable within the virtual environment you created.
 If you have trouble building PyCall, see the [PyCall package documentation](https://github.com/JuliaPy/PyCall.jl#specifying-the-python-version).

@@ -5,6 +5,7 @@ RUN             apt-get update -qq \
                 && apt-get install -qq -y \
                     hdf5-tools \
                     python3-pip \
+                    python3-tk \
                     wget
 
 RUN             pip3 install --upgrade pip
@@ -19,7 +20,7 @@ ENV             JULIA_PROJECT=/gen-examples
 
 RUN             JUPYTER=$(which jupyter) julia -e 'using Pkg; Pkg.build("IJulia")'
 RUN             julia -e 'using Pkg; ENV["PYTHON"] = "/usr/bin/python3"; Pkg.build("PyCall")'
-RUN             julia -e 'using Pkg; Pkg.add("PyPlot")'
+RUN             julia -e 'using Pkg; ENV["PYTHON"] = "/usr/bin/python3"; Pkg.build("PyPlot")'
 
 WORKDIR         /gen-examples
 
