@@ -1,6 +1,6 @@
-# gen-examples
+# Gen Example Jupyter Notebooks
 
-This repository contains tutorial notebooks introducing different features and/or applications of Gen.
+This repository contains Jupyter notebooks that contain tutorials on specific features and/or applications of Gen.
 The notebooks walk you through programs that use Gen.
 Some notebooks also include exercises that expect you to write code or write written responses.
 
@@ -43,8 +43,16 @@ After running the installation steps above, start a Jupyter server by running th
 ```
 JULIA_PROJECT=. jupyter notebook
 ```
-This should open a browser window that shows the current directory listing.
-Open the appropriate notebook and walk through the cells.
-
+This should open a browser window that shows the content of the `gen-examples/` directory.
 By setting the environment variable `JULIA_PROJECT` to the `gen-examples/` directory, we are instructing Julia to use the Julia environment defined by `gen-examples/Manifest.toml`.
 This environment has the necessary Julia dependencies required to run all the notebooks.
+
+Each directory within `gen-examples/` contains a tutorial.
+To run a tutorial in a given directory, use the Jupyter browser interface to open the `.ipynb` file within the directory, and run the cells one by one.
+The recommended order of the notebooks is:
+
+- tutorial-modeling-intro
+
+- tutorial-iterative-inference
+
+- tutorial-importance-sampling
