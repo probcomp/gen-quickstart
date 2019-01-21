@@ -29,16 +29,16 @@ Before moving on to the next step, verify that you have a working Julia installa
 This repository uses [Jupyter notebooks](https://jupyter.org/).
 If you already have a `jupyter` installation, you can install the Julia notebook kernel by running the following from the `gen-examples/` directory:
 ```
-JUPYTER=$(which jupyter) JULIA_PROJECT=. julia -e 'using Pkg; Pkg.build("IJulia")'
+JUPYTER=$(which jupyter) JULIA_PROJECT=$(pwd) julia -e 'using Pkg; Pkg.build("IJulia")'
 ```
 If you do not already have a `jupyter` installation, the IJulia package will install one by itself:
 ```
-JULIA_PROJECT=. julia -e 'using Pkg; Pkg.build("IJulia")'
+JULIA_PROJECT=$(pwd) julia -e 'using Pkg; Pkg.build("IJulia")'
 ```
 If you have trouble installing Jupyter or the IJulia kernel, see the [IJulia package documentation](https://github.com/JuliaLang/IJulia.jl).
 Before moving onto the next step, verify that you have a working Jupyter / IJulia installation, by launching a Jupyter server:
 ```
-JULIA_PROJECT=. jupyter notebook
+JULIA_PROJECT=$(pwd) jupyter notebook
 ```
 and creating a new IJulia notebook by navigating to New -> Julia 1.0.x in the Jupyter browser interface, and running the following:
 ```julia
@@ -58,7 +58,7 @@ The notebooks have been tested using a Python 3 environment.
 
 After setting up the Python environment with the Python packages listed above, instruct the PyCall Julia package to use this Python environment by running the following from the `gen-examples/` directory:
 ```
-JULIA_PROJECT=. julia -e 'using Pkg; ENV["PYTHON"] = "<python>"; Pkg.build("PyCall")'
+JULIA_PROJECT=$(pwd) julia -e 'using Pkg; ENV["PYTHON"] = "<python>"; Pkg.build("PyCall")'
 ```
 where `<python>` is the absolute path to the python executable within the virtual environment you created.
 If you have trouble building PyCall, see the [PyCall package documentation](https://github.com/JuliaPy/PyCall.jl#specifying-the-python-version).
@@ -72,7 +72,7 @@ These have been tested succesfully with recent versions of Firefox and Google Ch
 
 After running the installation steps above, start a Jupyter server by running the following from the `gen-examples/` directory:
 ```
-JULIA_PROJECT=. jupyter notebook
+JULIA_PROJECT=$(pwd) jupyter notebook
 ```
 This should open a browser window that shows the content of the `gen-examples/` directory.
 By setting the environment variable `JULIA_PROJECT` to the `gen-examples/` directory, we are instructing Julia to use the Julia environment defined by `gen-examples/Manifest.toml`.
