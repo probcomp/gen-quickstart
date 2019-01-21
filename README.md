@@ -1,5 +1,9 @@
 # gen-examples
 
+This repository contains tutorial notebooks introducing different features and/or applications of Gen.
+The notebooks walk you through programs that use Gen.
+Some notebooks also include exercises that expect you to write code or write written responses.
+
 ## Installation
 
 ### Jupyter and IJulia
@@ -32,3 +36,15 @@ JULIA_PROJECT=. julia -e 'using Pkg; ENV["PYTHON"] = "<python>"; Pkg.build("PyCa
 ```
 where `<python>` is the absolute path to the python executable within the virtual environment you created.
 If you have trouble building PyCall, see the [PyCall package documentation](https://github.com/JuliaPy/PyCall.jl#specifying-the-python-version).
+
+## Running the notebooks
+
+After running the installation steps above, start a Jupyter server by running the following from the `gen-examples/` directory:
+```
+JULIA_PROJECT=. jupyter notebook
+```
+This should open a browser window that shows the current directory listing.
+Open the appropriate notebook and walk through the cells.
+
+By setting the environment variable `JULIA_PROJECT` to the `gen-examples/` directory, we are instructing Julia to use the Julia environment defined by `gen-examples/Manifest.toml`.
+This environment has the necessary Julia dependencies required to run all the notebooks.
