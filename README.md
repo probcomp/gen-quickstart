@@ -5,7 +5,7 @@
 ### Jupyter and IJulia
 
 These tutorials use [Jupyter notebooks](https://jupyter.org/).
-If you already have a `jupyter` installation, you can install the Julia notebook kernel using:
+If you already have a `jupyter` installation, you can install the Julia notebook kernel by running the following from the `gen-examples/` directory:
 ```
 JUPYTER=$(which jupyter) JULIA_PROJECT=. julia -e 'using Pkg; Pkg.build("IJulia")'
 ```
@@ -26,9 +26,9 @@ We recommend creating a [Python virtual environment](https://virtualenv.pypa.io/
 
 The notebooks have been tested using a Python 3 environment.
 
-After setting up the Python environment with the Python packages listed above, instruct the PyCall Julia package to use this Python environment using:
+After setting up the Python environment with the Python packages listed above, instruct the PyCall Julia package to use this Python environment by running the following from the `gen-examples/` directory:
 ```
-julia -e 'using Pkg; ENV["PYTHON"] = "<python>"; Pkg.build("PyCall")'
+JULIA_PROJECT=. julia -e 'using Pkg; ENV["PYTHON"] = "<python>"; Pkg.build("PyCall")'
 ```
-where `<python`> is the absolute path to the python executable within the virtual environment.
+where `<python>` is the absolute path to the python executable within the virtual environment you created.
 If you have trouble building PyCall, see the [PyCall package documentation](https://github.com/JuliaPy/PyCall.jl#specifying-the-python-version).
