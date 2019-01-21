@@ -86,4 +86,4 @@ The recommended order of the notebooks is:
 
 - tutorial-iterative-inference
 
-- tutorial-importance-sampling
+- .. More coming soon!
