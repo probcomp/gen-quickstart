@@ -26,8 +26,9 @@ We recommend creating a [Python virtual environment](https://virtualenv.pypa.io/
 
 The notebooks have been tested using a Python 3 environment.
 
-After setting up the Python environment with the Python packages listed above, instruct the PyCall Julia package to use that environment by running:
+After setting up the Python environment with the Python packages listed above, instruct the PyCall Julia package to use this Python environment using:
 ```
 julia -e 'using Pkg; ENV["PYTHON"] = "<python>"; Pkg.build("PyCall")'
 ```
 where `<python`> is the absolute path to the python executable within the virtual environment.
+If you have trouble building PyCall, see the [PyCall package documentation](https://github.com/JuliaPy/PyCall.jl#specifying-the-python-version).
