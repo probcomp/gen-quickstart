@@ -4,8 +4,7 @@ This repository contains Jupyter notebooks that contain tutorials on specific fe
 The notebooks walk you through programs that use Gen.
 Some notebooks also include exercises that expect you to write code or fill in written responses.
 
-These notebooks assumes an installation and familiarity with the [Julia programming language](https://julialang.org/).
-The notebooks have been tested with Julia 1.0.
+These notebooks assume some familiarity with the [Julia programming language](https://julialang.org/).
 
 For reference on Gen see:
 
@@ -17,6 +16,11 @@ For reference on Gen see:
 
 
 ## Installation
+
+### Julia
+
+The notebooks require [Julia 1.0](https://julialang.org/downloads/).
+Before moving on to the next step, verify that you have a working Julia installation.
 
 ### Jupyter and IJulia
 
@@ -30,6 +34,14 @@ If you do not already have a `jupyter` installation, the IJulia package will ins
 JULIA_PROJECT=. julia -e 'using Pkg; Pkg.build("IJulia")'
 ```
 If you have trouble installing Jupyter or the IJulia kernel, see the [IJulia package documentation](https://github.com/JuliaLang/IJulia.jl).
+Before moving onto the next step, verify that you have a working Jupyter / IJulia installation, by launching a Jupyter server:
+```
+JULIA_PROJECT=. jupyter notebook
+```
+and creating a new IJulia notebook by navigating to New -> Julia 1.0.x in the Jupyter browser interface, and running the following:
+```julia
+using Gen
+```
 
 ## Python environment and Python packages
 
