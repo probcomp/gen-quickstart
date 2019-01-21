@@ -45,7 +45,7 @@ and creating a new IJulia notebook by navigating to New -> Julia 1.0.x in the Ju
 using Gen
 ```
 
-## Python environment and Python packages
+### Python environment and Python packages
 
 Some notebooks also rely on Python modules installed in a Python environment.
 We recommend creating a [Python virtual environment](https://virtualenv.pypa.io/en/latest/) for use with the examples, and installing the following packages into this environment with `pip`:
@@ -63,7 +63,7 @@ JULIA_PROJECT=. julia -e 'using Pkg; ENV["PYTHON"] = "<python>"; Pkg.build("PyCa
 where `<python>` is the absolute path to the python executable within the virtual environment you created.
 If you have trouble building PyCall, see the [PyCall package documentation](https://github.com/JuliaPy/PyCall.jl#specifying-the-python-version).
 
-## Browser
+### Browser
 
 Certain notebooks also make use Javascript-based visualizations that are generated in the output of certain notebook cells and displayed inline in the notebook.
 These have been tested succesfully with recent versions of Firefox and Google Chrome on Ubuntu and Mac OS.
