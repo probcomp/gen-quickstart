@@ -14,8 +14,29 @@ For reference on Gen see:
 
 - The [GenViz documentation](https://probcomp.github.io/GenTF/dev/)
 
+## Quick Installation
 
-## Installation
+First obtain [docker](https://www.docker.com/).
+
+Next, build the image using the following command:
+
+    $ docker build -t gen:v0 .
+
+Then run the image using:
+
+    $ docker run -it --name gen -p 8080:8080 gen:v0
+
+Open `localhost:8080` in your browser and begin with `tutorial-modeling-intro`.
+
+All the changes made to the notebooks will be saved in your docker container.
+
+To stop the image, run `ctrl+c`.
+
+To restart the image and resume your work, run:
+
+    $ docker start -ia gen
+
+## Advanced Installation
 
 These notebooks have been tested on Ubuntu Linux and Mac OS X.
 
