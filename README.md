@@ -17,6 +17,8 @@ For reference on Gen see:
 
 ## Installation
 
+These notebooks have been tested on Ubuntu Linux and Mac OS X.
+
 ### Julia
 
 The notebooks require [Julia 1.0](https://julialang.org/downloads/).
