@@ -1,4 +1,4 @@
-# Gen Example Jupyter Notebooks
+# Gen Jupyter Notebooks
 
 This repository contains Jupyter notebooks that contain tutorials on specific features and/or applications of Gen.
 The notebooks walk you through programs that use Gen.
