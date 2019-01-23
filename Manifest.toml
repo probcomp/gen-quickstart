@@ -159,7 +159,7 @@ version = "0.5.0"
 
 [[Gen]]
 deps = ["DataStructures", "Distributions", "FunctionalCollections", "JSON", "LinearAlgebra", "Random", "ReverseDiff", "SpecialFunctions"]
-git-tree-sha1 = "d4b733e269137f93fe37014e5f42b81bbbc96dcb"
+git-tree-sha1 = "968e437bc2dda6cdc5e81a4773e10fb955a70077"
 repo-rev = "master"
 repo-url = "https://github.com/probcomp/Gen"
 uuid = "ea4f424c-a589-11e8-07c0-fd5c91b9da4a"
@@ -167,7 +167,7 @@ version = "0.2.1"
 
 [[GenTF]]
 deps = ["Gen", "MLDatasets", "PyCall"]
-git-tree-sha1 = "1c7b7f0bacf750926a06e6a7f4676af2e4846d48"
+git-tree-sha1 = "47e93cb88ae3b2d9e0257463cf2158aadd0768b9"
 repo-rev = "master"
 repo-url = "https://github.com/probcomp/GenTF"
 uuid = "1956f2fc-1631-11e9-1597-3d3589996c0f"
@@ -188,10 +188,10 @@ uuid = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
 version = "0.11.0"
 
 [[HTTP]]
-deps = ["Base64", "Dates", "Distributed", "IniFile", "MbedTLS", "Sockets", "Test"]
-git-tree-sha1 = "b881f69331e85642be315c63d05ed65d6fc8a05b"
+deps = ["Base64", "Dates", "Distributed", "IniFile", "MbedTLS", "Random", "Sockets", "Test"]
+git-tree-sha1 = "25db0e3f27bd5715814ca7e4ad22025fdcf5cc6e"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
-version = "0.7.1"
+version = "0.8.0"
 
 [[HTTPClient]]
 deps = ["Compat", "LibCURL"]
