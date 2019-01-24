@@ -17,6 +17,7 @@ For reference on Gen see:
 ## Quick Installation
 
 First obtain [docker](https://www.docker.com/).
+Make sure to run the [post-installation steps](https://docs.docker.com/install/linux/linux-postinstall/) so that you can run the docker commands smoothly without needing sudo access.
 
 Next, build the image using the following command:
 
