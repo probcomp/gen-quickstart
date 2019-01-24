@@ -175,7 +175,7 @@ version = "0.1.0"
 
 [[GenViz]]
 deps = ["HTTP", "IJulia", "JSON", "Logging", "UUIDs"]
-git-tree-sha1 = "b560b902e21e8bd61e33ff8b88a4ba02891411cd"
+git-tree-sha1 = "f418443f3cfc58c6115ce0edd1934c68d621b228"
 repo-rev = "master"
 repo-url = "https://github.com/probcomp/GenViz"
 uuid = "5a9e95f6-02e7-11e9-1dd5-5f044de1bd85"
@@ -188,10 +188,10 @@ uuid = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
 version = "0.11.0"
 
 [[HTTP]]
-deps = ["Base64", "Dates", "Distributed", "IniFile", "MbedTLS", "Sockets", "Test"]
-git-tree-sha1 = "b881f69331e85642be315c63d05ed65d6fc8a05b"
+deps = ["Base64", "Dates", "Distributed", "IniFile", "MbedTLS", "Random", "Sockets", "Test"]
+git-tree-sha1 = "25db0e3f27bd5715814ca7e4ad22025fdcf5cc6e"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
-version = "0.7.1"
+version = "0.8.0"
 
 [[HTTPClient]]
 deps = ["Compat", "LibCURL"]
