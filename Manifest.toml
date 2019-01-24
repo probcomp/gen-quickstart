@@ -175,7 +175,7 @@ version = "0.1.0"
 
 [[GenViz]]
 deps = ["HTTP", "IJulia", "JSON", "Logging", "UUIDs"]
-git-tree-sha1 = "b560b902e21e8bd61e33ff8b88a4ba02891411cd"
+git-tree-sha1 = "f418443f3cfc58c6115ce0edd1934c68d621b228"
 repo-rev = "master"
 repo-url = "https://github.com/probcomp/GenViz"
 uuid = "5a9e95f6-02e7-11e9-1dd5-5f044de1bd85"
