@@ -24,7 +24,7 @@ Next, build the image using the following command:
 
 Then run the image using:
 
-    $ docker run -it --name gen -p 8080:8080 gen:v0
+    $ docker run -it --name gen -p 8080:8080 -p 8090:8090 gen:v0
 
 Open `localhost:8080` in your browser and begin with `tutorial-modeling-intro`.
 
