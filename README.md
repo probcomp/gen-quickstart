@@ -1,8 +1,15 @@
-# Gen Example Jupyter Notebooks
+# Gen Jupyter Notebooks
 
 This repository contains Jupyter notebooks that contain tutorials on specific features and/or applications of Gen.
 The notebooks walk you through programs that use Gen.
 Some notebooks also include exercises that expect you to write code or fill in written responses.
+The recommended order of the notebooks is:
+
+- tutorial-modeling-intro
+
+- tutorial-iterative-inference
+
+- .. More coming soon!
 
 These notebooks assume some familiarity with the [Julia programming language](https://julialang.org/).
 
@@ -14,7 +21,14 @@ For reference on Gen see:
 
 - The [GenViz documentation](https://probcomp.github.io/GenTF/dev/)
 
-## Quick Installation
+## Browser Requirements
+
+Some of the notebooks make use of JavaScript-based visualizations that are displayed inline in the notebook.
+These have been tested successfully with recent versions of Firefox and Google Chrome on Ubuntu and Mac OS.
+
+## Docker Installation
+
+The easiest way to run the notebooks is using Docker.
 
 First obtain [docker](https://www.docker.com/).
 Make sure to run the [post-installation steps](https://docs.docker.com/install/linux/linux-postinstall/) so that you can run the docker commands smoothly without needing sudo access.
@@ -37,10 +51,10 @@ To restart the image and resume your work, run:
 
     $ docker start -ia gen
 
-## Advanced Installation
+## Manual Installation
 
-These notebooks have been tested on Ubuntu Linux 16.04 and Mac OS X.
 Below we provide a rough documentation of the steps taken in the [Dockerfile](./Dockerfile), which you can reproduce manually to install Gen natively on your machine.
+These notebooks have been tested on Ubuntu Linux 16.04 and Mac OS X.
 
 ### Julia
 
@@ -54,7 +68,7 @@ Create a [Python virtual environment](https://virtualenv.pypa.io/en/latest/) for
 
 - [jupyter](https://jupyter.org/install#installing-jupyter-with-pip): used to run the notebook sever (required)
 - [matplotlib](https://matplotlib.org/users/installing.html#installing): used in many of the notebooks for basic plotting (required)
-- [tensorflow](https://www.tensorflow.org/install/pip): used in one tutorial (optional)
+- [tensorflow](https://www.tensorflow.org/install/pip): (recommended)
 
 After setting up the Python environment with the Python packages listed above, instruct the PyCall Julia package to use this Python environment by running the following from the `gen-examples/` directory:
 ```
@@ -83,12 +97,7 @@ Now run the following command in a new cell to verify the installation is workin
 using Gen
 ```
 
-### Browser
-
-Certain notebooks also make use Javascript-based visualizations that are generated in the output of certain notebook cells and displayed inline in the notebook.
-These have been tested successfully with recent versions of Firefox and Google Chrome on Ubuntu and Mac OS.
-
-## Running the notebooks
+### Running the notebooks
 
 After running the installation steps above, activate your python virtual environment and start a Jupyter server by running the following from the `gen-examples/` directory:
 ```
@@ -100,10 +109,3 @@ This environment has the necessary Julia dependencies required to run all the no
 
 Each directory within `gen-examples/` contains a tutorial.
 To run a tutorial in a given directory, use the Jupyter browser interface to open the `.ipynb` file within the directory, and run the cells one by one.
-The recommended order of the notebooks is:
-
-- tutorial-modeling-intro
-
-- tutorial-iterative-inference
-
-- .. More coming soon!
