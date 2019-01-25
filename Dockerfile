@@ -18,9 +18,7 @@ RUN             ln -s /julia-1.0.3/bin/julia /usr/bin/julia
 ADD             . /gen-examples
 ENV             JULIA_PROJECT=/gen-examples
 
-RUN             JUPYTER=$(which jupyter) julia -e 'using Pkg; Pkg.build("IJulia")'
-RUN             julia -e 'using Pkg; ENV["PYTHON"] = "/usr/bin/python3"; Pkg.build("PyCall")'
-RUN             julia -e 'using Pkg; ENV["PYTHON"] = "/usr/bin/python3"; Pkg.build("PyPlot")'
+RUN             julia -e 'using Pkg; Pkg.build()'
 
 WORKDIR         /gen-examples
 
