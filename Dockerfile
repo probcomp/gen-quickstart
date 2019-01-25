@@ -9,7 +9,6 @@ RUN             apt-get update -qq \
                     wget \
                     zlib1g-dev
 
-RUN             pip3 install --upgrade pip
 RUN             pip3 install jupyter matplotlib tensorflow
 
 RUN             wget https://julialang-s3.julialang.org/bin/linux/x64/1.0/julia-1.0.3-linux-x86_64.tar.gz
