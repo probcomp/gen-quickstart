@@ -53,49 +53,11 @@ To restart the image and resume your work, run:
 
 ## Manual Installation
 
-Below we provide a rough documentation of the steps taken in the [Dockerfile](./Dockerfile), which you can reproduce manually to install Gen natively on your machine.
 These notebooks have been tested on Ubuntu Linux 16.04 and Mac OS X.
+To install Gen natively on your machine, please view the commands taken in the [Dockerfile](./Dockerfile), which is based on Ubuntu Linux 16.04.
+The steps in the Dockerfile can be reproduced on your machine but will require slight variations depending on your local development setup.
 
-### Julia
-
-The notebooks require [Julia 1.0](https://julialang.org/downloads/).
-Before moving on to the next step, verify that you have a working Julia installation.
-
-### Python environment and Python packages
-
-The notebooks rely on Python modules installed in a Python 3 environment.
-Create a [Python virtual environment](https://virtualenv.pypa.io/en/latest/) for use with the examples, and installing the following packages into this environment with `pip`:
-
-- [jupyter](https://jupyter.org/install#installing-jupyter-with-pip): used to run the notebook sever (required)
-- [matplotlib](https://matplotlib.org/users/installing.html#installing): used in many of the notebooks for basic plotting (required)
-- [tensorflow](https://www.tensorflow.org/install/pip): (recommended)
-
-After setting up the Python environment with the Python packages listed above, instruct the PyCall Julia package to use this Python environment by running the following from the `gen-examples/` directory:
-```
-JULIA_PROJECT=$(pwd) julia -e 'using Pkg; ENV["PYTHON"] = "<python>"; Pkg.build("PyCall")'
-JULIA_PROJECT=$(pwd) julia -e 'using Pkg; ENV["PYTHON"] = "<python>"; Pkg.build("PyPlot")'
-```
-where `<python>` is the absolute path to the python3 executable within the virtual environment you created.
-If you have trouble building PyCall, see the [PyCall package documentation](https://github.com/JuliaPy/PyCall.jl#specifying-the-python-version).
-
-### Jupyter and IJulia
-
-This repository uses [Jupyter notebooks](https://jupyter.org/).
-First activate the virtual environment created in the previous section.
-
-Install the Julia notebook kernel by running the following from the `gen-examples/` directory:
-```
-JUPYTER=$(which jupyter) JULIA_PROJECT=$(pwd) julia -e 'using Pkg; Pkg.build("IJulia")'
-```
-Next start the notebook server using
-```
-JULIA_PROJECT=$(pwd) jupyter notebook
-```
-and create a new IJulia notebook by navigating to New -> Julia 1.0.x in the Jupyter browser interface.
-Now run the following command in a new cell to verify the installation is working (it may take a minute for the library to pre-compile).
-```julia
-using Gen
-```
+We recommend installing the Python dependencies, jupyter matplotlib tensorflow, into a dedicated Python virtual environment and working in that environment while running the installation commands.
 
 ### Running the notebooks
 
