@@ -118,13 +118,5 @@ Below is a brief documentation of the steps taken in the Dockerfile.
 
 ### Running the notebooks
 
-After running the installation steps above, activate your python virtual environment and start a Jupyter server by running the following from the `gen-examples/` directory:
-```
-JULIA_PROJECT=$(pwd) jupyter notebook
-```
-This command should open a browser window that shows the content of the `gen-examples/` directory.
-By setting the environment variable `JULIA_PROJECT` to the `gen-examples/` directory, we are instructing Julia to use the Julia environment defined by `gen-examples/Manifest.toml`.
-This environment has the necessary Julia dependencies required to run all the notebooks.
-
 Each directory within `gen-examples/` contains a tutorial.
 To run a tutorial in a given directory, use the Jupyter browser interface to open the `.ipynb` file within the directory, and run the cells one by one.
