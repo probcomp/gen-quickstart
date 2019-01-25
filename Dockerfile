@@ -6,7 +6,8 @@ RUN             apt-get update -qq \
                     hdf5-tools \
                     python3-pip \
                     python3-tk \
-                    wget
+                    wget \
+                    zlib1g-dev
 
 RUN             pip3 install --upgrade pip
 RUN             pip3 install jupyter matplotlib tensorflow
@@ -19,6 +20,7 @@ ADD             . /gen-examples
 ENV             JULIA_PROJECT=/gen-examples
 
 RUN             julia -e 'using Pkg; Pkg.build()'
+RUN             julia -e 'using Pkg; Pkg.API.precompile()'
 
 WORKDIR         /gen-examples
 
