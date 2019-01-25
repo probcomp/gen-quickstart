@@ -116,7 +116,7 @@ Below is a brief documentation of the steps taken in the Dockerfile.
                         --NotebookApp.iopub_data_rate_limit=-1
     ```
 
-### Running the notebooks
+## Running the notebooks
 
 Each directory within `gen-examples/` contains a tutorial.
 To run a tutorial in a given directory, use the Jupyter browser interface to open the `.ipynb` file within the directory, and run the cells one by one.
