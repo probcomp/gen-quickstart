@@ -57,7 +57,7 @@ These notebooks have been tested on Ubuntu Linux 16.04 and Mac OS X.
 To install Gen natively on your machine, please view the commands taken in the [Dockerfile](./Dockerfile), which is based on Ubuntu Linux 16.04.
 The steps in the Dockerfile can be reproduced on your machine but will require slight variations depending on your local development setup.
 
-Here is a brief documentation of the steps taken in the Dockerfile.
+Below is a brief documentation of the steps taken in the Dockerfile.
 
 1. Install global dependencies from Ubuntu APT.
 
@@ -91,13 +91,13 @@ Here is a brief documentation of the steps taken in the Dockerfile.
     $ ln -s /julia-1.0.3/bin/julia /usr/bin/julia
     ```
 
-4. Set the `JULIA_PROJECT` environment variable to `/path/to/gen-examples/` (i.e. path where this repository was closed). Make that `JULIA_PROJECT` is set correctly on your machine whenever working with Gen or with these examples.
+4. Set the `JULIA_PROJECT` environment variable to `/path/to/gen-examples/` (i.e. path where this repository was cloned). Make that `JULIA_PROJECT` is set correctly on your machine whenever working with Gen or with these examples.
 
     ```bash
     $ export JULIA_PROJECT=/path/to/gen-examples
     ```
 
-5. Build and precompile the Julia packages. The main libraries that are being built are [PyCall](https://github.com/JuliaPy/PyCall.jl) and [IJulia](https://github.com/JuliaLang/IJulia.jl). We make sure that Julia packages with `python` (version 3 only) and `jupyter` are in our PATH pointing to the right Python environment and Jupyter installation, respectively, by activating the Python virtual environment we created. Since we have the virtual environment in the commands below, the `build()` command uses the version of Python and Jupyter in the virtual environment. (For more information on PyCall and IJulia find the right versions of `python` and `jupyter`, please see the respective documentation of those packages.)
+5. Build and precompile the Julia packages. The main libraries that are being built are [PyCall](https://github.com/JuliaPy/PyCall.jl) and [IJulia](https://github.com/JuliaLang/IJulia.jl). We make sure that `python` (version 3 only) and `jupyter` are in our PATH and pointing to the right Python environment and Jupyter installation, respectively, by activating the Python virtual environment we created. Since we have activated the virtual environment in the commands below, the `build()` command uses the version of Python and Jupyter in the virtual environment. (For more information on how PyCall and IJulia find the right versions of `python` and `jupyter`, please see the respective documentation of those packages.)
 
     ```bash
     $ . /venv/bin/activate && julia -e 'using Pkg; Pkg.build()'
