@@ -110,6 +110,6 @@ Below is a brief documentation of the steps taken in the Dockerfile.
                         Start\ Here.ipynb
     ```
 
-## Running the notebooks
+## Running the Notebooks
 
 Start by opening the 'Start Here' notebook, which contains links to the other notebooks in the intended order.
