@@ -31,5 +31,4 @@ ENTRYPOINT      . /venv/bin/activate && jupyter notebook \
                     --no-browser \
                     --NotebookApp.token= \
                     --allow-root \
-                    --NotebookApp.iopub_data_rate_limit=-1 \
-                    Start\ Here.ipynb
+                    --NotebookApp.iopub_data_rate_limit=-1
