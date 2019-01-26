@@ -1,0 +1,2 @@
+model_checkpoint_path: "y_nn_vec.ckpt"
+all_model_checkpoint_paths: "y_nn_vec.ckpt"
