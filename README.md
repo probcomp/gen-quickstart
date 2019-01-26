@@ -34,7 +34,7 @@ Then run the image using:
 
     $ docker run -it --name gen -p 8080:8080 -p 8090:8090 gen:v0
 
-Open `localhost:8080` in your browser and begin with `tutorial-modeling-intro`.
+Open `localhost:8080` in your browser and open the 'Start Here.ipynb' notebook.
 
 All the changes made to the notebooks will be saved in your docker container.
 
@@ -106,10 +106,9 @@ Below is a brief documentation of the steps taken in the Dockerfile.
                         --no-browser \
                         --NotebookApp.token= \
                         --allow-root \
-                        --NotebookApp.iopub_data_rate_limit=-1 \
-                        Start\ Here.ipynb
+                        --NotebookApp.iopub_data_rate_limit=-1
     ```
 
 ## Running the Notebooks
 
-Start by opening the 'Start Here' notebook, which contains links to the other notebooks in the intended order.
+Start by opening the 'Start Here.ipynb' notebook, which contains links to the other notebooks in the intended order.
