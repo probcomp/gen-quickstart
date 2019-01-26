@@ -3,13 +3,6 @@
 This repository contains Jupyter notebooks that contain tutorials on specific features and/or applications of Gen.
 The notebooks walk you through programs that use Gen.
 Some notebooks also include exercises that expect you to write code or fill in written responses.
-The recommended order of the notebooks is:
-
-- tutorial-modeling-intro
-
-- tutorial-iterative-inference
-
-- .. More coming soon!
 
 These notebooks assume some familiarity with the [Julia programming language](https://julialang.org/).
 
@@ -113,10 +106,10 @@ Below is a brief documentation of the steps taken in the Dockerfile.
                         --no-browser \
                         --NotebookApp.token= \
                         --allow-root \
-                        --NotebookApp.iopub_data_rate_limit=-1
+                        --NotebookApp.iopub_data_rate_limit=-1 \
+                        Start\ Here.ipynb
     ```
 
 ## Running the notebooks
 
-Each directory within `gen-examples/` contains a tutorial.
-To run a tutorial in a given directory, use the Jupyter browser interface to open the `.ipynb` file within the directory, and run the cells one by one.
+Start by opening the 'Start Here' notebook, which contains links to the other notebooks in the intended order.
