@@ -10,6 +10,10 @@ RUN             apt-get update -qq \
                     virtualenv \
                     zlib1g-dev
 
+RUN             apt-get install -qq -y git
+RUN             git config --global user.name "Gen User"
+RUN             git config --global user.email "email@example.com"
+
 RUN             virtualenv -p /usr/bin/python3 /venv
 RUN             . /venv/bin/activate && pip install jupyter matplotlib tensorflow
 
