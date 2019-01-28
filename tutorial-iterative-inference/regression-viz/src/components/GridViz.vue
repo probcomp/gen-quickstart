@@ -26,7 +26,7 @@ export default {
         let numTraces = Object.keys(this.traces).length
         let perRow = numTraces < 5 ? numTraces : 5
         let numRows = Math.ceil(numTraces / perRow)
-        return {h: this.windowSize.height/numRows, w: (this.windowSize.width-10)/perRow}
+        return {h: this.windowSize.height/numRows, w: Math.min(500.0, (this.windowSize.width-10)/perRow)}
       }
   },
   mounted () {

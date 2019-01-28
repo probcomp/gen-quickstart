@@ -2,7 +2,7 @@
   <!-- size.w is a suggested width; size.h is a suggested height
        Because we want to maintain a constant aspect ratio of 1:1,
        we use only size.w, and use it for both the width and height -->
-  <svg :height="size.w" :width="size.w">
+  <svg :height="size.w" :width="size.w" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" >
       <!-- data points -->
       <circle v-for="(point, idx) in points" :key="idx" 
           :cx="xLogicalToPixel(point.x)" 
