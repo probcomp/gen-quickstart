@@ -26,6 +26,10 @@ The easiest way to run the notebooks is using Docker.
 First obtain [docker](https://www.docker.com/).
 Make sure to run the [post-installation steps](https://docs.docker.com/install/linux/linux-postinstall/) so that you can run the docker commands smoothly without needing sudo access.
 
+Next, clone this Github repository using https:
+
+    $ git clone https://github.com/probcomp/gen-examples.git
+
 Next, build the image using the following command:
 
     $ docker build -t gen:v0 .
