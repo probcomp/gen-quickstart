@@ -27,7 +27,7 @@ First obtain [docker](https://www.docker.com/).
 
 If on Linux, make sure to run the [post-installation steps](https://docs.docker.com/install/linux/linux-postinstall/) so that you can run the docker commands smoothly without needing sudo access.
 
-If on Mac, run the Docker application, and make sure that you see the Docker whale icon in your menu bar (when you click on the icon it should say "Docker Desktop is running).
+If on Mac, run the Docker application, and make sure that you see the Docker whale icon in your menu bar (when you click on the icon it should say "Docker Desktop is running").
 
 Next, clone this Github repository using https and enter that directory:
 
