@@ -23,7 +23,7 @@ These have been tested successfully with recent versions of Firefox and Google C
 
 The easiest way to run the notebooks is using Docker.
 
-First obtain [docker](https://www.docker.com/).
+First obtain Docker (for [Mac and Windows](https://www.docker.com/products/docker-desktop), for [Linux](https://docs.docker.com/install/linux/docker-ce/ubuntu/)).
 
 If on Linux, make sure to run the [post-installation steps](https://docs.docker.com/install/linux/linux-postinstall/) so that you can run the docker commands smoothly without needing sudo access.
 
