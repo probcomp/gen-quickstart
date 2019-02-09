@@ -159,15 +159,15 @@ version = "0.5.0"
 
 [[Gen]]
 deps = ["DataStructures", "Distributions", "FunctionalCollections", "JSON", "LinearAlgebra", "Random", "ReverseDiff", "SpecialFunctions"]
-git-tree-sha1 = "e338f9709879741f505aae6907d1192b7260dc19"
+git-tree-sha1 = "ff6d91b0a5afa73550abaa66d8994f32f5e39917"
 repo-rev = "master"
 repo-url = "https://github.com/probcomp/Gen"
 uuid = "ea4f424c-a589-11e8-07c0-fd5c91b9da4a"
-version = "0.2.2"
+version = "0.2.3"
 
 [[GenTF]]
 deps = ["Gen", "MLDatasets", "PyCall"]
-git-tree-sha1 = "99f843aac77fa95efcf713e10e8eb849472cb47a"
+git-tree-sha1 = "47b1a5f06808880b6b6514ed4813254ba6bfaa70"
 repo-rev = "master"
 repo-url = "https://github.com/probcomp/GenTF"
 uuid = "1956f2fc-1631-11e9-1597-3d3589996c0f"
