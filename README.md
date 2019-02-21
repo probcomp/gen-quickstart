@@ -119,4 +119,4 @@ Below is a brief documentation of the steps taken in the Dockerfile.
 
 ## Running the Notebooks
 
-Start by opening the 'Start Here.ipynb' notebook, which contains links to the other notebooks in the intended order.
+Start by opening the 'Gen Quick Start.ipynb' notebook, which contains links to the other notebooks in the intended order.
