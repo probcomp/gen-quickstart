@@ -42,7 +42,7 @@ Then run the image using:
 
     $ docker run -it --name gen -p 8080:8080 -p 8090:8090 -p 8091:8091 -p 8092:8092 gen:v0
 
-Open `localhost:8080` in your browser and open the 'Start Here.ipynb' notebook.
+Open `localhost:8080` in your browser and open the 'Gen Quick Start.ipynb' notebook.
 
 All the changes made to the notebooks will be saved in your docker container.
 
