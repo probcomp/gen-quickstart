@@ -21,13 +21,13 @@ RUN             wget https://julialang-s3.julialang.org/bin/linux/x64/1.0/julia-
 RUN             tar -xzv < julia-1.0.3-linux-x86_64.tar.gz
 RUN             ln -s /julia-1.0.3/bin/julia /usr/bin/julia
 
-ADD             . /gen-examples
-ENV             JULIA_PROJECT=/gen-examples
+ADD             . /gen-quickstart
+ENV             JULIA_PROJECT=/gen-quickstart
 
 RUN             . /venv/bin/activate && julia -e 'using Pkg; Pkg.build()'
 RUN             . /venv/bin/activate && julia -e 'using Pkg; Pkg.API.precompile()'
 
-WORKDIR         /gen-examples
+WORKDIR         /gen-quickstart
 
 ENTRYPOINT      . /venv/bin/activate && jupyter notebook \
                     --ip='0.0.0.0' \
