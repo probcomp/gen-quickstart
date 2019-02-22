@@ -31,8 +31,8 @@ If on Mac, run the Docker application, and make sure that you see the Docker wha
 
 Next, clone this Github repository using https and enter that directory:
 
-    $ git clone https://github.com/probcomp/gen-examples.git
-    $ cd gen-examples
+    $ git clone https://github.com/probcomp/gen-quickstart.git
+    $ cd gen-quickstart
     
 Next, build the image using the following command:
 
@@ -92,10 +92,10 @@ Below is a brief documentation of the steps taken in the Dockerfile.
     $ ln -s /julia-1.0.3/bin/julia /usr/bin/julia
     ```
 
-4. Set the `JULIA_PROJECT` environment variable to `/path/to/gen-examples/` (i.e. path where this repository was cloned). Make that `JULIA_PROJECT` is set correctly on your machine whenever working with Gen or with these examples.
+4. Set the `JULIA_PROJECT` environment variable to `/path/to/gen-quickstart/` (i.e. path where this repository was cloned). Make that `JULIA_PROJECT` is set correctly on your machine whenever working with Gen or with these examples.
 
     ```bash
-    $ export JULIA_PROJECT=/path/to/gen-examples
+    $ export JULIA_PROJECT=/path/to/gen-quickstart
     ```
 
 5. Build and precompile the Julia packages. The main libraries that are being built are [PyCall](https://github.com/JuliaPy/PyCall.jl) and [IJulia](https://github.com/JuliaLang/IJulia.jl). We make sure that `python` (version 3 only) and `jupyter` are in our PATH and pointing to the right Python environment and Jupyter installation, respectively, by activating the Python virtual environment we created. Since we have activated the virtual environment in the commands below, the `build()` command uses the version of Python and Jupyter in the virtual environment. (For more information on how PyCall and IJulia find the right versions of `python` and `jupyter`, please see the respective documentation of those packages.)
