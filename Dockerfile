@@ -8,17 +8,20 @@ RUN             apt-get update -qq \
                     python3-tk \
                     wget \
                     virtualenv \
-                    zlib1g-dev
-
-RUN             apt-get install -qq -y git
-RUN             git config --global user.name "Gen User"
-RUN             git config --global user.email "email@example.com"
+                    zlib1g-dev \ 
+                    git \
+                && rm -rf /var/lib/apt/lists/*
+                
+RUN             git config --global user.name "Gen User" \
+                && git config --global user.email "email@example.com"
 
 RUN             virtualenv -p /usr/bin/python3 /venv
 RUN             . /venv/bin/activate && pip install jupyter jupytext matplotlib tensorflow
 
-RUN             wget https://julialang-s3.julialang.org/bin/linux/x64/1.0/julia-1.0.3-linux-x86_64.tar.gz
-RUN             tar -xzv < julia-1.0.3-linux-x86_64.tar.gz
+RUN             wget https://julialang-s3.julialang.org/bin/linux/x64/1.0/julia-1.0.3-linux-x86_64.tar.gz \
+                && tar -xzv < julia-1.0.3-linux-x86_64.tar.gz \
+                rm -f julia-1.0.3-linux-x86_64.tar.gz
+                
 RUN             ln -s /julia-1.0.3/bin/julia /usr/bin/julia
 
 ADD             . /gen-quickstart
