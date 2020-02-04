@@ -142,6 +142,10 @@ println(trace[:slope])
 
 println(Gen.get_retval(trace));
 
+# Or we can access the return value directly from the trace via the syntactic sugar `trace[]`:
+
+println(trace[])
+
 # In order to understand the probabilistic behavior of a generative function, it is helpful to be able to visualize its traces. Below, we define a function that uses PyPlot to render a trace of the generative function above. The rendering shows the x-y data points and the line that is represented by the slope and intercept choices.
 
 function render_trace(trace; show_data=true)
