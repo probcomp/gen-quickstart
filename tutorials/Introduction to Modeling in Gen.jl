@@ -170,8 +170,8 @@ function render_trace(trace; show_data=true)
     # Draw the line
     plot([xmin, xmax], slope *  [xmin, xmax] .+ intercept, color="black", alpha=0.5)
     ax = gca()
-    ax[:set_xlim]((xmin, xmax))
-    ax[:set_ylim]((xmin, xmax))
+    ax.set_xlim((xmin, xmax))
+    ax.set_ylim((xmin, xmax))
 end;
 
 figure(figsize=(3,3))
@@ -232,8 +232,8 @@ function render_sine_trace(trace; show_data=true)
     # < your code here >
     
     ax = gca()
-    ax[:set_xlim]((xmin, xmax))
-    ax[:set_ylim]((xmin, xmax))
+    ax.set_xlim((xmin, xmax))
+    ax.set_ylim((xmin, xmax))
 end;
 
 traces = [Gen.simulate(sine_model, (xs,)) for _=1:12];
@@ -653,8 +653,8 @@ function render_combined_refactored(trace; show_data=true)
     # < your code here >
     
     ax = gca()
-    ax[:set_xlim]((xmin, xmax))
-    ax[:set_ylim]((xmin, xmax))
+    ax.set_xlim((xmin, xmax))
+    ax.set_ylim((xmin, xmax))
 end;
 
 
@@ -682,12 +682,12 @@ figure(figsize=(6,3))
 subplot(1, 2, 1)
 title("ys-simple")
 scatter(xs_dense, ys_simple, color="black", s=10)
-gca()[:set_ylim]((-1, 3))
+gca().set_ylim((-1, 3))
 
 subplot(1, 2, 2)
 title("ys-complex")
 scatter(xs_dense, ys_complex, color="black", s=10)
-gca()[:set_ylim]((-1, 3))
+gca().set_ylim((-1, 3))
 # -
 
 # The data set on the left appears to be best explained as a contant function with some noise. The data set on the right appears to include two changepoints, with a constant function in between the changepoints. We want a model that does not a-priori choose the number of changepoints in the data. To do this, we will recursively partition the interval into regions. We define a Julia data structure that represents a binary tree of intervals; each leaf node represents a region in which the function is constant.
@@ -745,8 +745,8 @@ function render_segments_trace(trace)
     node = get_retval(trace)
     render_node(node)
     ax = gca()
-    ax[:set_xlim]((0, 1))
-    ax[:set_ylim]((-3, 3))
+    ax.set_xlim((0, 1))
+    ax.set_ylim((-3, 3))
 end;
 
 # We generate 12 traces from this function and visualize them below. We plot the piecewise constant function that was sampled by each run of the generative function. Different constant segments are shown in different colors. Run the cell a few times to get a better sense of the distribution on functions that is represented by the generative function.
@@ -797,8 +797,8 @@ function render_changepoint_model_trace(trace; show_data=true)
         scatter(xs, ys, c="black")
     end
     ax = gca()
-    ax[:set_xlim]((minimum(xs), maximum(xs)))
-    ax[:set_ylim]((-3, 3))
+    ax.set_xlim((minimum(xs), maximum(xs)))
+    ax.set_ylim((-3, 3))
 end;
 
 # Finally, we generate some simulated data sets and visualize them on top of the underlying piecewise constant function from which they were generated:
