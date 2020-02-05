@@ -170,7 +170,7 @@ version = "0.3.2"
 
 [[GenTF]]
 deps = ["Gen", "MLDatasets", "PyCall"]
-git-tree-sha1 = "38006dcb19b857ede5ed125dce03f69347215ae1"
+git-tree-sha1 = "aace641465b2420a56fc783b431c41c774bd5e82"
 repo-rev = "master"
 repo-url = "https://github.com/probcomp/GenTF"
 uuid = "1956f2fc-1631-11e9-1597-3d3589996c0f"
