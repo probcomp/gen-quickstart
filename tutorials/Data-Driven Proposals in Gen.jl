@@ -649,7 +649,8 @@ visualize_data_driven_inference(measurements, scene, start, custom_dest_proposal
 
 using GenTF
 using PyCall
-@pyimport tensorflow as tf
+tf = pyimport("tensorflow")
+tf.compat.v1.disable_eager_execution()
 
 # Now, we implement the neural network that generate sthe parameters of the distribution of `:dest_x` as a `GenTF.TFFunction`, which is a type of generative function that is constructed from a TensorFlow computation graph.
 
@@ -657,18 +658,18 @@ using PyCall
 vec_to_mat(vec) = tf.expand_dims(vec, axis=1)
 mat_to_vec(mat) = tf.squeeze(mat, axis=1)
 
-c1 = tf.constant(1.7159, dtype=tf.float64)
-c2 = tf.constant(0.6666, dtype=tf.float64)
+c1 = tf.compat.v1.constant(1.7159, dtype=tf.float64)
+c2 = tf.compat.v1.constant(0.6666, dtype=tf.float64)
 tf_nonlinearity(val) = tf.scalar_mul(c1, tf.tanh(tf.scalar_mul(c2, val)))
 
 # use TensorFlow Python API to construct computation graph for the dest_x neural network
-x_W1 = tf.get_variable("x_W1", dtype=tf.float64, initializer=init_x_W1)
-x_b1 = tf.get_variable("x_b1", dtype=tf.float64, initializer=zeros(num_hidden_1))
-x_W2 = tf.get_variable("x_W2", dtype=tf.float64, initializer=init_x_W2)
-x_b2 = tf.get_variable("x_b2", dtype=tf.float64, initializer=zeros(num_hidden_2))
-x_W3 = tf.get_variable("x_W3", dtype=tf.float64, initializer=init_x_W3)
-x_b3 = tf.get_variable("x_b3", dtype=tf.float64, initializer=zeros(num_x_bins))
-x_nn_input = tf.placeholder(dtype=tf.float64, shape=(4,))
+x_W1 = tf.compat.v1.get_variable("x_W1", dtype=tf.float64, initializer=init_x_W1)
+x_b1 = tf.compat.v1.get_variable("x_b1", dtype=tf.float64, initializer=zeros(num_hidden_1))
+x_W2 = tf.compat.v1.get_variable("x_W2", dtype=tf.float64, initializer=init_x_W2)
+x_b2 = tf.compat.v1.get_variable("x_b2", dtype=tf.float64, initializer=zeros(num_hidden_2))
+x_W3 = tf.compat.v1.get_variable("x_W3", dtype=tf.float64, initializer=init_x_W3)
+x_b3 = tf.compat.v1.get_variable("x_b3", dtype=tf.float64, initializer=zeros(num_x_bins))
+x_nn_input = tf.compat.v1.placeholder(dtype=tf.float64, shape=(4,))
 x_nn_hidden_1 = tf_nonlinearity(tf.add(mat_to_vec(tf.matmul(x_W1, vec_to_mat(x_nn_input))), x_b1))
 x_nn_hidden_2 = tf_nonlinearity(tf.add(mat_to_vec(tf.matmul(x_W2, vec_to_mat(x_nn_hidden_1))), x_b2))
 x_nn_output = tf.exp(tf.add(mat_to_vec(tf.matmul(x_W3, vec_to_mat(x_nn_hidden_2))), x_b3))
@@ -681,13 +682,13 @@ x_nn = GenTF.TFFunction([x_W1, x_b1, x_W2, x_b2, x_W3, x_b3], [x_nn_input], x_nn
 
 # +
 # use TensorFlow Python API to construct computation graph for the dest_y neural network
-y_W1 = tf.get_variable("y_W1", dtype=tf.float64, initializer=init_y_W1)
-y_b1 = tf.get_variable("y_b1", dtype=tf.float64, initializer=zeros(num_hidden_1))
-y_W2 = tf.get_variable("y_W2", dtype=tf.float64, initializer=init_y_W2)
-y_b2 = tf.get_variable("y_b2", dtype=tf.float64, initializer=zeros(num_hidden_2))
-y_W3 = tf.get_variable("y_W3", dtype=tf.float64, initializer=init_y_W3)
-y_b3 = tf.get_variable("y_b3", dtype=tf.float64, initializer=zeros(num_y_bins))
-y_nn_input = tf.placeholder(dtype=tf.float64, shape=(4,))
+y_W1 = tf.compat.v1.get_variable("y_W1", dtype=tf.float64, initializer=init_y_W1)
+y_b1 = tf.compat.v1.get_variable("y_b1", dtype=tf.float64, initializer=zeros(num_hidden_1))
+y_W2 = tf.compat.v1.get_variable("y_W2", dtype=tf.float64, initializer=init_y_W2)
+y_b2 = tf.compat.v1.get_variable("y_b2", dtype=tf.float64, initializer=zeros(num_hidden_2))
+y_W3 = tf.compat.v1.get_variable("y_W3", dtype=tf.float64, initializer=init_y_W3)
+y_b3 = tf.compat.v1.get_variable("y_b3", dtype=tf.float64, initializer=zeros(num_y_bins))
+y_nn_input = tf.compat.v1.placeholder(dtype=tf.float64, shape=(4,))
 y_nn_hidden_1 = tf_nonlinearity(tf.add(mat_to_vec(tf.matmul(y_W1, vec_to_mat(y_nn_input))), y_b1))
 y_nn_hidden_2 = tf_nonlinearity(tf.add(mat_to_vec(tf.matmul(y_W2, vec_to_mat(y_nn_hidden_1))), y_b2))
 y_nn_output = tf.exp(tf.add(mat_to_vec(tf.matmul(y_W3, vec_to_mat(y_nn_hidden_2))), y_b3))
@@ -732,22 +733,22 @@ update = Gen.ParamUpdate(Gen.FixedStepGradientDescent(0.001),
 #     evaluation_size=10, eval_period=100, verbose=true);
 #    
 # # save state of parameters for x_nn_vec
-# saver = tf.train[:Saver](Dict(string(var[:name]) => var for var in Gen.get_params(x_nn_vec)))
-# saver[:save](GenTF.get_session(x_nn_vec), "params/x_nn.ckpt")
+# saver = tf.compat.v1.train.Saver(Dict(string(var.name) => var for var in Gen.get_params(x_nn_vec)))
+# saver.save(GenTF.get_session(x_nn_vec), "params/x_nn.ckpt")
 #
 # # save state of parameters for y_nn_vec
-# saver = tf.train[:Saver](Dict(string(var[:name]) => var for var in Gen.get_params(x_nn_vec)))
-# saver[:save](GenTF.get_session(x_nn_vec), "params/x_nn.ckpt")
+# saver = tf.compat.v1.train.Saver(Dict(string(var.name) => var for var in Gen.get_params(x_nn_vec)))
+# saver.save(GenTF.get_session(x_nn_vec), "params/x_nn.ckpt")
 # ```
 
 # We load the parameters below:
 
 # +
-saver = tf.train[:Saver](Dict(string(var[:name]) => var for var in Gen.get_params(x_nn)))
-saver[:restore](GenTF.get_session(x_nn), "params/x_nn.ckpt")
+saver = tf.compat.v1.train.Saver(Dict(string(var.name) => var for var in Gen.get_params(x_nn)))
+saver.restore(GenTF.get_session(x_nn), "params/x_nn.ckpt")
 
-saver = tf.train[:Saver](Dict(string(var[:name]) => var for var in Gen.get_params(y_nn)))
-saver[:restore](GenTF.get_session(y_nn), "params/y_nn.ckpt")
+saver = tf.compat.v1.train.Saver(Dict(string(var.name) => var for var in Gen.get_params(y_nn)))
+saver.restore(GenTF.get_session(y_nn), "params/y_nn.ckpt")
 # -
 
 # We visualize the distribution after training:
