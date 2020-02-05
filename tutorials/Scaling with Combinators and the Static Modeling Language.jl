@@ -346,8 +346,8 @@ ys[end-5] = 13;
 figure(figsize=(4,4))
 scatter(xs, ys);
 ax = gca()
-ax[:set_xlim](-7, 7)
-ax[:set_ylim](-7, 15);
+ax.set_xlim(-7, 7)
+ax.set_ylim(-7, 15);
 
 # We write a trace rendering function that shows the inferred line on top of the observed data set:
 
@@ -361,8 +361,8 @@ function render_trace(trace)
     ys = [choices[:data => i => :y] for i=1:length(xs)]
     scatter(xs, ys)
     ax = gca()
-    ax[:set_xlim](-7, 7)
-    ax[:set_ylim](-7, 15)
+    ax.set_xlim(-7, 7)
+    ax.set_ylim(-7, 15)
 end;
 
 # Finally, we run the experiment. We will visualize just one trace produced by applying our inference program to each of the four variants of our model:
