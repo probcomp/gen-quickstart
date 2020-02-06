@@ -72,7 +72,7 @@ typeof("foo")
 
 # ## 2. Writing a probabilistic model as a generative function  <a name="writing-model"></a>
 
-# Probabilistic models are represented in Gen as *generative functions*.
+# Probabilistic models are represented in Gen as *generative functions*. Generative functions are used to represent a variety of different types of probabilistic computations including generative models, inference models, custom proposal distributions, and variational approximations (see the [Gen documentation](https://probcomp.github.io/Gen/dev/ref/gfi/) and see the [Tech report on Gen](https://dspace.mit.edu/bitstream/handle/1721.1/119255/MIT-CSAIL-TR-2018-020.pdf?sequence=3)).
 # The simplest way to construct a generative function is by using the [built-in modeling DSL](https://probcomp.github.io/Gen/dev/ref/modeling/). Generative functions written in the built-in modeling DSL are based on Julia function definition syntax, but are prefixed with the `@gen` keyword. The function represents the data-generating process we are modeling: each random choice it makes can be thought of as a random variable in the model.
 # The generative function below represents a probabilistic model of a linear relationship in the x-y plane. Given a set of $x$ coordinates, it randomly chooses a line in the plane and generates corresponding $y$ coordinates so that each $(x, y)$ is near the line. We might think of this function as modeling house prices as a function of square footage, or the measured volume of a gas as a function of its measured temperature.
 
