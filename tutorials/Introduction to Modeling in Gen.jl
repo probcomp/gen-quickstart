@@ -256,6 +256,9 @@ ys = [6.75003, 6.1568, 4.26414, 1.84894, 3.09686, 1.94026, 1.36411, -0.83959, -0
 
 figure(figsize=(3,3))
 scatter(xs, ys, color="black");
+xlabel("X");
+ylabel("Y");
+title("Oberved data (linear)");
 
 # We will assume that the line model was responsible for generating the data, and infer values of the slope and intercept that explain the data.
 #
@@ -284,6 +287,9 @@ end;
 trace = do_inference(line_model, xs, ys, 100)
 figure(figsize=(3,3))
 render_trace(trace);
+xlabel("X");
+ylabel("Y");
+title("Oberved data and inferred line\n(one sample from the posterior)");
 
 # We see that `importance_resampling` found a reasonable slope and intercept to explain the data. We can also visualize many samples in a grid:
 
