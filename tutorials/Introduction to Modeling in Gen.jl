@@ -117,7 +117,7 @@ println(n)
 
 trace = Gen.simulate(line_model, (xs,));
 
-# This method takes the function to be executed, and a tuple of arguments to the function, and returns a trace and a second value that we will not be using in this tutorial. When we print the trace, we see that it is a complex data structure.
+# This method takes the function to be executed, and a tuple of arguments to the function, and returns a trace. When we print the trace, we see that it is a complex data structure.
 
 println(trace)
 
