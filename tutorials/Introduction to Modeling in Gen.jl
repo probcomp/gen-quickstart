@@ -299,9 +299,11 @@ grid(render_trace, traces)
 # We can see here that there is some uncertainty: with our limited data, we can't be 100% sure exactly where the line is. We can get a better sense for the variability in the posterior distribution by visualizing all the traces in one plot, rather than in a grid. Each trace is going to have the same observed data points, so we only plot those once, based on the values in the first trace:
 
 function overlay(renderer, traces; same_data=true, args...)
-    renderer(traces[1], show_data=true, args...)
-    for i=2:length(traces)
+    if !isempty(traces)
+      renderer(traces[1], show_data=true, args...)
+      for i=2:length(traces)
         renderer(traces[i], show_data=!same_data, args...)
+      end
     end
 end;
 
