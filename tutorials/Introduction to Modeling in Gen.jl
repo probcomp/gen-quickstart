@@ -148,7 +148,7 @@ println(trace[])
 
 # In order to understand the probabilistic behavior of a generative function, it is helpful to be able to visualize its traces. Below, we define a function that uses PyPlot to render a trace of the generative function above. The rendering shows the x-y data points and the line that is represented by the slope and intercept choices.
 
-function render_trace(trace; show_data=true)
+function render_trace(trace; show_data=true, limit_y=true)
     
     # Pull out xs from the trace
     xs = get_args(trace)[1]
@@ -170,11 +170,16 @@ function render_trace(trace; show_data=true)
     plot([xmin, xmax], slope *  [xmin, xmax] .+ intercept, color="black", alpha=0.5)
     ax = gca()
     ax.set_xlim((xmin, xmax))
-    ax.set_ylim((xmin, xmax))
+    if limit_y
+        ax.set_ylim((xmin, xmax))
+    end
 end;
 
 figure(figsize=(3,3))
 render_trace(trace);
+xlabel("X");
+ylabel("Y");
+title("Simulating a line and Y values\nfor a given vector (X)")
 
 # Because a generative function is stochastic, we need to visualize many runs in order to understand its behavior. The cell below renders a grid of traces.
 
