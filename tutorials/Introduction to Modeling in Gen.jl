@@ -185,9 +185,9 @@ typeof("foo")
         @trace(normal(slope * x + intercept, 0.1), (:y, i))
     end
     
-    # The return value of the model is often not particularly important,
-    # Here, we simply return n, the number of points.
-    return n
+    # The return value of this model is not particularly important.
+    # We explicitly return `nothing` to make this clear to the reader.
+    return nothing
 end;
 
 # The generative function takes as an argument a vector of x-coordinates. We
@@ -328,22 +328,42 @@ grid(render_trace, traces)
 # -------------------------------
 # ### Exercise
 #
-# Write a model that generates a sine wave with random phase, period and amplitude, and then generates y-coordinates from a given vector of x-coordinates by adding noise to the value of the wave at each x-coordinate.
-# Use a  `gamma(5, 1)` prior distribution for the period, and a `gamma(1, 1)` prior distribution on the amplitude (see [`Gen.gamma`](https://probcomp.github.io/Gen/dev/ref/distributions/#Gen.gamma)). Use a uniform distribution for the phase (see [`Gen.uniform`](https://probcomp.github.io/Gen/dev/ref/distributions/#Gen.uniform)). Write a function that renders the trace by showing the data set and the sine wave. Visualize a grid of traces and discuss the distribution. Try tweaking the parameters of each of the prior distributions and seeing how the behavior changes.
+# Write a model that generates a sine wave with random phase, period and
+# amplitude, and then generates y-coordinates from a given vector of
+# x-coordinates by adding noise to the value of the wave at each x-coordinate.
+# Use a  `gamma(5, 1)` prior distribution for the period, and a `gamma(1, 1)`
+# prior distribution on the amplitude (see
+# [`Gen.gamma`](https://probcomp.github.io/Gen/dev/ref/distributions/#Gen.gamma)).
+# Sampling from a Gamma distribution will ensure to give us postive real values.
+# Use a uniform distribution between 0 and $2\pi$ for the phase (see
+# [`Gen.uniform`](https://probcomp.github.io/Gen/dev/ref/distributions/#Gen.uniform)).
+#
+# The sine wave should implement:
+#
+# $ y(x) = a \sin(2\pi \frac{1}{p} x + \varphi)$,
+#
+# where $a$ is the amplitude, $p$ is the period and $\varphi$ is the phase.  In
+# Julia the constant $\pi$ can be expressed as either `pi` or `π` (unicode).
+
+@assert π == pi;
+π
+
+# Write a function that renders the trace by showing the data set and the sine
+# wave. Visualize a grid of traces and discuss the distribution. Try tweaking
+# the parameters of each of the prior distributions and seeing how the behavior
+# changes.
 
 # We have provided you with some starter code for the sine wave model:
 
 # ### Solution
 
 @gen function sine_model(xs::Vector{Float64})
-    n = length(xs)
- 
     # < your code here >
  
     for (i, x) in enumerate(xs)
         @trace(normal(0., 0.1), (:y, i)) # < edit this line >
     end
-    return n
+    return nothing  # change this return value if you want
 end;
 
 function render_sine_trace(trace; show_data=true, limit_y=true)
@@ -703,7 +723,7 @@ plot_predictions(xs, ys_noisy, new_xs, pred_ys)
     for (i, x) in enumerate(xs)
         @trace(normal(0., 0.1), (:y, i)) # < edit this line >
     end
-    return n
+    return nothing
 end;
 
 # +
