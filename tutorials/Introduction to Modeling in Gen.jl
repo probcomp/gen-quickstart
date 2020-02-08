@@ -22,7 +22,15 @@
 #
 # - Hybrid approaches including amortized inference / inference compilation, variational autoencoders, and semi-supervised learning.
 #
-# In Gen, probabilistic models (both generative models and conditional inference models) are represented as _generative functions_. Gen provides a built-in modeling language for defining generative functions (Gen can also be extended to support other modeling languages, but this is not covered in this tutorial). This tutorial introduces the basics of Gen's built-in modeling language, and illustrates a few types of modeling flexibility afforded by the language, including:
+# In Gen, probabilistic models (both generative models and conditional
+# inference models) are represented as _generative functions_. Gen provides a
+# built-in modeling language for defining generative functions (Gen can also be
+# extended to support other modeling languages, but this is not covered in this
+# tutorial
+# ). This
+# tutorial
+# introduces the basics of Gen's built-in modeling language, and illustrates a
+# few types of modeling flexibility afforded by the language, including:
 #
 # - Using a stochastic branching and function abstraction to express uncertainty about which of multiple models is appropriate.
 #
@@ -30,7 +38,18 @@
 #
 # This notebook uses a simple generic inference algorithm for posterior inference, and shows some examples of inference being applied to simple models. The notebook also introduces a technique for validating a model and inference algorithm by predicting new data from inferred parameters, and comparing this data to the observed data set.
 #
-# This tutorial does not cover *custom inference programming*, which is a key capability of Gen in which users implement inference algorithms that are specialized to their probabilistic model. Inference programming is important for getting accurate posterior inferences efficiently, and will be covered in later tutorials. Also, this tutorial does not exhaustively cover all features of the modeling language -- there are also features and extensions that provide improved performance that are not covered here.
+# This
+# tutorial
+# does not cover *custom inference programming*, which is a key capability of
+# Gen in which users implement inference algorithms that are specialized to
+# their probabilistic model. Inference programming is important for getting
+# accurate posterior inferences efficiently, and will be covered in later
+# tutorials.
+# Also, this
+# tutorial
+# does not exhaustively cover all features of the modeling language -- there
+# are also features and extensions that provide improved performance that are
+# not covered here.
 #
 # ## Outline
 #
@@ -52,15 +71,31 @@
 
 using Gen
 
-# Gen programs typically consist of a combination of (i) probabilistic models written in modeling languages and (ii) inference programs written in regular Julia code. Gen provides a built-in modeling language that is itself based on Julia.
+# This cell will take a few seconds to run. Note that in Jupyter, a cell that
+# is running is marked with **`In [*]`** on the left of the cell. When the cell
+# above ran, it should read **`In [1]`** (assuming it was the first cell that
+# was executed).
+#
+# Gen programs typically consist of a combination of (i) probabilistic models
+# written in modeling languages and (ii) inference programs written in regular
+# Julia code. Gen provides a built-in modeling language that is itself based on
+# Julia.
 
-# This tutorial uses a Jupyter notebook. All cells in the notebook are regular Julia cells. In Julia, semicolons are optional at the end of statements; we will use them at the end of some cells so that the value of the cell is not printed.
+# This
+# tutorial
+# uses a Jupyter notebook. All cells in the notebook are regular Julia cells.
+# In Julia, semicolons are optional at the end of statements; we will use them
+# at the end of some cells so that the value of the cell is not printed.
 
 a = 1 + 1
 
+# Output will not be printed:
+
 a = 1 + 1;
 
-# This notebook uses the [PyPlot](https://github.com/JuliaPy/PyPlot.jl) Julia package for plotting. PyPlot wraps the matplotlib Python package.
+# This notebook uses the [PyPlot](https://github.com/JuliaPy/PyPlot.jl) Julia
+# package for plotting. PyPlot wraps the matplotlib Python package. This cell
+# might take a few seconds to run.
 
 using PyPlot
 
@@ -73,6 +108,9 @@ typeof("foo")
 # ## 2. Writing a probabilistic model as a generative function  <a name="writing-model"></a>
 
 # Probabilistic models are represented in Gen as *generative functions*. Generative functions are used to represent a variety of different types of probabilistic computations including generative models, inference models, custom proposal distributions, and variational approximations (see the [Gen documentation](https://probcomp.github.io/Gen/dev/ref/gfi/) and see the [Tech report on Gen](https://dspace.mit.edu/bitstream/handle/1721.1/119255/MIT-CSAIL-TR-2018-020.pdf?sequence=3)).
+#
+#
+#
 # The simplest way to construct a generative function is by using the [built-in modeling DSL](https://probcomp.github.io/Gen/dev/ref/modeling/). Generative functions written in the built-in modeling DSL are based on Julia function definition syntax, but are prefixed with the `@gen` keyword. The function represents the data-generating process we are modeling: each random choice it makes can be thought of as a random variable in the model.
 # The generative function below represents a probabilistic model of a linear relationship in the x-y plane. Given a set of $x$ coordinates, it randomly chooses a line in the plane and generates corresponding $y$ coordinates so that each $(x, y)$ is near the line. We might think of this function as modeling house prices as a function of square footage, or the measured volume of a gas as a function of its measured temperature.
 
@@ -224,29 +262,45 @@ grid(render_trace, traces)
     return n
 end;
 
-function render_sine_trace(trace; show_data=true)
+function render_sine_trace(trace; show_data=true, limit_y=true)
     xs = get_args(trace)[1]
-    xmin = minimum(xs)
-    xmax = maximum(xs)
     if show_data
         ys = [trace[(:y, i)] for i=1:length(xs)]
         scatter(xs, ys, c="black")
     end
-    
+
+    xmin = minimum(xs)
+    xmax = maximum(xs)
+
     # < your code here >
     
     ax = gca()
     ax.set_xlim((xmin, xmax))
-    ax.set_ylim((xmin, xmax))
+    if limit_y
+        ax.set_ylim((xmin, xmax))
+    end
 end;
 
-traces = [Gen.simulate(sine_model, (xs,)) for _=1:12];
-
-figure(figsize=(16, 8))
+# You can invoke the plotting function by running (the following is **not** a
+# code cell, it is a Markdown cell containing a code snippet; it won't run):
+# ```julia
+# traces = [Gen.simulate(sine_model, (xs,)) for _=1:12];
+# figure(figsize=(16, 8))
+# for (i, trace) in enumerate(traces)
+#     subplot(3, 6, i)
+#     render_sine_trace(trace)
+# end
+# ```
 for (i, trace) in enumerate(traces)
     subplot(3, 6, i)
     render_sine_trace(trace)
 end
+
+# ### Plot your results.
+#
+# Plotting samples from a generative model implemented as probabilistic programming is an
+# important and helpful tool for debugging a model. Use the function `render_sine_trace` (below) to 
+# plot samples from your answer above to check whether you implemented the model correctly.
 
 # ## 3. Doing Posterior inference  <a name="doing-inference"></a>
 #
@@ -300,10 +354,10 @@ grid(render_trace, traces)
 
 function overlay(renderer, traces; same_data=true, args...)
     if !isempty(traces)
-      renderer(traces[1], show_data=true, args...)
-      for i=2:length(traces)
-        renderer(traces[i], show_data=!same_data, args...)
-      end
+        renderer(traces[1], show_data=true, args...)
+        for i=2:length(traces)
+            renderer(traces[i], show_data=!same_data, args...)
+        end
     end
 end;
 
@@ -314,7 +368,7 @@ xlabel("X");
 ylabel("Y");
 title("Oberved data and posterior samples");
 
-# --------------
+# -------------------------------
 #
 # ### Exercise
 #
@@ -338,7 +392,14 @@ scatter(xs, ys_sine, color="black");
 
 # ## 4. Predicting new data  <a name="predicting-data"></a>
 #
-# Using the API method [`generate`](https://probcomp.github.io/Gen/dev/ref/gfi/#Gen.generate), we can generate a trace of a generative function in which the values of certain random choices are constrained to given values. The constraints are a choice map that maps the addresses of the constrained random choices to their desired values. 
+# What if we'd want to predict `ys` given `xs`?
+#
+# Using the API method
+# [`generate`](https://probcomp.github.io/Gen/dev/ref/gfi/#Gen.generate), we
+# can generate a trace of a generative function in which the values of certain
+# random choices are constrained to given values. The constraints are a choice
+# map that maps the addresses of the constrained random choices to their
+# desired values.
 #
 # For example:
 
@@ -411,7 +472,15 @@ xlabel("X");
 ylabel("Y");
 title("Oberved data");
 
-# We will use the inferred values of the parameters to predict y-coordinates for x-coordinates in the interval 5 to 10 from which data was not observed. We will also predict new data within the interval -5 to 5, and we will compare this data to the original observed data. Predicting new data from inferred parameters, and comparing this new data to the observed data is the core idea behind *posterior predictive checking*. This tutorial does not intend to give a rigorous overview behind techniques for checking the quality of a model, but intends to give high-level intuition.
+# We will use the inferred values of the parameters to predict y-coordinates
+# for x-coordinates in the interval 5 to 10 from which data was not observed.
+# We will also predict new data within the interval -5 to 5, and we will
+# compare this data to the original observed data. Predicting new data from
+# inferred parameters, and comparing this new data to the observed data is the
+# core idea behind *posterior predictive checking*. This
+# tutorial
+# does not intend to give a rigorous overview behind techniques for checking
+# the quality of a model, but intends to give high-level intuition.
 
 new_xs = collect(range(-5, stop=10, length=100));
 
@@ -716,7 +785,7 @@ overlay(render_combined_refactored, traces)
 
 xs_dense = collect(range(-5, stop=5, length=50))
 ys_simple = fill(1., length(xs_dense)) .+ randn(length(xs_dense)) * 0.1
-ys_complex = [Int(floor(abs(x/3))) % 2 == 0 ? 2 : 0 for x in xs_dense] .+ randn(length(xs_dense)) * 0.1;
+ys_complex = [Int(floor(abs(x/3))) % 2 == 0 ? 2 : 0 for x in xs_dense] .+ randn(length(xs_dense)) * 0.05;
 
 # +
 figure(figsize=(6,3))
@@ -821,7 +890,7 @@ end
 # Out full model
 @gen function changepoint_model(xs::Vector{Float64})
     node = @trace(generate_segments(minimum(xs), maximum(xs)), :tree)
-    noise = @trace(gamma(1, 1), :noise)
+    noise = @trace(gamma(0.5, 0.5), :noise)
     for (i, x) in enumerate(xs)
         @trace(normal(get_value_at(x, node), noise), (:y, i))
     end
@@ -858,7 +927,19 @@ grid(render_changepoint_model_trace, traces)
 
 # We see that we inferred that the mean function that explains the data is a constant with very high probability.
 
-# For inference about the complex data set, we use more computation. You can experiment with different amounts of computation to see how the quality of the inferences degrade with less computation. Note that we are using a very simple generic inference algorithm in this tutorial, which really isn't suited for this more complex task. In later tutorials, we will learn how to write more efficient algorithms, so that accurate results can be obtained with significantly less computation. We will also see ways of annotating the model for better performance, no matter the inference algorithm.
+# For inference about the complex data set, we use more computation. You can
+# experiment with different amounts of computation to see how the quality of
+# the inferences degrade with less computation. Note that we are using a very
+# simple generic inference algorithm in this
+# tutorial,
+# which really isn't suited for this more complex task. In later
+# tutorials,
+# we will learn how to write more efficient algorithms, so that accurate
+# results can be obtained with significantly less computation. We will also see
+# ways of annotating the model for better performance, no matter the inference
+# algorithm.
+#
+# ##### Caveat: the following cell will run for 2-3 minutes.
 
 traces = [do_inference(changepoint_model, xs_dense, ys_complex, 100000) for _=1:12];
 grid(render_changepoint_model_trace, traces)
@@ -867,10 +948,12 @@ grid(render_changepoint_model_trace, traces)
 
 # ------
 # ### Exercise
-# Write a function that takes a data set of x- and y-coordinates and plots the histogram of the probability distribution on the number of changepoints.
+# Write a function that takes a data set of x- and y-coordinates and plots the
+# histogram of the probability distribution on the number of changepoints.
 # Show the results for the `ys_simple` and `ys_complex` data sets.
 #
-# Hint: The return value of `changepoint_model` is the tree of `Node` values. Walk this tree.
+# Hint: The return value of `changepoint_model` is the tree of `Node` values.
+# Walk this tree.
 
 # ### Solution
 
