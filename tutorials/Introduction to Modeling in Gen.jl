@@ -169,7 +169,7 @@ typeof("foo")
 
 @gen function line_model(xs::Vector{Float64})
     n = length(xs)
-    
+
     # We begin by sampling a slope and intercept for the line.
     # Before we have seen the data, we don't know the values of
     # these parameters, so we treat them as random choices. The
@@ -178,13 +178,13 @@ typeof("foo")
     # intercept will be more than a couple points away from 0.
     slope = @trace(normal(0, 1), :slope)
     intercept = @trace(normal(0, 2), :intercept)
-    
+
     # Given the slope and intercept, we can sample y coordinates
     # for each of the x coordinates in our input vector.
     for (i, x) in enumerate(xs)
         @trace(normal(slope * x + intercept, 0.1), (:y, i))
     end
-    
+
     # The return value of this model is not particularly important.
     # We explicitly return `nothing` to make this clear to the reader.
     return nothing
@@ -271,23 +271,23 @@ println(trace[])
 # slope and intercept choices.
 
 function render_trace(trace; show_data=true, limit_y=true)
-    
+
     # Pull out xs from the trace
     xs = get_args(trace)[1]
-    
+
     xmin = minimum(xs)
     xmax = maximum(xs)
     if show_data
         ys = [trace[(:y, i)] for i=1:length(xs)]
-        
+
         # Plot the data set
         scatter(xs, ys, c="black")
     end
-    
+
     # Pull out slope and intercept from the trace
     slope = trace[:slope]
     intercept = trace[:intercept]
-    
+
     # Draw the line
     plot([xmin, xmax], slope *  [xmin, xmax] .+ intercept, color="black", alpha=0.5)
     ax = gca()
@@ -325,7 +325,7 @@ grid(render_trace, traces)
 
 # ### Solution
 
-# -------------------------------
+# -------------------------------------------------
 # ### Exercise
 #
 # Write a model that generates a sine wave with random phase, period and
@@ -359,7 +359,7 @@ grid(render_trace, traces)
 
 @gen function sine_model(xs::Vector{Float64})
     # < your code here >
- 
+
     for (i, x) in enumerate(xs)
         @trace(normal(0., 0.1), (:y, i)) # < edit this line >
     end
@@ -377,7 +377,7 @@ function render_sine_trace(trace; show_data=true, limit_y=true)
     xmax = maximum(xs)
 
     # < your code here >
-    
+
     ax = gca()
     ax.set_xlim((xmin, xmax))
     if limit_y
@@ -439,7 +439,7 @@ title("Oberved data (linear)");
 # values like `ys[4]`:
 
 function do_inference(model, xs, ys, amount_of_computation)
-    
+
     # Create a choice map that maps model addresses (:y, i)
     # to observed values ys[i]. We leave :slope and :intercept
     # unconstrained, because we want them to be inferred.
@@ -447,7 +447,7 @@ function do_inference(model, xs, ys, amount_of_computation)
     for (i, y) in enumerate(ys)
         observations[(:y, i)] = y
     end
-    
+
     # Call importance_resampling to obtain a likely trace consistent
     # with our observations.
     (trace, _) = Gen.importance_resampling(model, (xs,), observations, amount_of_computation);
@@ -512,11 +512,16 @@ ys_sine = [2.89, 2.22, -0.612, -0.522, -2.65, -0.133, 2.70, 2.77, 0.425, -2.11, 
 
 figure(figsize=(3, 3));
 scatter(xs, ys_sine, color="black");
+xlabel("X");
+ylabel("Y");
+title("Oberved data (sinusoidal)");
 
 # Write an inference program that generates traces of `sine_model` that explain
-# this data set. Visualize the resulting distribution of traces. Temporarily
-# change the prior distribution on the period to be `gamma(1, 1)`  (by changing
-# and re-running the cell that defines `sine_model` from a previous exercise).
+# this data set. Visualize the resulting distribution of traces.
+#
+# Temporarily change the prior distribution on the period to be `gamma(1, 1)`
+# (by changing and re-running the cell that defines `sine_model` from a
+# previous exercise).
 # Can you explain the difference in inference results when using `gamma(1, 1)`
 # vs `gamma(5, 1)` prior on the period? How much computation did you need to
 # get good results?
@@ -560,18 +565,18 @@ title("Predictions for the vector xs\ngiven slope = 0 and intercept = 0")
 # parameter addresses is an argument (`param_addrs`):
 
 function predict_new_data(model, trace, new_xs::Vector{Float64}, param_addrs)
-    
+
     # Copy parameter values from the inferred trace (`trace`)
     # into a fresh set of constraints.
     constraints = Gen.choicemap()
     for addr in param_addrs
         constraints[addr] = trace[addr]
     end
-    
+
     # Run the model with new x coordinates, and with parameters 
     # fixed to be the inferred values
     (new_trace, _) = Gen.generate(model, (new_xs,), constraints)
-    
+
     # Pull out the y-values and return them
     ys = [new_trace[(:y, i)] for i=1:length(new_xs)]
     return ys
@@ -709,17 +714,21 @@ plot_predictions(xs, ys_noisy, new_xs, pred_ys)
 # -------------------------
 # ### Exercise
 #
-# Write a modified version the sine model that makes noise into a random choice. Compare the predicted data with the observed data `infer_and_predict` and `plot_predictions` for the unmodified and modified model, and for the `ys_sine` and `ys_noisy` datasets. Discuss the results. Experiment with the amount of inference computation used. The amount of inference computation will need to be higher for the model with the noise random choice.
+# Write a modified version the sine model that makes noise into a random
+# choice. Compare the predicted data with the observed data `infer_and_predict`
+# and `plot_predictions` for the unmodified and modified model, and for the
+# `ys_sine` and `ys_noisy` datasets. Discuss the results. Experiment with the
+# amount of inference computation used. The amount of inference computation
+# will need to be higher for the model with the noise random choice.
 #
 # We have provided you with starter code:
 
 # ### Solution
 
 @gen function sine_model_2(xs::Vector{Float64})
-    n = length(xs)
-    
+
     # < your code here >
-    
+
     for (i, x) in enumerate(xs)
         @trace(normal(0., 0.1), (:y, i)) # < edit this line >
     end
@@ -943,7 +952,7 @@ function render_combined_refactored(trace; show_data=true)
     end
 
     # < your code here >
-    
+
     ax = gca()
     ax.set_xlim((xmin, xmax))
     ax.set_ylim((xmin, xmax))
@@ -1002,7 +1011,7 @@ end
 
 # +
 abstract type Node end
-    
+
 struct InternalNode <: Node
     left::Node
     right::Node
@@ -1167,8 +1176,10 @@ grid(render_changepoint_model_trace, traces)
 # -------
 #
 # ### Exercise
-# Write a new version of `changepoint_model` that uses `@trace` without an address (e.g. `@trace(<call>)`) to make the recursive calls.
+# Write a new version of `changepoint_model` that uses `@trace` without an
+# address (e.g. `@trace(<call>)`) to make the recursive calls.
 #
-# Hint: You will need to guarantee that all addresses are unique. How can you label each node in a binary tree using an integer?
+# Hint: You will need to guarantee that all addresses are unique. How can you
+# label each node in a binary tree using an integer?
 
 # ### Solution
