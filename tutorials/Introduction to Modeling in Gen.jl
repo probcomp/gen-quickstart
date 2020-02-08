@@ -14,13 +14,17 @@
 
 # # Tutorial: Introduction to Modeling in Gen
 
-# Gen is a multi-paradigm platform for probabilistic modeling and inference. Gen supports multiple modeling and inference workflows, including:
+# Gen is a multi-paradigm platform for probabilistic modeling and inference.
+# Gen supports multiple modeling and inference workflows, including:
 #
-# - Unsupervised learning and posterior inference in generative models using Monte Carlo,  variational, EM, and stochastic gradient techniques.
+# - Unsupervised learning and posterior inference in generative models using
+#   Monte Carlo,  variational, EM, and stochastic gradient techniques.
 #
-# - Supervised learning of conditional inference models (e.g. supervised classification and regression).
+# - Supervised learning of conditional inference models (e.g. supervised
+#   classification and regression).
 #
-# - Hybrid approaches including amortized inference / inference compilation, variational autoencoders, and semi-supervised learning.
+# - Hybrid approaches including amortized inference / inference compilation,
+#   variational autoencoders, and semi-supervised learning.
 #
 # In Gen, probabilistic models (both generative models and conditional
 # inference models) are represented as _generative functions_. Gen provides a
@@ -32,11 +36,17 @@
 # introduces the basics of Gen's built-in modeling language, and illustrates a
 # few types of modeling flexibility afforded by the language, including:
 #
-# - Using a stochastic branching and function abstraction to express uncertainty about which of multiple models is appropriate.
+# - Using a stochastic branching and function abstraction to express
+#   uncertainty about which of multiple models is appropriate.
 #
-# - Representing models with an unbounded number of parameters (a 'Bayesian non-parametric' model).
+# - Representing models with an unbounded number of parameters (a 'Bayesian
+#   non-parametric' model).
 #
-# This notebook uses a simple generic inference algorithm for posterior inference, and shows some examples of inference being applied to simple models. The notebook also introduces a technique for validating a model and inference algorithm by predicting new data from inferred parameters, and comparing this data to the observed data set.
+# This notebook uses a simple generic inference algorithm for posterior
+# inference, and shows some examples of inference being applied to simple
+# models. The notebook also introduces a technique for validating a model and
+# inference algorithm by predicting new data from inferred parameters, and
+# comparing this data to the observed data set.
 #
 # This
 # tutorial
@@ -99,7 +109,8 @@ a = 1 + 1;
 
 using PyPlot
 
-# This notebook will make use of Julia symbols. Note that a Julia symbol is different from a Julia string:
+# This notebook will make use of Julia symbols. Note that a Julia symbol is
+# different from a Julia string:
 
 typeof(:foo)
 
@@ -107,11 +118,22 @@ typeof("foo")
 
 # ## 2. Writing a probabilistic model as a generative function  <a name="writing-model"></a>
 
-# Probabilistic models are represented in Gen as *generative functions*. Generative functions are used to represent a variety of different types of probabilistic computations including generative models, inference models, custom proposal distributions, and variational approximations (see the [Gen documentation](https://probcomp.github.io/Gen/dev/ref/gfi/) and see the [Tech report on Gen](https://dspace.mit.edu/bitstream/handle/1721.1/119255/MIT-CSAIL-TR-2018-020.pdf?sequence=3)).
+# Probabilistic models are represented in Gen as *generative functions*.
+# Generative functions are used to represent a variety of different types of
+# probabilistic computations including generative models, inference models,
+# custom proposal distributions, and variational approximations (see the [Gen
+# documentation](https://probcomp.github.io/Gen/dev/ref/gfi/) and see the [Tech
+# report on
+# Gen](https://dspace.mit.edu/bitstream/handle/1721.1/119255/MIT-CSAIL-TR-2018-020.pdf?sequence=3)).
 #
 #
 #
-# The simplest way to construct a generative function is by using the [built-in modeling DSL](https://probcomp.github.io/Gen/dev/ref/modeling/). Generative functions written in the built-in modeling DSL are based on Julia function definition syntax, but are prefixed with the `@gen` keyword. The function represents the data-generating process we are modeling: each random choice it makes can be thought of as a random variable in the model.
+# The simplest way to construct a generative function is by using the [built-in
+# modeling DSL](https://probcomp.github.io/Gen/dev/ref/modeling/). Generative
+# functions written in the built-in modeling DSL are based on Julia function
+# definition syntax, but are prefixed with the `@gen` keyword. The function
+# represents the data-generating process we are modeling: each random choice it
+# makes can be thought of as a random variable in the model.
 # The generative function below represents a probabilistic model of a linear relationship in the x-y plane. Given a set of $x$ coordinates, it randomly chooses a line in the plane and generates corresponding $y$ coordinates so that each $(x, y)$ is near the line. We might think of this function as modeling house prices as a function of square footage, or the measured volume of a gas as a function of its measured temperature.
 
 @gen function line_model(xs::Vector{Float64})
@@ -137,54 +159,85 @@ typeof("foo")
     return n
 end;
 
-# The generative function takes as an argument a vector of x-coordinates. We create one below:
+# The generative function takes as an argument a vector of x-coordinates. We
+# create one below:
 
 xs = [-5., -4., -3., -2., -1., 0., 1., 2., 3., 4., 5.];
 
-# Given this vector, the generative function samples a random choice representing the slope of a line from a normal distribution with mean 0 and standard deviation 1, and a random choice representing the intercept of a line from a normal distribution with mean 0 and standard deviation 2. In Bayesian statistics terms, these distributions are the *prior distributions* of the slope and intercept respectively. Then, the function samples values for the y-coordinates corresponding to each of the provided x-coordinates.
+# Given this vector, the generative function samples a random choice
+# representing the slope of a line from a normal distribution with mean 0 and
+# standard deviation 1, and a random choice representing the intercept of a
+# line from a normal distribution with mean 0 and standard deviation 2. In
+# Bayesian statistics terms, these distributions are the *prior distributions*
+# of the slope and intercept respectively. Then, the function samples values
+# for the y-coordinates corresponding to each of the provided x-coordinates.
 
-# This generative function returns the number of data points. We can run the function like we run a regular Julia function:
+# This generative function returns the number of data points. We can run the
+# function like we run a regular Julia function:
 
 n = line_model(xs)
 println(n)
 
-# More interesting than `n` are the values of the random choices that `line_model` makes. **Crucially, each random choice is annotated with a unique *address*.** A random choice is assigned an address using the `@trace` keyword. Addresses can be any Julia value. In this program, there are two types of addresses used -- Julia symbols and tuples of symbols and integers. Note that within the `for` loop, the same line of code is executed multiple times, but each time, the random choice it makes is given a distinct address.
+# More interesting than `n` are the values of the random choices that
+# `line_model` makes. **Crucially, each random choice is annotated with a
+# unique *address*.** A random choice is assigned an address using the `@trace`
+# keyword. Addresses can be any Julia value. In this program, there are two
+# types of addresses used -- Julia symbols and tuples of symbols and integers.
+# Note that within the `for` loop, the same line of code is executed multiple
+# times, but each time, the random choice it makes is given a distinct address.
 
-# Although the random choices are not included in the return value, they *are* included in the *execution trace* of the generative function. We can run the generative function and obtain its trace using the [`
-# simulate`](https://probcomp.github.io/Gen/dev/ref/gfi/#Gen.simulate) method from the Gen API:
+# Although the random choices are not included in the return value, they *are*
+# included in the *execution trace* of the generative function. We can run the
+# generative function and obtain its trace using the [`
+# simulate`](https://probcomp.github.io/Gen/dev/ref/gfi/#Gen.simulate) method
+# from the Gen API:
 
 trace = Gen.simulate(line_model, (xs,));
 
-# This method takes the function to be executed, and a tuple of arguments to the function, and returns a trace. When we print the trace, we see that it is a complex data structure.
+# This method takes the function to be executed, and a tuple of arguments to
+# the function, and returns a trace. When we print the trace, we see that it is
+# a complex data structure.
 
 println(trace)
 
-# A trace of a generative function contains various information about an execution of the function. For example, it contains the arguments on which the function was run, which are available with the API method `get_args`:
+# A trace of a generative function contains various information about an
+# execution of the function. For example, it contains the arguments on which
+# the function was run, which are available with the API method `get_args`:
 
 Gen.get_args(trace)
 
-# The trace also contains the value of the random choices, stored in map from address to value called a *choice map*. This map is available through the API method [`get_choices`]():
+# The trace also contains the value of the random choices, stored in map from
+# address to value called a *choice map*. This map is available through the API
+# method [`get_choices`]():
 
 println(Gen.get_choices(trace))
 
-# We can pull out individual values from this map using Julia's subscripting syntax `[...]`:
+# We can pull out individual values from this map using Julia's subscripting
+# syntax `[...]`:
 
 choices = Gen.get_choices(trace)
 println(choices[:slope])
 
-# We can also read the value of a random choice directly from the trace, without having to use `get_choices` first:
+# We can also read the value of a random choice directly from the trace,
+# without having to use `get_choices` first:
 
 println(trace[:slope])
 
-# The return value is also recorded in the trace, and is accessible with the `get_retval` API method:
+# The return value is also recorded in the trace, and is accessible with the
+# `get_retval` API method:
 
 println(Gen.get_retval(trace));
 
-# Or we can access the return value directly from the trace via the syntactic sugar `trace[]`:
+# Or we can access the return value directly from the trace via the syntactic
+# sugar `trace[]`:
 
 println(trace[])
 
-# In order to understand the probabilistic behavior of a generative function, it is helpful to be able to visualize its traces. Below, we define a function that uses PyPlot to render a trace of the generative function above. The rendering shows the x-y data points and the line that is represented by the slope and intercept choices.
+# In order to understand the probabilistic behavior of a generative function,
+# it is helpful to be able to visualize its traces. Below, we define a function
+# that uses PyPlot to render a trace of the generative function above. The
+# rendering shows the x-y data points and the line that is represented by the
+# slope and intercept choices.
 
 function render_trace(trace; show_data=true, limit_y=true)
     
@@ -298,13 +351,16 @@ end
 
 # ### Plot your results.
 #
-# Plotting samples from a generative model implemented as probabilistic programming is an
-# important and helpful tool for debugging a model. Use the function `render_sine_trace` (below) to 
-# plot samples from your answer above to check whether you implemented the model correctly.
+# Plotting samples from a generative model implemented as probabilistic
+# programming is an important and helpful tool for debugging a model. Use the
+# function `render_sine_trace` (below) to plot samples from your answer above
+# to check whether you implemented the model correctly.
 
 # ## 3. Doing Posterior inference  <a name="doing-inference"></a>
 #
-# We now will provide a data set of y-coordinates and try to draw inferences about the process that generated the data. We begin with the following data set:
+# We now will provide a data set of y-coordinates and try to draw inferences
+# about the process that generated the data. We begin with the following data
+# set:
 
 ys = [6.75003, 6.1568, 4.26414, 1.84894, 3.09686, 1.94026, 1.36411, -0.83959, -0.976, -1.93363, -2.91303];
 
@@ -314,11 +370,22 @@ xlabel("X");
 ylabel("Y");
 title("Oberved data (linear)");
 
-# We will assume that the line model was responsible for generating the data, and infer values of the slope and intercept that explain the data.
+# We will assume that the line model was responsible for generating the data,
+# and infer values of the slope and intercept that explain the data.
 #
-# To do this, we write a simple *inference program* that takes the model we are assuming generated our data, the data set, and the amount of computation to perform, and returns a trace of the function that is approximately sampled from the _posterior distribution_ on traces of the function, given the observed data. That is, the inference program will try to find a trace that well explains the dataset we created above. We can inspect that trace to find estimates of the slope and intercept of a line that fits the data.
+# To do this, we write a simple *inference program* that takes the model we are
+# assuming generated our data, the data set, and the amount of computation to
+# perform, and returns a trace of the function that is approximately sampled
+# from the _posterior distribution_ on traces of the function, given the
+# observed data. That is, the inference program will try to find a trace that
+# well explains the dataset we created above. We can inspect that trace to find
+# estimates of the slope and intercept of a line that fits the data.
 #
-# Functions like `importance_resampling` expect us to provide a _model_ and also an _choice map_ representing our data set and relating it to the model. A choice map maps random choice addresses from the model to values from our data set. Here, we want to tie model addresses like `(:y, 4)` to data set values like `ys[4]`:
+# Functions like `importance_resampling` expect us to provide a _model_ and
+# also an _choice map_ representing our data set and relating it to the model.
+# A choice map maps random choice addresses from the model to values from our
+# data set. Here, we want to tie model addresses like `(:y, 4)` to data set
+# values like `ys[4]`:
 
 function do_inference(model, xs, ys, amount_of_computation)
     
@@ -336,7 +403,8 @@ function do_inference(model, xs, ys, amount_of_computation)
     return trace
 end;
 
-# We can run the inference program to obtain a trace, and then visualize the result:
+# We can run the inference program to obtain a trace, and then visualize the
+# result:
 
 trace = do_inference(line_model, xs, ys, 100)
 figure(figsize=(3,3))
@@ -345,12 +413,18 @@ xlabel("X");
 ylabel("Y");
 title("Oberved data and inferred line\n(one sample from the posterior)");
 
-# We see that `importance_resampling` found a reasonable slope and intercept to explain the data. We can also visualize many samples in a grid:
+# We see that `importance_resampling` found a reasonable slope and intercept to
+# explain the data. We can also visualize many samples in a grid:
 
 traces = [do_inference(line_model, xs, ys, 100) for _=1:10];
 grid(render_trace, traces)
 
-# We can see here that there is some uncertainty: with our limited data, we can't be 100% sure exactly where the line is. We can get a better sense for the variability in the posterior distribution by visualizing all the traces in one plot, rather than in a grid. Each trace is going to have the same observed data points, so we only plot those once, based on the values in the first trace:
+# We can see here that there is some uncertainty: with our limited data, we
+# can't be 100% sure exactly where the line is. We can get a better sense for
+# the variability in the posterior distribution by visualizing all the traces
+# in one plot, rather than in a grid. Each trace is going to have the same
+# observed data points, so we only plot those once, based on the values in the
+# first trace:
 
 function overlay(renderer, traces; same_data=true, args...)
     if !isempty(traces)
@@ -372,7 +446,9 @@ title("Oberved data and posterior samples");
 #
 # ### Exercise
 #
-# The results above were obtained for `amount_of_computation = 100`. Run the algorithm with this value set to `1`, `10`, and `1000`, etc.  Which value seems like a good tradeoff between accuracy and running time? Discuss.
+# The results above were obtained for `amount_of_computation = 100`. Run the
+# algorithm with this value set to `1`, `10`, and `1000`, etc.  Which value
+# seems like a good tradeoff between accuracy and running time? Discuss.
 
 # ### Solution
 
@@ -386,7 +462,13 @@ ys_sine = [2.89, 2.22, -0.612, -0.522, -2.65, -0.133, 2.70, 2.77, 0.425, -2.11, 
 figure(figsize=(3, 3));
 scatter(xs, ys_sine, color="black");
 
-# Write an inference program that generates traces of `sine_model` that explain this data set. Visualize the resulting distribution of traces. Temporarily change the prior distribution on the period to be `gamma(1, 1)`  (by changing and re-running the cell that defines `sine_model` from a previous exercise). Can you explain the difference in inference results when using `gamma(1, 1)` vs `gamma(5, 1)` prior on the period? How much computation did you need to get good results?
+# Write an inference program that generates traces of `sine_model` that explain
+# this data set. Visualize the resulting distribution of traces. Temporarily
+# change the prior distribution on the period to be `gamma(1, 1)`  (by changing
+# and re-running the cell that defines `sine_model` from a previous exercise).
+# Can you explain the difference in inference results when using `gamma(1, 1)`
+# vs `gamma(5, 1)` prior on the period? How much computation did you need to
+# get good results?
 
 # ### Solution
 
@@ -413,9 +495,18 @@ xlabel("X");
 ylabel("Y");
 title("Predictions for the vector xs\ngiven slope = 0 and intercept = 0")
 
-# Note that the random choices corresponding to the y-coordinates are still made randomly. Run the cell above a few times to verify this.
+# Note that the random choices corresponding to the y-coordinates are still
+# made randomly. Run the cell above a few times to verify this.
 
-# We will use the ability to run constrained executions of a generative function to predict the value of the y-coordinates at new x-coordinates by running new executions of the model generative function in which the random choices corresponding to the parameters have been constrained to their inferred values.  We have provided a function below (`predict_new_data`) that takes a trace, and a vector of new x-coordinates, and returns a vector of predicted y-coordinates corresponding to the x-coordinates in `new_xs`. We have designed this function to work with multiple models, so the set of parameter addresses is an argument (`param_addrs`):
+# We will use the ability to run constrained executions of a generative
+# function to predict the value of the y-coordinates at new x-coordinates by
+# running new executions of the model generative function in which the random
+# choices corresponding to the parameters have been constrained to their
+# inferred values.  We have provided a function below (`predict_new_data`) that
+# takes a trace, and a vector of new x-coordinates, and returns a vector of
+# predicted y-coordinates corresponding to the x-coordinates in `new_xs`. We
+# have designed this function to work with multiple models, so the set of
+# parameter addresses is an argument (`param_addrs`):
 
 function predict_new_data(model, trace, new_xs::Vector{Float64}, param_addrs)
     
@@ -435,12 +526,15 @@ function predict_new_data(model, trace, new_xs::Vector{Float64}, param_addrs)
     return ys
 end;
 
-# To illustrate, we call the function above given the previous trace (which constrained
-# slope and intercept to be zero).
+# To illustrate, we call the function above given the previous trace (which
+# constrained slope and intercept to be zero).
 
 predict_new_data(line_model, trace, [1., 2., 3.], [:slope, :intercept])
 
-# The cell below defines a function that first performs inference on an observed data set `(xs, ys)`, and then runs `predict_new_data` to generate predicted y-coordinates. It repeats this process `num_traces` times, and returns a vector of the resulting y-coordinate vectors.
+# The cell below defines a function that first performs inference on an
+# observed data set `(xs, ys)`, and then runs `predict_new_data` to generate
+# predicted y-coordinates. It repeats this process `num_traces` times, and
+# returns a vector of the resulting y-coordinate vectors.
 
 function infer_and_predict(model, xs, ys, new_xs, param_addrs, num_traces, amount_of_computation)
     pred_ys = []
@@ -455,7 +549,8 @@ end;
 
 pred_ys = infer_and_predict(line_model, xs, ys, [1., 2., 3.], [:slope, :intercept], 1, 1000)
 
-# Finally, we define a cell that plots the observed data set `(xs, ys)` as red dots, and the predicted data as small black dots.
+# Finally, we define a cell that plots the observed data set `(xs, ys)` as red
+# dots, and the predicted data as small black dots.
 
 function plot_predictions(xs, ys, new_xs, pred_ys)
     scatter(xs, ys, color="red")
@@ -464,7 +559,8 @@ function plot_predictions(xs, ys, new_xs, pred_ys)
     end
 end;
 
-# Recall the original dataset for the line model. The x-coordinates span the interval -5 to 5.
+# Recall the original dataset for the line model. The x-coordinates span the
+# interval -5 to 5.
 
 figure(figsize=(3,3))
 scatter(xs, ys, color="red");
@@ -493,9 +589,11 @@ title("Oberved data (red)\nand predictions (black)");
 xlabel("X");
 ylabel("Y");
 
-# The results look reasonable, both within the interval of observed data and in the extrapolated predictions on the right.
+# The results look reasonable, both within the interval of observed data and in
+# the extrapolated predictions on the right.
 
-# Now consider the same experiment run with following data set, which has significantly more noise.
+# Now consider the same experiment run with following data set, which has
+# significantly more noise.
 
 ys_noisy = [5.092, 4.781, 2.46815, 1.23047, 0.903318, 1.11819, 2.10808, 1.09198, 0.0203789, -2.05068, 2.66031];
 
@@ -614,7 +712,11 @@ plot_predictions(xs, ys_noisy, new_xs, pred_ys)
 
 # ## 5. Calling other generative functions  <a name="calling-functions"></a>
 #
-# In addition to making random choices, generative functions can invoke other generative functions. To illustrate this, we will write a probabilistic model that combines the line model and the sine model. This model is able to explain data using either model, and which model is chosen will depend on the data. This is called *model selection*.
+# In addition to making random choices, generative functions can invoke other
+# generative functions. To illustrate this, we will write a probabilistic model
+# that combines the line model and the sine model. This model is able to
+# explain data using either model, and which model is chosen will depend on the
+# data. This is called *model selection*.
 
 # A generative function can invoke another generative function in three ways:
 #
@@ -624,7 +726,12 @@ plot_predictions(xs, ys_noisy, new_xs, pred_ys)
 #
 # - using the `@trace` Gen keyword without an address: `@trace(<call>)`
 #
-# When invoking using regular function call syntax, the random choices made by the callee function are not traced. When invoking using `@trace` without an address, the random choices of the callee function are placed in the same address namespace as the caller's random choices. When using `@trace(<call>, <addr>)`, the random choices of the callee are placed under the namespace `<addr>`.
+# When invoking using regular function call syntax, the random choices made by
+# the callee function are not traced. When invoking using `@trace` without an
+# address, the random choices of the callee function are placed in the same
+# address namespace as the caller's random choices. When using `@trace(<call>,
+# <addr>)`, the random choices of the callee are placed under the namespace
+# `<addr>`.
 
 # +
 @gen function foo()
@@ -652,17 +759,22 @@ println(Gen.get_choices(trace))
 trace = Gen.simulate(bar_using_namespace, ())
 println(Gen.get_choices(trace))
 
-# Using `@trace` with a namespace can help avoid address collisions for complex models.
+# Using `@trace` with a namespace can help avoid address collisions for complex
+# models.
 
-# A hierarchical address is represented as a Julia `Pair`, where the first element of the pair is the first element of the address and the second element of the pair is the rest of the address:
+# A hierarchical address is represented as a Julia `Pair`, where the first
+# element of the pair is the first element of the address and the second
+# element of the pair is the rest of the address:
 
 trace[Pair(:z, :y)]
 
-# Julia uses the `=>` operator as a shorthand for the `Pair` constructor, so we can access choices at hierarchical addresses like:
+# Julia uses the `=>` operator as a shorthand for the `Pair` constructor, so we
+# can access choices at hierarchical addresses like:
 
 trace[:z => :y]
 
-# If we have a hierarchical address with more than two elements, we can construct the address by chaining the `=>` operator:
+# If we have a hierarchical address with more than two elements, we can
+# construct the address by chaining the `=>` operator:
 
 # +
 @gen function baz()
@@ -678,7 +790,9 @@ trace[:a => :z => :y]
 
 trace[Pair(:a, Pair(:z, :y))]
 
-# Now, we write a generative function that combines the line and sine models. It makes a Bernoulli random choice (e.g. a coin flip that returns true or false) that determines which of the two models will generate the data.
+# Now, we write a generative function that combines the line and sine models.
+# It makes a Bernoulli random choice (e.g. a coin flip that returns true or
+# false) that determines which of the two models will generate the data.
 
 @gen function combined_model(xs::Vector{Float64})
     if @trace(bernoulli(0.5), :is_line)
@@ -698,12 +812,14 @@ function render_combined(trace; show_data=true)
     end
 end;
 
-# We visualize some traces, and see that sometimes it samples linear data and other times sinusoidal data.
+# We visualize some traces, and see that sometimes it samples linear data and
+# other times sinusoidal data.
 
 traces = [Gen.simulate(combined_model, (xs,)) for _=1:12];
 grid(render_combined, traces)
 
-# We run inference using this combined model on the `ys` data set and the `ys_sine` data set. 
+# We run inference using this combined model on the `ys` data set and the
+# `ys_sine` data set.
 
 figure(figsize=(6,3))
 subplot(1, 2, 1)
@@ -719,24 +835,38 @@ title("Posterior given\nsinusoidal observations");
 xlabel("X");
 ylabel("Y");
 
-# The results should show that the line model was inferred for the `ys` data set, and the sine wave model was inferred for the `ys_sine` data set.
+# The results should show that the line model was inferred for the `ys` data
+# set, and the sine wave model was inferred for the `ys_sine` data set.
 
 # -------
 #
 # ### Exercise
 #
-# Construct a data set for which it is ambiguous whether the line or sine wave model is best. Visualize the inferred traces using `render_combined` to illustrate the ambiguity. Write a program that takes the data set and returns an estimate of the posterior probability that the data was generated by the sine wave model, and run it on your data set.
+# Construct a data set for which it is ambiguous whether the line or sine wave
+# model is best. Visualize the inferred traces using `render_combined` to
+# illustrate the ambiguity. Write a program that takes the data set and returns
+# an estimate of the posterior probability that the data was generated by the
+# sine wave model, and run it on your data set.
 #
-# Hint: To estimate the posterior probability that the data was generated by the sine wave model, run the inference program many times to compute a large number of traces, and then compute the fraction of those traces in which `:is_line` is false.
+# Hint: To estimate the posterior probability that the data was generated by
+# the sine wave model, run the inference program many times to compute a large
+# number of traces, and then compute the fraction of those traces in which
+# `:is_line` is false.
 
 # ### Solution
 
 # ------
 # ### Exercise 
 #
-# There is code that is duplicated between `line_model_2` and `sine_model_2`. Refactor the model to reduce code duplication and improve the readability of the code. Re-run the experiment above and confirm that the results are qualitatively the same. You may need to write a new rendering function. Try to avoid introducing code duplication between the model and the rendering code.
+# There is code that is duplicated between `line_model_2` and `sine_model_2`.
+# Refactor the model to reduce code duplication and improve the readability of
+# the code. Re-run the experiment above and confirm that the results are
+# qualitatively the same. You may need to write a new rendering function. Try
+# to avoid introducing code duplication between the model and the rendering
+# code.
 #
-# Hint: To avoid introducing code duplication between the model and the rendering code, use the return value of the generative function.
+# Hint: To avoid introducing code duplication between the model and the
+# rendering code, use the return value of the generative function.
 
 # ### Solution
 
@@ -779,7 +909,12 @@ overlay(render_combined_refactored, traces)
 
 # ## 6. Modeling with an unbounded number of parameters  <a name="infinite-space"></a>
 
-# Gen's built-in modeling language can be used to express models that use an unbounded number of parameters. This section walks you through development of a model of data that does not a-priori specify an upper bound on the complexity of the model, but instead infers the complexity of the model as well as the parameters. This is a simple example of a *Bayesian nonparametric* model.
+# Gen's built-in modeling language can be used to express models that use an
+# unbounded number of parameters. This section walks you through development of
+# a model of data that does not a-priori specify an upper bound on the
+# complexity of the model, but instead infers the complexity of the model as
+# well as the parameters. This is a simple example of a *Bayesian
+# nonparametric* model.
 
 # We will consider two data sets:
 
@@ -801,7 +936,13 @@ scatter(xs_dense, ys_complex, color="black", s=10)
 gca().set_ylim((-1, 3))
 # -
 
-# The data set on the left appears to be best explained as a contant function with some noise. The data set on the right appears to include two changepoints, with a constant function in between the changepoints. We want a model that does not a-priori choose the number of changepoints in the data. To do this, we will recursively partition the interval into regions. We define a Julia data structure that represents a binary tree of intervals; each leaf node represents a region in which the function is constant.
+# The data set on the left appears to be best explained as a contant function
+# with some noise. The data set on the right appears to include two
+# changepoints, with a constant function in between the changepoints. We want a
+# model that does not a-priori choose the number of changepoints in the data.
+# To do this, we will recursively partition the interval into regions. We
+# define a Julia data structure that represents a binary tree of intervals;
+# each leaf node represents a region in which the function is constant.
 
 struct Interval
     l::Float64
@@ -823,7 +964,11 @@ struct LeafNode <: Node
 end
 # -
 
-# We now write a generative function that randomly creates such a tree. Note the use of recursion in this function to create arbitrarily large trees representing arbitrarily many changepoints. Also note that we assign the address namespaces `:left` and `:right` to the calls made for the two recursive calls to `generate_segments`.
+# We now write a generative function that randomly creates such a tree. Note
+# the use of recursion in this function to create arbitrarily large trees
+# representing arbitrarily many changepoints. Also note that we assign the
+# address namespaces `:left` and `:right` to the calls made for the two
+# recursive calls to `generate_segments`.
 
 @gen function generate_segments(l::Float64, u::Float64)
     interval = Interval(l, u)
@@ -839,7 +984,8 @@ end
     end
 end;
 
-# We also define some helper functions to visualize traces of the `generate_segments` function.
+# We also define some helper functions to visualize traces of the
+# `generate_segments` function.
 
 # +
 function render_node(node::LeafNode)
@@ -860,15 +1006,23 @@ function render_segments_trace(trace)
     ax.set_ylim((-3, 3))
 end;
 
-# We generate 12 traces from this function and visualize them below. We plot the piecewise constant function that was sampled by each run of the generative function. Different constant segments are shown in different colors. Run the cell a few times to get a better sense of the distribution on functions that is represented by the generative function.
+# We generate 12 traces from this function and visualize them below. We plot
+# the piecewise constant function that was sampled by each run of the
+# generative function. Different constant segments are shown in different
+# colors. Run the cell a few times to get a better sense of the distribution on
+# functions that is represented by the generative function.
 
 traces = [Gen.simulate(generate_segments, (0., 1.)) for i=1:12]
 grid(render_segments_trace, traces)
 suptitle("Traces simulated from the prior");
 
-# Because we only sub-divide an interval with 30% probability, most of these sampled traces have only one segment.
+# Because we only sub-divide an interval with 30% probability, most of these
+# sampled traces have only one segment.
 
-# Now that we have generative function that generates a random piecewise-constant function, we write a model that adds noise to the resulting constant functions to generate a data set of y-coordinates. The noise level will be a random choice.
+# Now that we have generative function that generates a random
+# piecewise-constant function, we write a model that adds noise to the
+# resulting constant functions to generate a data set of y-coordinates. The
+# noise level will be a random choice.
 
 # +
 # get_value_at searches a binary tree for
@@ -913,12 +1067,14 @@ function render_changepoint_model_trace(trace; show_data=true)
     ax.set_ylim((-3, 3))
 end;
 
-# Finally, we generate some simulated data sets and visualize them on top of the underlying piecewise constant function from which they were generated:
+# Finally, we generate some simulated data sets and visualize them on top of
+# the underlying piecewise constant function from which they were generated:
 
 traces = [Gen.simulate(changepoint_model, (xs_dense,)) for i=1:12]
 grid(render_changepoint_model_trace, traces)
 
-# Notice that the amount of variability around the piecewise constant mean function differs from trace to trace.
+# Notice that the amount of variability around the piecewise constant mean
+# function differs from trace to trace.
 
 # Now we perform inference for the simple data set:
 
