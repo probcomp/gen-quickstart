@@ -374,6 +374,11 @@ function predict_new_data(model, trace, new_xs::Vector{Float64}, param_addrs)
     return ys
 end;
 
+# To illustrate, we call the function above given the previous trace (which constrained
+# slope and intercept to be zero).
+
+predict_new_data(line_model, trace, [1., 2., 3.], [:slope, :intercept])
+
 # The cell below defines a function that first performs inference on an observed data set `(xs, ys)`, and then runs `predict_new_data` to generate predicted y-coordinates. It repeats this process `num_traces` times, and returns a vector of the resulting y-coordinate vectors.
 
 function infer_and_predict(model, xs, ys, new_xs, param_addrs, num_traces, amount_of_computation)
@@ -384,6 +389,10 @@ function infer_and_predict(model, xs, ys, new_xs, param_addrs, num_traces, amoun
     end
     pred_ys
 end;
+
+# To illustrate, we generate predictions at `[1., 2., 3.]` given one posterior trace.
+
+pred_ys = infer_and_predict(line_model, xs, ys, [1., 2., 3.], [:slope, :intercept], 1, 1000)
 
 # Finally, we define a cell that plots the observed data set `(xs, ys)` as red dots, and the predicted data as small black dots.
 
@@ -398,6 +407,9 @@ end;
 
 figure(figsize=(3,3))
 scatter(xs, ys, color="red");
+xlabel("X");
+ylabel("Y");
+title("Oberved data");
 
 # We will use the inferred values of the parameters to predict y-coordinates for x-coordinates in the interval 5 to 10 from which data was not observed. We will also predict new data within the interval -5 to 5, and we will compare this data to the original observed data. Predicting new data from inferred parameters, and comparing this new data to the observed data is the core idea behind *posterior predictive checking*. This tutorial does not intend to give a rigorous overview behind techniques for checking the quality of a model, but intends to give high-level intuition.
 
@@ -408,6 +420,9 @@ new_xs = collect(range(-5, stop=10, length=100));
 pred_ys = infer_and_predict(line_model, xs, ys, new_xs, [:slope, :intercept], 20, 1000)
 figure(figsize=(3,3))
 plot_predictions(xs, ys, new_xs, pred_ys)
+title("Oberved data (red)\nand predictions (black)");
+xlabel("X");
+ylabel("Y");
 
 # The results look reasonable, both within the interval of observed data and in the extrapolated predictions on the right.
 
@@ -418,6 +433,9 @@ ys_noisy = [5.092, 4.781, 2.46815, 1.23047, 0.903318, 1.11819, 2.10808, 1.09198,
 pred_ys = infer_and_predict(line_model, xs, ys_noisy, new_xs, [:slope, :intercept], 20, 1000)
 figure(figsize=(3,3))
 plot_predictions(xs, ys_noisy, new_xs, pred_ys)
+title("Oberved data (red)\nand predictions (black)");
+xlabel("X");
+ylabel("Y");
 
 # It looks like the generated data is less noisy than the observed data in the regime where data was observed, and it looks like the forecasted data is too overconfident. This is a sign that our model is mis-specified. In our case, this is because we have assumed that the noise has value 0.1. However, the actual noise in the data appears to be much larger. We can correct this by making the noise a random choice as well and inferring its value along with the other parameters.
 
