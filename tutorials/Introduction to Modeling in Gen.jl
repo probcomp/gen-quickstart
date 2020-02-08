@@ -310,6 +310,9 @@ end;
 traces = [do_inference(line_model, xs, ys, 100) for _=1:10];
 figure(figsize=(3,3))
 overlay(render_trace, traces);
+xlabel("X");
+ylabel("Y");
+title("Oberved data and posterior samples");
 
 # --------------
 #
@@ -345,6 +348,9 @@ constraints[:intercept] = 0.
 (trace, _) = Gen.generate(line_model, (xs,), constraints)
 figure(figsize=(3,3))
 render_trace(trace);
+xlabel("X");
+ylabel("Y");
+title("Predictions for the vector xs\ngiven slope = 0 and intercept = 0")
 
 # Note that the random choices corresponding to the y-coordinates are still made randomly. Run the cell above a few times to verify this.
 
