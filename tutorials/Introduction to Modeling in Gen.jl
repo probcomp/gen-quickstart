@@ -640,9 +640,15 @@ figure(figsize=(6,3))
 subplot(1, 2, 1)
 traces = [do_inference(combined_model, xs, ys, 10000) for _=1:10];
 overlay(render_combined, traces)
+title("Posterior given\nlinear observations");
+xlabel("X");
+ylabel("Y");
 subplot(1, 2, 2)
 traces = [do_inference(combined_model, xs, ys_sine, 10000) for _=1:10];
 overlay(render_combined, traces)
+title("Posterior given\nsinusoidal observations");
+xlabel("X");
+ylabel("Y");
 
 # The results should show that the line model was inferred for the `ys` data set, and the sine wave model was inferred for the `ys_sine` data set.
 
@@ -789,6 +795,7 @@ end;
 
 traces = [Gen.simulate(generate_segments, (0., 1.)) for i=1:12]
 grid(render_segments_trace, traces)
+suptitle("Traces simulated from the prior");
 
 # Because we only sub-divide an interval with 30% probability, most of these sampled traces have only one segment.
 
