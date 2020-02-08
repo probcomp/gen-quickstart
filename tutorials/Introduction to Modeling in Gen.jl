@@ -134,6 +134,37 @@ typeof("foo")
 # definition syntax, but are prefixed with the `@gen` keyword. The function
 # represents the data-generating process we are modeling: each random choice it
 # makes can be thought of as a random variable in the model.
+
+# In probabilistic programming we treat probabilistic models as code and record random
+# choices. In Gen, we decorate random choices with the trace keyword. There are
+# two ways to do this:
+#
+# - using the `@trace` Gen keyword without an address: `@trace(<call>)`
+#
+# - using the `@trace` Gen keyword with an address: `@trace(<call>, <addr>)`
+#
+# In the above, `<call>` refers to an invocation of a generative function. A
+# simple example of such an invocation is a normal distribution parametrized
+# with mean 0 and standard deviation 1:
+# ```julia
+# my_variable = @trace(normal(0, 1))
+# ```
+# You can also supply a label (`<addr>` in the above) to the random choice (see
+# section 5 below for details and use cases for this capability):
+# ```julia
+# my_variable = @trace(normal(0, 1) :my_variable_name)
+# ```
+# `:my_variable_name` is a symbol in the Julia language.
+#
+# The following will _not_ work because the code is trying to trace the
+# expression `sin(x)` which is an invocation of an ordinary Julia function, not
+# a generative function.  (It is possible to convert `sin` to a generative
+# function, but so far we have not found any need to do so.)
+# ```Julia
+# my_variable = @trace(sin(1))
+# ```
+#
+
 # The generative function below represents a probabilistic model of a linear relationship in the x-y plane. Given a set of $x$ coordinates, it randomly chooses a line in the plane and generates corresponding $y$ coordinates so that each $(x, y)$ is near the line. We might think of this function as modeling house prices as a function of square footage, or the measured volume of a gas as a function of its measured temperature.
 
 @gen function line_model(xs::Vector{Float64})
