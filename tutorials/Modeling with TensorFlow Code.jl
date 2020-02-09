@@ -14,30 +14,59 @@
 
 # # Modeling with TensorFlow code
 #
-# So far, we have seen generative functions that are defined only using the built-in modeling language, which uses the `@gen` keyword. However, Gen can also be extended with other modeling languages, as long as they produce generative functions that implement the [Generative Function Interface](https://probcomp.github.io/Gen/dev/ref/gfi/). The [GenTF](https://github.com/probcomp/GenTF) Julia package provides one such modeling language which allow generative functions to be constructed from user-defined TensorFlow computation graphs. Generative functions written in the built-in language can invoke generative functions defined using the GenTF language.
+# So far, we have seen generative functions that are defined only using the
+# built-in modeling language, which uses the `@gen` keyword. However, Gen can
+# also be extended with other modeling languages, as long as they produce
+# generative functions that implement the [Generative Function
+# Interface](https://probcomp.github.io/Gen/dev/ref/gfi/). The
+# [GenTF](https://github.com/probcomp/GenTF) Julia package provides one such
+# modeling language which allow generative functions to be constructed from
+# user-defined TensorFlow computation graphs. Generative functions written in
+# the built-in language can invoke generative functions defined using the GenTF
+# language.
 #
-# This notebook shows how to write a generative function in the GenTF language, how to invoke a GenTF generative function from a `@gen` function, and how to perform basic supervised training of a generative function. Specifically, we will train a softmax regression conditional inference model to generate the label of an MNIST digit given the pixels. Later tutorials will show how to use deep learning and TensorFlow to accelerate inference in generative models, using ideas from "amortized inference".
+# This notebook shows how to write a generative function in the GenTF language,
+# how to invoke a GenTF generative function from a `@gen` function, and how to
+# perform basic supervised training of a generative function. Specifically, we
+# will train a softmax regression conditional inference model to generate the
+# label of an MNIST digit given the pixels. Later tutorials will show how to
+# use deep learning and TensorFlow to accelerate inference in generative
+# models, using ideas from "amortized inference".
 
-# NOTE: Only attempt to run this notebook if you have a working installation of TensorFlow and GenTF (see the [GenTF installation instructions](https://probcomp.github.io/GenTF/dev/#Installation-1)).
+# NOTE: Only attempt to run this notebook if you have a working installation of
+# TensorFlow and GenTF (see the [GenTF installation
+# instructions](https://probcomp.github.io/GenTF/dev/#Installation-1)).
 
 using Gen
 using PyPlot
 
-# First, we load the GenTF package and the PyCall package. The PyCall package is used because TensorFlow computation graphs are constructed using the TensorFlow Python API, and the PyCall package allows Python code to be run from Julia.
+# First, we load the GenTF package and the PyCall package. The PyCall package
+# is used because TensorFlow computation graphs are constructed using the
+# TensorFlow Python API, and the PyCall package allows Python code to be run
+# from Julia.
 
 using GenTF
 using PyCall
 
-# We text load the TensorFlow and TensorFlow.nn Python modules into our scope. The `@pyimport` macro is defined by PyCall.
+# We text load the TensorFlow and TensorFlow.nn Python modules into our scope.
+# The `@pyimport` macro is defined by PyCall.
 
 tf = pyimport("tensorflow")
 tf.compat.v1.disable_eager_execution()
 nn = tf.nn
 
-# Next, we define a TensorFlow computation graph. The graph will have placeholders for an N x 784 matrix of pixel values, where N is the number of images that will be processed in batch, and 784 is the number of pixels in an MNIST image (28x28). There are 10 possible digit classes. The `probs` Tensor is an N x 10 matrix, where each row of the matrix is the vector of normalized probabilities of each digit class for a single input image. Note that this code is largely identical to the corresponding Python code. We provide initial values for the weight and bias parameters that are computed in Julia (it is also possible to use TensorFlow initializers for this purpose).
+# Next, we define a TensorFlow computation graph. The graph will have
+# placeholders for an N x 784 matrix of pixel values, where N is the number of
+# images that will be processed in batch, and 784 is the number of pixels in an
+# MNIST image (28x28). There are 10 possible digit classes. The `probs` Tensor
+# is an N x 10 matrix, where each row of the matrix is the vector of normalized
+# probabilities of each digit class for a single input image. Note that this
+# code is largely identical to the corresponding Python code. We provide
+# initial values for the weight and bias parameters that are computed in Julia
+# (it is also possible to use TensorFlow initializers for this purpose).
 
 # +
-# input images, shape (N, 784)
+# A set of input images as a matrix, shape (N, 784)
 xs = tf.compat.v1.placeholder(tf.float64, shape=(nothing, 784))
 
 # weight matrix parameter for soft-max regression, shape (784, 10)
@@ -54,27 +83,45 @@ b = tf.compat.v1.Variable(init_b)
 probs = nn.softmax(tf.add(tf.matmul(xs, W), b), axis=1);
 # -
 
-# Next, we construct the generative function from this graph. The GenTF package provides a `TFFunction` type that implements the generative function interface. The `TFFunction` constructor takes:
+# Next, we construct the generative function from this graph. The GenTF package
+# provides a `TFFunction` type that implements the generative function
+# interface. The `TFFunction` constructor takes:
 #
-# (i) A vector of Tensor objects that will be the trainable parameters of the generative function (`[W, b]`). These should be TensorFlow variables.
+#   (i) A vector of Tensor objects that will be the trainable parameters of the
+#       generative function (`[W, b]`). These should be TensorFlow variables.
 #
-# (ii) A vector of Tensor object that are the inputs to the generative function (`[xs]`). These should be TensorFlow placeholders.
+#  (ii) A vector of Tensor object that are the inputs to the generative
+#       function (`[xs]`). These should be TensorFlow placeholders.
 #
-# (iii) The Tensor object that is the return value of the generative function (`probs`).
+# (iii) The Tensor object that is the return value of the generative function
+#       (`probs`).
 
 tf_softmax_model = TFFunction([W, b], [xs], probs);
 
-# The `TFFunction` constructor creates a new TensorFlow session that will be used to execute all TensorFlow code for this generative function. It is also TensorFlow possible to supply a session explicitly to the constructor. See the [GenTF documentation](https://probcomp.github.io/GenTF/dev/) for more details.
+# The `TFFunction` constructor creates a new TensorFlow session that will be
+# used to execute all TensorFlow code for this generative function. It is also
+# TensorFlow possible to supply a session explicitly to the constructor. See
+# the [GenTF documentation](https://probcomp.github.io/GenTF/dev/) for more
+# details.
 
-# We can run the resulting generative function on some fake input data. This causes the TensorFlow to execute code in the TensorFlow session associated with `tf_softmax_model`:
+# To test `tf_softmax_model` we generate 5 synthetic images with random pixel values:
 
-fake_xs = rand(5, 784)
-probs = tf_softmax_model(fake_xs)
+synthetic_xs = rand(5, 784)
+
+# A single synthetic image can be accessed with:
+
+synthetic_xs[1, :]
+
+# We can run the resulting generative function on this synthetic input data. 
+# This causes the TensorFlow to execute code in the TensorFlow session
+# associated with `tf_softmax_model`:
+
+probs = tf_softmax_model(synthetic_xs)
 println(size(probs))
 
 # We can also use `Gen.initialize` to obtain a trace of this generative function.
 
-(trace, _) = Gen.generate(tf_softmax_model, (fake_xs,));
+(trace, _) = Gen.generate(tf_softmax_model, (synthetic_xs,));
 
 #  Note that generative functions constructed using GenTF do not make random choices:
 
@@ -84,7 +131,9 @@ println(Gen.get_choices(trace))
 
 println(size(Gen.get_retval(trace)))
 
-# Finally, we write a generative function using the built-in modeling DSL that invokes the TFFunction generative function we just defined. Note that we wrap the call to `tf_softmax_model` in an `@addr` statement.
+# Finally, we write a generative function using the built-in modeling DSL that
+# invokes the TFFunction generative function we just defined. Note that we wrap
+# the call to `tf_softmax_model` in a `@trace` statement.
 
 @gen function digit_model(xs::Matrix{Float64})
     
@@ -101,26 +150,45 @@ println(size(Gen.get_retval(trace)))
     end
 end;
 
-# Let's obtain a trace of `digit_model` on the fake tiny input:
+# Let's obtain a trace of `digit_model` on the synthetic tiny input:
 
-(trace, _) = Gen.generate(digit_model, (fake_xs,));
+(trace, _) = Gen.generate(digit_model, (synthetic_xs,));
 
-# We see that the `net` generative function does not make any random choices. The only random choices are the digit labels for each input input:
+# We see that the `net` generative function does not make any random choices.
+# The only random choices are the digit labels for each input input:
 
 println(Gen.get_choices(trace))
 
-# Before the `digit_model` will be useful for anything, it needs to be trained. We load some code for loading batches of MNIST training data.
+# Before the `digit_model` will be useful for anything, it needs to be trained.
+# We load some code for loading batches of MNIST training data.
 
 include("mnist.jl")
 training_data_loader = MNISTTrainDataLoader();
 
-# Now, we train the trainable parameters of the `tf_softmax_model` generative function  (`W` and `b`) on the MNIST traing data. Note that these parameters are stored as the state of the TensorFlow variables. We will use the [`Gen.train!`](https://probcomp.github.io/Gen/dev/ref/inference/#Gen.train!) method, which supports supervised training of generative functions using stochastic gradient opimization methods. In particular, this method takes the generative function to be trained (`digit_model`), a Julia function of no arguments that generates a batch of training data, and the update to apply to the trainable parameters.
+# Now, we train the trainable parameters of the `tf_softmax_model` generative
+# function  (`W` and `b`) on the MNIST traing data. Note that these parameters
+# are stored as the state of the TensorFlow variables. We will use the
+# [`Gen.train!`](https://probcomp.github.io/Gen/dev/ref/inference/#Gen.train!)
+# method, which supports supervised training of generative functions using
+# stochastic gradient opimization methods. In particular, this method takes the
+# generative function to be trained (`digit_model`), a Julia function of no
+# arguments that generates a batch of training data, and the update to apply to
+# the trainable parameters.
 
-# The `ParamUpdate` constructor takes the type of update to perform (in this case a gradient descent update with step size 0.00001), and a specification of which trainable parameters should be updated). Here, we request that the `W` and `b` trainable parameters of the `tf_softmax_model` generative function should be trained.
+# The `ParamUpdate` constructor takes the type of update to perform (in this
+# case a gradient descent update with step size 0.00001), and a specification
+# of which trainable parameters should be updated). Here, we request that the
+# `W` and `b` trainable parameters of the `tf_softmax_model` generative
+# function should be trained.
 
 update = Gen.ParamUpdate(Gen.FixedStepGradientDescent(0.00001), tf_softmax_model => [W, b]);
 
-# For the data generator, we obtain a batch of 100 MNIST training images. The data generator must return a tuple, where the first element is a set of arguments to the generative function being trained (`(xs,)`) and the second element contains the values of random choices. `train!` attempts to maximize the expected log probability of these random choices given their corresponding input values.
+# For the data generator, we obtain a batch of 100 MNIST training images. The
+# data generator must return a tuple, where the first element is a set of
+# arguments to the generative function being trained (`(xs,)`) and the second
+# element contains the values of random choices. `train!` attempts to maximize
+# the expected log probability of these random choices given their
+# corresponding input values.
 
 function data_generator()
     (xs, ys) = next_batch(training_data_loader, 100)
@@ -134,7 +202,9 @@ function data_generator()
     ((xs,), constraints)
 end;
 
-# We run 10000 iterations of stochastic gradient descent, where each iteration uses a batch of 100 images to get a noisy gradient estimate. This might take one or two minutes.
+# We run 10000 iterations of stochastic gradient descent, where each iteration
+# uses a batch of 100 images to get a noisy gradient estimate. This might take
+# one or two minutes.
 
 @time scores = Gen.train!(digit_model, data_generator, update;
     num_epoch=10000, epoch_size=1, num_minibatch=1, minibatch_size=1, verbose=false);
@@ -147,7 +217,15 @@ ylabel("Estimate of expected conditional log likelihood");
 
 # ### Exercise
 #
-# It is common to "vectorize" deep learning code so that it runs on multiple inputs at a time. This is important for making efficient use of GPU resources when training. The TensorFlow code above is vectorized across images. Construct a new TFFunction that only runs on one image at a time, and use a Julia for loop over multiple invocations of this new TFFunction, one for each image. Run the training procedure for 100 iterations. Comment on the performance difference.
+# It is common to "vectorize" deep learning code so that it runs on multiple
+# inputs at a time. This is important for making efficient use of GPU resources
+# when training. The TensorFlow code above is vectorized across images.
+# Construct a new `TFFunction` that only runs on one image at a time, and use a
+# Julia `for` loop over multiple invocations of this new `TFFunction`, one for
+# each image.
+#
+# Run the training procedure for 100 iterations. Comment on the performance
+# difference.
 
 # ### Solution
 #
