@@ -247,11 +247,13 @@ b_unvec = tf.compat.v1.Variable(init_b)
 probs_unvec = tf.squeeze(nn.softmax(tf.add(tf.matmul(tf.expand_dims(x, axis=0), W_unvec), b_unvec), axis=1), axis=0);
 # -
 
-# We also provide you with the definition of the new TFFunction based on this computation graph:
+# We also provide you with the definition of the new TFFunction based on this
+# computation graph:
 
 tf_softmax_model_single = TFFunction([W_unvec, b_unvec], [x], probs_unvec);
 
-# We will use an update that modifies the parameters of `tf_softmax_model_single`:
+# We will use an update that modifies the parameters of
+# `tf_softmax_model_single`:
 
 update_unvec = Gen.ParamUpdate(Gen.FixedStepGradientDescent(0.00001), tf_softmax_model_single => [W_unvec, b_unvec]);
 
@@ -281,7 +283,8 @@ end;
     return nothing
 end;
 
-# After you have filled in the cells above, try running `digit_model_unvectorized` on some input to help debug your solution. 
+# After you have filled in the cells above, try running
+# `digit_model_unvectorized` on some input to help debug your solution.
 
 # Next, fill in the data generator that you will use to train the new model:
 
