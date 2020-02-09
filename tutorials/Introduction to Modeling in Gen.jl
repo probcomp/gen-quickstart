@@ -392,10 +392,6 @@ end;
 #     render_sine_trace(trace)
 # end
 # ```
-for (i, trace) in enumerate(traces)
-    subplot(3, 6, i)
-    render_sine_trace(trace)
-end
 
 # ### Plot your results.
 #
