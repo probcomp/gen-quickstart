@@ -944,12 +944,17 @@ visualize_custom_destination_proposal(measurements, start, custom_dest_proposal_
 #
 # Hint:
 #
-# - Construct a vectorized version of each of the neural networks that operate on an extra 'training example' dimension.
+# - Construct a vectorized version of each of the neural networks that operate
+#   on an extra 'training example' dimension.
 #
-# - Construct a vectorized version of the proposal. It should accept a vector of measurement vectors as one of its arguments. This vectorized propsal should make 2N random choices where N is the batch size.
+# - Construct a vectorized version of the proposal. It should accept a vector
+#   of measurement vectors as one of its arguments. This vectorized propsal
+#   should make 2N random choices where N is the batch size.
 #
-# - Construct a vectorized version of the data generator. It should generate constraints for all random choices of the vectorized proposal.
+# - Construct a vectorized version of the data generator. It should generate
+#   constraints for all random choices of the vectorized proposal.
 #
-# - Construct a non-vectorized version of the proposal that invokes the vectorized neural networks on a single data set.
+# - Construct a non-vectorized version of the proposal that invokes the
+#   vectorized neural networks on a single data set.
 
 # ### Solution
