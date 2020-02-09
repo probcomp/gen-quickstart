@@ -168,8 +168,6 @@ typeof("foo")
 # The generative function below represents a probabilistic model of a linear relationship in the x-y plane. Given a set of $x$ coordinates, it randomly chooses a line in the plane and generates corresponding $y$ coordinates so that each $(x, y)$ is near the line. We might think of this function as modeling house prices as a function of square footage, or the measured volume of a gas as a function of its measured temperature.
 
 @gen function line_model(xs::Vector{Float64})
-    n = length(xs)
-
     # We begin by sampling a slope and intercept for the line.
     # Before we have seen the data, we don't know the values of
     # these parameters, so we treat them as random choices. The
@@ -186,8 +184,7 @@ typeof("foo")
     end
 
     # The return value of this model is not particularly important.
-    # We explicitly return `nothing` to make this clear to the reader.
-    return nothing
+    return :dummy_return_value
 end;
 
 # The generative function takes as an argument a vector of x-coordinates. We
@@ -206,10 +203,10 @@ xs = [-5., -4., -3., -2., -1., 0., 1., 2., 3., 4., 5.];
 # This generative function returns the number of data points. We can run the
 # function like we run a regular Julia function:
 
-n = line_model(xs)
-println(n)
+retval = line_model(xs)
+println(retval)
 
-# More interesting than `n` are the values of the random choices that
+# More interesting than `retval` are the values of the random choices that
 # `line_model` makes. **Crucially, each random choice is annotated with a
 # unique *address*.** A random choice is assigned an address using the `@trace`
 # keyword. Addresses can be any Julia value. In this program, there are two
@@ -665,7 +662,6 @@ ylabel("Y");
 # We first write a new version of the line model that samples a random choice for the noise from a `gamma(1, 1)` prior distribution.
 
 @gen function line_model_2(xs::Vector{Float64})
-    n = length(xs)
     slope = @trace(normal(0, 1), :slope)
     intercept = @trace(normal(0, 2), :intercept)
     noise = @trace(gamma(1, 1), :noise)
