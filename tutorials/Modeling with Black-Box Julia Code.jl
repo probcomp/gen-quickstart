@@ -346,7 +346,7 @@ displayInNotebook(viz)
 # The first argument to `PlannerParams` is the number of iterations of the RRT
 # algorithm to use. The third argument to `PlannerParams` is the number of
 # iterations of path refinement. These parameters affect the distribution on
-# paths of the agent. Visualize traces of the `agent_model` for with a couple
+# paths of the agent. Visualize traces of the `agent_model` with a couple of
 # different settings of these two parameters to the path planning algorithm for
 # fixed starting point and destination point. Try setting them to smaller
 # values. Discuss.
