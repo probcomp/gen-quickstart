@@ -73,7 +73,7 @@ using PyPlot
 bearing(x, y) = atan(y, x)
 
 @gen function model(T::Int)
-    
+
     measurement_noise = 0.005
     velocity_var = (1.0/1e6)
 
@@ -82,32 +82,32 @@ bearing(x, y) = atan(y, x)
 
     # prior on initial x-coordinate
     x = @trace(normal(0.01, 0.01), :x0)
-       
+
     # prior on initial y-coordinate
     y = @trace(normal(0.95, 0.01), :y0)
-    
+
     # prior on x-component of initial velocity
     vx = @trace(normal(0.002, 0.01), :vx0)
-    
+
     # prior on y-component of initial velocity
     vy = @trace(normal(-0.013, 0.01), :vy0)
-    
+
     # initial bearing measurement
     @trace(normal(bearing(x, y), measurement_noise), :z0)
 
     # record position
     xs[1] = x
     ys[1] = y
-    
+
     # generate successive states and measurements
     for t=1:T
-        
+
         # update the state of the point
         vx = @trace(normal(vx, sqrt(velocity_var)), (:vx, t))
         vy = @trace(normal(vy, sqrt(velocity_var)), (:vy, t))
         x += vx
         y += vy
-        
+
         # bearing measurement
         @trace(normal(bearing(x, y), measurement_noise), (:z, t))
 
@@ -115,7 +115,7 @@ bearing(x, y) = atan(y, x)
         xs[t+1] = x
         ys[t+1] = y
     end
-    
+
     # return the sequence of positions
     return (xs, ys)
 end;
@@ -212,18 +212,18 @@ title("Observed bearings (red) and positions (blue)");
 # - `Gen.sample_unweighted_traces`
 
 function particle_filter(num_particles::Int, zs::Vector{Float64}, num_samples::Int)
-    
+
     # construct initial observations
     init_obs = Gen.choicemap((:z0, zs[1]))
     state = Gen.initialize_particle_filter(model, (0,), init_obs, num_particles)
-    
+
     # steps
     for t=1:length(zs)-1
         Gen.maybe_resample!(state, ess_threshold=num_particles/2)
         obs = Gen.choicemap(((:z, t), zs[t+1]))
         Gen.particle_filter_step!(state, (t,), (UnknownChange(),), obs)
     end
-    
+
     # return a sample of unweighted traces from the weighted collection
     return Gen.sample_unweighted_traces(state, num_samples)
 end;
@@ -310,11 +310,40 @@ overlay(render, pf_traces, same_data=true);
 # distribution the conditional distribution on the latent variables, given the
 # first three observations.
 #
-# Next, we write a version of the particle filter that applies two random walk
-# Metropolis-Hastings rejuvenation move to each particle.
+# Next, we write two new versions of the particle filter, each of which uses
+# Metropolis-Hastings rejuvenation moves to each particle.  The first version
+# uses so-called "resimulation MH," meaning that the proposal distribution for
+# MH is equal to the prior of the generative model.  The proposed next state
+# under this rejuvenation move is independent of the current state.  By
+# contrast, the second version we write will use Gaussian drift proposals, and
+# therefore we refer to it as "random walk MH."
 
-# The cell below defines a Metropolis-Hastings perturbation move that perturbs
-# the velocity vectors for a block of time steps between `a` and `b` inclusive.
+# First, the resimulation MH rejuvenation move:
+
+function particle_filter_rejuv_resim(num_particles::Int, zs::Vector{Float64}, num_samples::Int)
+    init_obs = Gen.choicemap((:z0, zs[1]))
+    state = Gen.initialize_particle_filter(model, (0,), init_obs, num_particles)
+    for t=1:length(zs)-1
+
+        # apply a rejuvenation move to each particle
+        for i=1:num_particles
+            # < Replace this default MH move with your perturbation move >
+            speed = select(:x0, :y0, :vx0, :vy0)
+            state.traces[i], _  = mh(state.traces[i], speed)
+        end
+
+        Gen.maybe_resample!(state, ess_threshold=num_particles/2)
+        obs = Gen.choicemap(((:z, t), zs[t+1]))
+        Gen.particle_filter_step!(state, (t,), (UnknownChange(),), obs)
+    end
+
+    # return a sample of unweighted traces from the weighted collection
+    return Gen.sample_unweighted_traces(state, num_samples)
+end;
+
+
+# Next, we define a Metropolis-Hastings perturbation move that perturbs the
+# velocity vectors for a block of time steps between `a` and `b` inclusive.
 
 # +
 @gen function perturbation_proposal(prev_trace, a::Int, b::Int)
@@ -334,21 +363,21 @@ end;
 # We add this into our particle filtering inference program below. We apply the
 # rejuvenation move to adjust the velocities for the previous 5 time steps.
 
-function particle_filter_rejuv(num_particles::Int, zs::Vector{Float64}, num_samples::Int)
-    init_obs = Gen.choicemap((:z0, zs[1]))    
+function particle_filter_rejuv_perturb(num_particles::Int, zs::Vector{Float64}, num_samples::Int)
+    init_obs = Gen.choicemap((:z0, zs[1]))
     state = Gen.initialize_particle_filter(model, (0,), init_obs, num_particles)
     for t=1:length(zs)-1
-        
+
         # apply a rejuvenation move to each particle
         for i=1:num_particles
             state.traces[i], _ = perturbation_move(state.traces[i], max(1, t-5), t-1)
         end
-        
+
         Gen.maybe_resample!(state, ess_threshold=num_particles/2)
         obs = Gen.choicemap(((:z, t), zs[t+1]))
         Gen.particle_filter_step!(state, (t,), (UnknownChange(),), obs)
     end
-    
+
     # return a sample of unweighted traces from the weighted collection
     return Gen.sample_unweighted_traces(state, num_samples)
 end;
@@ -357,11 +386,17 @@ end;
 # or two. We will see one way of speeding up the particle filter in a later
 # section.
 
-@time pf_rejuv_traces = particle_filter_rejuv(5000, zs, 200);
+@time pf_rejuv_traces_resim = particle_filter_rejuv_resim(5000, zs, 200);
+
+@time pf_rejuv_traces_perturb = particle_filter_rejuv_perturb(5000, zs, 200);
 
 # We render the traces:
 
-overlay(render, pf_rejuv_traces, same_data=true)
+overlay(render, pf_rejuv_traces_resim, same_data=true)
+title("Rejuvenation with resimulation MH on the starting points")
+
+overlay(render, pf_rejuv_traces_perturb, same_data=true)
+title("Rejuvenation with perturbation proposal")
 
 # ## 4. Using the unfold combinator to improve performance <a name="unfold"></a>
 #
@@ -391,13 +426,13 @@ overlay(render, pf_rejuv_traces, same_data=true)
 # ```julia
 #     # generate successive states and measurements
 #     for t=1:T
-#         
+#
 #         # update the state of the point
 #         vx = @trace(normal(vx, sqrt(velocity_var)), (:vx, t))
 #         vy = @trace(normal(vy, sqrt(velocity_var)), (:vy, t))
 #         x += vx
 #         y += vy
-#         
+#
 #         # bearing measurement
 #         @trace(normal(bearing(x, y), measurement_noise), (:z, t))
 #
@@ -444,7 +479,7 @@ println(Gen.get_choices(trace))
 
 # +
 @gen (static) function unfold_model(T::Int)
-    
+
     # parameters
     measurement_noise = 0.005
     velocity_var = 1e-6
@@ -460,10 +495,10 @@ println(Gen.get_choices(trace))
 
     # record initial state
     init_state = State(x, y, vx, vy)
-    
+
     # run `chain` function under address namespace `:chain`, producing a vector of states
     states = @trace(chain(T, init_state, velocity_var, measurement_noise), :chain)
-    
+
     result = (init_state, states)
     return result
 end;
@@ -477,15 +512,15 @@ Gen.load_generated_functions()
 println(Gen.get_choices(trace))
 
 function unfold_particle_filter(num_particles::Int, zs::Vector{Float64}, num_samples::Int)
-    init_obs = Gen.choicemap((:z0, zs[1]))    
-    state = Gen.initialize_particle_filter(unfold_model, (0,), init_obs, num_particles)    
+    init_obs = Gen.choicemap((:z0, zs[1]))
+    state = Gen.initialize_particle_filter(unfold_model, (0,), init_obs, num_particles)
     for t=1:length(zs)-1
 
         maybe_resample!(state, ess_threshold=num_particles/2)
         obs = Gen.choicemap((:chain => t => :z, zs[t+1]))
         Gen.particle_filter_step!(state, (t,), (UnknownChange(),), obs)
     end
-    
+
     # return a sample of traces from the weighted collection:
     return Gen.sample_unweighted_traces(state, num_samples)
 end;
@@ -537,11 +572,11 @@ function timing_experiment(num_observations_list::Vector{Int}, num_particles::In
         tstart = time_ns()
         traces = particle_filter(num_particles, fake_zs[1:num_observations], num_samples)
         push!(times, (time_ns() - tstart) / 1e9)
-        
+
         tstart = time_ns()
         traces = unfold_particle_filter(num_particles, fake_zs[1:num_observations], num_samples)
         push!(times_unfold, (time_ns() - tstart) / 1e9)
-        
+
     end
     (times, times_unfold)
 end;
