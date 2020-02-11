@@ -442,9 +442,19 @@ title("Rejuvenation with perturbation proposal")
 #     end
 # ```
 #
-# This `for` loop has a very specific pattern of information flow---there is a sequence of states (represented by `x, y, vx, and vy), and each state is generated from the previous state. This is exactly the pattern that the [Unfold](https://probcomp.github.io/Gen/dev/ref/combinators/#Unfold-combinator-1) generative function combinator is designed to handle.
+# This `for` loop has a very specific pattern of information flow---there is a
+# sequence of states (represented by `x, y, vx, and vy), and each state is
+# generated from the previous state. This is exactly the pattern that the
+# [Unfold](https://probcomp.github.io/Gen/dev/ref/combinators/#Unfold-combinator-1)
+# generative function combinator is designed to handle.
 #
-# Below, we re-express the Julia for loop over the state sequence using the Unfold combinator. Specifically, we define a generative function (kernel) that takes the prevous state as its second argument, and returns the new state. The Unfold combinator takes the kernel and returns a new generative function (chain) that applies kernel repeatedly. Read the Unfold combinator documentation for details on the behavior of the resulting generative function (chain).
+# Below, we re-express the Julia for loop over the state sequence using the
+# Unfold combinator. Specifically, we define a generative function (kernel)
+# that takes the prevous state as its second argument, and returns the new
+# state. The Unfold combinator takes the kernel and returns a new generative
+# function (chain) that applies kernel repeatedly. Read the Unfold combinator
+# documentation for details on the behavior of the resulting generative
+# function (chain).
 
 # +
 struct State
@@ -470,12 +480,14 @@ chain = Gen.Unfold(kernel)
 Gen.load_generated_functions()
 # -
 
-# We can understand the behavior of `chain` by getting a trace of it and printing the random choices:
+# We can understand the behavior of `chain` by getting a trace of it and
+# printing the random choices:
 
 trace = Gen.simulate(chain, (4, State(0., 0., 0., 0.), 0.01, 0.01))
 println(Gen.get_choices(trace))
 
-# We now write a new version of the generative model that invokes `chain` instead of using the Julia `for` loop:
+# We now write a new version of the generative model that invokes `chain`
+# instead of using the Julia `for` loop:
 
 # +
 @gen (static) function unfold_model(T::Int)
