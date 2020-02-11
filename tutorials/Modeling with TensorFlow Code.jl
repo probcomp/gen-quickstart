@@ -29,9 +29,10 @@
 # how to invoke a GenTF generative function from a `@gen` function, and how to
 # perform basic supervised training of a generative function. Specifically, we
 # will train a softmax regression conditional inference model to generate the
-# label of an MNIST digit given the pixels. Later tutorials will show how to
-# use deep learning and TensorFlow to accelerate inference in generative
-# models, using ideas from "amortized inference".
+# label of an MNIST digit given the pixels. Later
+# tutorials
+# will show how to use deep learning and TensorFlow to accelerate inference in
+# generative models, using ideas from "amortized inference".
 
 # NOTE: Only attempt to run this notebook if you have a working installation of
 # TensorFlow and GenTF (see the [GenTF installation
