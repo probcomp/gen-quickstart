@@ -119,7 +119,7 @@ synthetic_xs[1, :]
 probs = tf_softmax_model(synthetic_xs)
 println(size(probs))
 
-# We can also use `Gen.initialize` to obtain a trace of this generative function.
+# We can also use `Gen.regenerate` to obtain a trace of this generative function.
 
 (trace, _) = Gen.generate(tf_softmax_model, (synthetic_xs,));
 
