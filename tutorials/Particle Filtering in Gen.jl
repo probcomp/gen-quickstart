@@ -570,11 +570,12 @@ overlay(unfold_render, unfold_pf_traces, same_data=true)
 
 # We now empirically investigate the scaling behavior of (1) the inference
 # program that uses the Julia `for` loop,  and (2) the equivalent inference
-# program that uses Unfold. We will use a fake long vector of z data, and we
-# will investigate how the running time depends on the number of observations.
+# program that uses Unfold. We will use a synthetic long vector of z data, and
+# we will investigate how the running time depends on the number of
+# observations.
 
 # +
-fake_zs = rand(1000);
+synthetic_zs = rand(1000);
 
 function timing_experiment(num_observations_list::Vector{Int}, num_particles::Int, num_samples::Int)
     times = Vector{Float64}()
@@ -582,11 +583,11 @@ function timing_experiment(num_observations_list::Vector{Int}, num_particles::In
     for num_observations in num_observations_list
         println("evaluating inference programs for num_observations: $num_observations")
         tstart = time_ns()
-        traces = particle_filter(num_particles, fake_zs[1:num_observations], num_samples)
+        traces = particle_filter(num_particles, synthetic_zs[1:num_observations], num_samples)
         push!(times, (time_ns() - tstart) / 1e9)
 
         tstart = time_ns()
-        traces = unfold_particle_filter(num_particles, fake_zs[1:num_observations], num_samples)
+        traces = unfold_particle_filter(num_particles, synthetic_zs[1:num_observations], num_samples)
         push!(times_unfold, (time_ns() - tstart) / 1e9)
 
     end
