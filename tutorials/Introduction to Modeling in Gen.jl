@@ -165,7 +165,12 @@ typeof("foo")
 # ```
 #
 
-# The generative function below represents a probabilistic model of a linear relationship in the x-y plane. Given a set of $x$ coordinates, it randomly chooses a line in the plane and generates corresponding $y$ coordinates so that each $(x, y)$ is near the line. We might think of this function as modeling house prices as a function of square footage, or the measured volume of a gas as a function of its measured temperature.
+# The generative function below represents a probabilistic model of a linear
+# relationship in the x-y plane. Given a set of $x$ coordinates, it randomly
+# chooses a line in the plane and generates corresponding $y$ coordinates so
+# that each $(x, y)$ is near the line. We might think of this function as
+# modeling house prices as a function of square footage, or the measured volume
+# of a gas as a function of its measured temperature.
 
 @gen function line_model(xs::Vector{Float64})
     # We begin by sampling a slope and intercept for the line.
@@ -300,7 +305,8 @@ xlabel("X");
 ylabel("Y");
 title("Simulating a line and Y values\nfor a given vector (X)")
 
-# Because a generative function is stochastic, we need to visualize many runs in order to understand its behavior. The cell below renders a grid of traces.
+# Because a generative function is stochastic, we need to visualize many runs
+# in order to understand its behavior. The cell below renders a grid of traces.
 
 function grid(renderer::Function, traces; ncols=6, nrows=3)
     figure(figsize=(16, 8))
@@ -318,7 +324,8 @@ grid(render_trace, traces)
 # -------------------------------------------------
 # ### Exercise
 #
-# Write a generative function that uses the same address twice. Run it to see what happens.
+# Write a generative function that uses the same address twice. Run it to see
+# what happens.
 
 # ### Solution
 
@@ -594,7 +601,8 @@ function infer_and_predict(model, xs, ys, new_xs, param_addrs, num_traces, amoun
     pred_ys
 end;
 
-# To illustrate, we generate predictions at `[1., 2., 3.]` given one posterior trace.
+# To illustrate, we generate predictions at `[1., 2., 3.]` given one posterior
+# trace.
 
 pred_ys = infer_and_predict(line_model, xs, ys, [1., 2., 3.], [:slope, :intercept], 1, 1000)
 
@@ -653,9 +661,16 @@ title("Oberved data (red)\nand predictions (black)");
 xlabel("X");
 ylabel("Y");
 
-# It looks like the generated data is less noisy than the observed data in the regime where data was observed, and it looks like the forecasted data is too overconfident. This is a sign that our model is mis-specified. In our case, this is because we have assumed that the noise has value 0.1. However, the actual noise in the data appears to be much larger. We can correct this by making the noise a random choice as well and inferring its value along with the other parameters.
+# It looks like the generated data is less noisy than the observed data in the
+# regime where data was observed, and it looks like the forecasted data is too
+# overconfident. This is a sign that our model is mis-specified. In our case,
+# this is because we have assumed that the noise has value 0.1. However, the
+# actual noise in the data appears to be much larger. We can correct this by
+# making the noise a random choice as well and inferring its value along with
+# the other parameters.
 
-# We first write a new version of the line model that samples a random choice for the noise from a `gamma(1, 1)` prior distribution.
+# We first write a new version of the line model that samples a random choice
+# for the noise from a `gamma(1, 1)` prior distribution.
 
 @gen function line_model_2(xs::Vector{Float64})
     slope = @trace(normal(0, 1), :slope)
@@ -667,7 +682,8 @@ ylabel("Y");
     return nothing
 end;
 
-# Then, we compare the predictions using inference the unmodified and modified model on the `ys` data set:
+# Then, we compare the predictions using inference the unmodified and modified
+# model on the `ys` data set:
 
 # +
 figure(figsize=(6,3))
@@ -683,9 +699,11 @@ title("Inferred noise level")
 plot_predictions(xs, ys, new_xs, pred_ys)
 # -
 
-# Notice that there is more uncertainty in the predictions made using the modified model.
+# Notice that there is more uncertainty in the predictions made using the
+# modified model.
 #
-# We also compare the predictions using inference the unmodified and modified model on the `ys_noisy` data set:
+# We also compare the predictions using inference the unmodified and modified
+# model on the `ys_noisy` data set:
 
 # +
 figure(figsize=(6,3))
@@ -1133,7 +1151,8 @@ grid(render_changepoint_model_trace, traces)
 traces = [do_inference(changepoint_model, xs_dense, ys_simple, 10000) for _=1:12];
 grid(render_changepoint_model_trace, traces)
 
-# We see that we inferred that the mean function that explains the data is a constant with very high probability.
+# We see that we inferred that the mean function that explains the data is a
+# constant with very high probability.
 
 # For inference about the complex data set, we use more computation. You can
 # experiment with different amounts of computation to see how the quality of
