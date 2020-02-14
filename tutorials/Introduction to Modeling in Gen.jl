@@ -717,7 +717,7 @@ plot_predictions(xs, ys_noisy, new_xs, pred_ys)
 
 # ### Solution
 
-@gen function sine_model_2(xs::Vector{Float64})
+@gen function sine_model_fancy(xs::Vector{Float64})
 
     # < your code here >
 
@@ -738,7 +738,7 @@ title("Fixed noise level")
 plot_predictions(xs, ys_sine, new_xs, pred_ys)
 
 # Modify the line below>
-pred_ys = infer_and_predict(sine_model_2, xs, ys_sine, new_xs, [], 20, 1)
+pred_ys = infer_and_predict(sine_model_fancy, xs, ys_sine, new_xs, [], 20, 1)
 
 subplot(1, 2, 2)
 title("Inferred noise level")
@@ -755,7 +755,7 @@ title("Fixed noise level")
 plot_predictions(xs, ys_noisy, new_xs, pred_ys)
 
 # Modify the line below>
-pred_ys = infer_and_predict(sine_model_2, xs, ys_noisy, new_xs, [], 20, 1)
+pred_ys = infer_and_predict(sine_model_fancy, xs, ys_noisy, new_xs, [], 20, 1)
 
 subplot(1, 2, 2)
 title("Inferred noise level")
@@ -850,7 +850,7 @@ trace[Pair(:a, Pair(:z, :y))]
     if @trace(bernoulli(0.5), :is_line)
         @trace(line_model_2(xs))
     else
-        @trace(sine_model_2(xs))
+        @trace(sine_model_fancy(xs))
     end
 end;
 
@@ -910,7 +910,7 @@ ylabel("Y");
 # ------
 # ### Exercise 
 #
-# There is code that is duplicated between `line_model_2` and `sine_model_2`.
+# There is code that is duplicated between `line_model_2` and `sine_model_fancy`.
 # Refactor the model to reduce code duplication and improve the readability of
 # the code. Re-run the experiment above and confirm that the results are
 # qualitatively the same. You may need to write a new rendering function. Try
