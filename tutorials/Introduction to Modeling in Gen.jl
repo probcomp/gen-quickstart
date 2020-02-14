@@ -672,7 +672,7 @@ ylabel("Y");
 # We first write a new version of the line model that samples a random choice
 # for the noise from a `gamma(1, 1)` prior distribution.
 
-@gen function line_model_2(xs::Vector{Float64})
+@gen function line_model_fancy(xs::Vector{Float64})
     slope = @trace(normal(0, 1), :slope)
     intercept = @trace(normal(0, 2), :intercept)
     noise = @trace(gamma(1, 1), :noise)
@@ -693,7 +693,7 @@ subplot(1, 2, 1)
 title("Fixed noise level")
 plot_predictions(xs, ys, new_xs, pred_ys)
 
-pred_ys = infer_and_predict(line_model_2, xs, ys, new_xs, [:slope, :intercept, :noise], 20, 10000)
+pred_ys = infer_and_predict(line_model_fancy, xs, ys, new_xs, [:slope, :intercept, :noise], 20, 10000)
 subplot(1, 2, 2)
 title("Inferred noise level")
 plot_predictions(xs, ys, new_xs, pred_ys)
@@ -713,7 +713,7 @@ subplot(1, 2, 1)
 title("Fixed noise level")
 plot_predictions(xs, ys_noisy, new_xs, pred_ys)
 
-pred_ys = infer_and_predict(line_model_2, xs, ys_noisy, new_xs, [:slope, :intercept, :noise], 20, 10000)
+pred_ys = infer_and_predict(line_model_fancy, xs, ys_noisy, new_xs, [:slope, :intercept, :noise], 20, 10000)
 subplot(1, 2, 2)
 title("Inferred noise level")
 plot_predictions(xs, ys_noisy, new_xs, pred_ys)
@@ -866,7 +866,7 @@ trace[Pair(:a, Pair(:z, :y))]
 
 @gen function combined_model(xs::Vector{Float64})
     if @trace(bernoulli(0.5), :is_line)
-        @trace(line_model_2(xs))
+        @trace(line_model_fancy(xs))
     else
         @trace(sine_model_fancy(xs))
     end
@@ -928,12 +928,12 @@ ylabel("Y");
 # ------
 # ### Exercise 
 #
-# There is code that is duplicated between `line_model_2` and `sine_model_fancy`.
-# Refactor the model to reduce code duplication and improve the readability of
-# the code. Re-run the experiment above and confirm that the results are
-# qualitatively the same. You may need to write a new rendering function. Try
-# to avoid introducing code duplication between the model and the rendering
-# code.
+# There is code that is duplicated between `line_model_fancy` and
+# `sine_model_fancy`.  Refactor the model to reduce code duplication and
+# improve the readability of the code. Re-run the experiment above and confirm
+# that the results are qualitatively the same. You may need to write a new
+# rendering function. Try to avoid introducing code duplication between the
+# model and the rendering code.
 #
 # Hint: To avoid introducing code duplication between the model and the
 # rendering code, use the return value of the generative function.
