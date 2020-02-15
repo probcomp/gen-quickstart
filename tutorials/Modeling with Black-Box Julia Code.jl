@@ -312,7 +312,7 @@ displayInNotebook(viz)
 function do_inference_agent_model(scene::Scene, dt::Float64, num_ticks::Int, planner_params::PlannerParams, start::Point,
                                   measurements::Vector{Point}, amount_of_computation::Int)
     
-    # Create an "Assignment" that maps model addresses (:y, i)
+    # Create a ChoiceMap that maps model addresses (:y, i)
     # to observed values ys[i]. We leave :slope and :intercept
     # unconstrained, because we want them to be inferred.
     observations = Gen.choicemap()
