@@ -15,7 +15,7 @@ RUN             git config --global user.name "Gen User"
 RUN             git config --global user.email "email@example.com"
 
 RUN             virtualenv -p /usr/bin/python3 /venv
-RUN             . /venv/bin/activate && pip install jupyter jupytext matplotlib tensorflow
+RUN             . /venv/bin/activate && pip install jupyter jupytext matplotlib tensorflow torch
 
 RUN             wget https://julialang-s3.julialang.org/bin/linux/x64/1.3/julia-1.3.1-linux-x86_64.tar.gz
 RUN             tar -xzv < julia-1.3.1-linux-x86_64.tar.gz
