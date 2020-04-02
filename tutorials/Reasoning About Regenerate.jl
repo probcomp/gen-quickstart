@@ -1,15 +1,16 @@
 # ---
 # jupyter:
 #   jupytext:
+#     formats: ipynb,jl:light
 #     text_representation:
 #       extension: .jl
 #       format_name: light
 #       format_version: '1.5'
 #       jupytext_version: 1.3.3
 #   kernelspec:
-#     display_name: Julia 1.1.1
+#     display_name: Julia 1.4.0
 #     language: julia
-#     name: julia-1.1
+#     name: julia-1.4
 # ---
 
 # # Reasoning About Regenerate
@@ -73,7 +74,7 @@ using Gen: regenerate, select, NoChange
 # +
 using Gen: get_choices
 
-println(get_choices(trace))
+get_choices(trace)
 # -
 
 # Re-run the regenerate command until you get a trace where `a` is `false`. Note that the address `b` doesn't appear in the resulting trace. Then, run the command again until you get a trace where `a` is `true`. Note that now there is a value for `b`. This value of `b` was sampled along with the new value for `a`---`regenerate` will regenerate new values for the selected adddresses, but also any new addresses that may be introduced as a consequence of stochastic control flow.
@@ -205,7 +206,7 @@ log((0.7 * 0.9)/(0.3 * 0.4 * 0.2)) + log((0.3 * 0.4)/(0.7))
 
 trace, weight = generate(foo, (0.3,), choicemap((:a, true), (:b, false), (:c, true)));
 (trace, weight, retdiff) = regenerate(trace, (0.3,), (NoChange(),), select(:a));
-println(get_choices(trace))
+get_choices(trace)
 println("weight: $weight");
 
 # Aren't we glad this is automated by Gen!

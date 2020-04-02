@@ -1,15 +1,16 @@
 # ---
 # jupyter:
 #   jupytext:
+#     formats: ipynb,jl:light
 #     text_representation:
 #       extension: .jl
 #       format_name: light
 #       format_version: '1.5'
 #       jupytext_version: 1.3.3
 #   kernelspec:
-#     display_name: Julia 1.1.1
+#     display_name: Julia 1.4.0
 #     language: julia
-#     name: julia-1.1
+#     name: julia-1.4
 # ---
 
 # # Modeling with TensorFlow code
@@ -78,7 +79,7 @@ println(size(probs))
 
 #  Note that generative functions constructed using GenTF do not make random choices:
 
-println(Gen.get_choices(trace))
+Gen.get_choices(trace)
 
 # The return value is the Julia value corresponding to the Tensor `y`:
 
@@ -107,7 +108,7 @@ end;
 
 # We see that the `net` generative function does not make any random choices. The only random choices are the digit labels for each input input:
 
-println(Gen.get_choices(trace))
+Gen.get_choices(trace)
 
 # Before the `digit_model` will be useful for anything, it needs to be trained. We load some code for loading batches of MNIST training data.
 

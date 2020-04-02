@@ -1,15 +1,16 @@
 # ---
 # jupyter:
 #   jupytext:
+#     formats: ipynb,jl:light
 #     text_representation:
 #       extension: .jl
 #       format_name: light
 #       format_version: '1.5'
 #       jupytext_version: 1.3.3
 #   kernelspec:
-#     display_name: Julia 1.1.1
+#     display_name: Julia 1.4.0
 #     language: julia
-#     name: julia-1.1
+#     name: julia-1.4
 # ---
 
 # # A Bottom-Up Introduction to Gen
@@ -265,7 +266,7 @@ trace[:initial_n]
 # +
 using Gen: get_choices
 
-println(get_choices(trace))
+get_choices(trace)
 # -
 
 # Gen also stores the arguments on which the function was called:
@@ -360,7 +361,7 @@ end
 
 using Gen: get_score
 trace = simulate(foo, (0.3,))
-println(get_choices(trace))
+display(get_choices(trace))
 println("log probability: $(get_score(trace))")
 
 # Check this value against the hand-computed value in our table above.
@@ -387,8 +388,6 @@ println("log probability: $(get_score(trace))")
 using Gen: choicemap
 
 constraints = choicemap((:a, true), (:c, false))
-
-println(constraints)
 # -
 
 # The `choicemap` constructor above took two elements of the form `(address, value`). This is equivalent to constructing an empty choice map and then populating it:
@@ -411,7 +410,7 @@ using Gen: generate
 #
 # Let's check that the trace actually agrees with our constraints:
 
-println(get_choices(trace))
+get_choices(trace)
 
 # We can also check the return value:
 

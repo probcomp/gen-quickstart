@@ -2,15 +2,16 @@
 # ---
 # jupyter:
 #   jupytext:
+#     formats: ipynb,jl:light
 #     text_representation:
 #       extension: .jl
 #       format_name: light
 #       format_version: '1.5'
 #       jupytext_version: 1.3.3
 #   kernelspec:
-#     display_name: Julia 1.1.1
+#     display_name: Julia 1.4.0
 #     language: julia
-#     name: julia-1.1
+#     name: julia-1.4
 # ---
 
 # # Tutorial: Particle Filtering in Gen
@@ -339,7 +340,7 @@ Gen.load_generated_functions()
 # We can understand the behavior of `chain` by getting a trace of it and printing the random choices:
 
 trace = Gen.simulate(chain, (4, State(0., 0., 0., 0.), 0.01, 0.01))
-println(Gen.get_choices(trace))
+Gen.get_choices(trace)
 
 # We now write a new version of the generative model that invokes `chain` instead of using the Julia `for` loop:
 
@@ -375,7 +376,7 @@ Gen.load_generated_functions()
 # Let's generate a trace of this new model program to understand its structure:
 
 (trace, _) = Gen.generate(unfold_model, (4,))
-println(Gen.get_choices(trace))
+Gen.get_choices(trace)
 
 function unfold_particle_filter(num_particles::Int, zs::Vector{Float64}, num_samples::Int)
     init_obs = Gen.choicemap((:z0, zs[1]))    
