@@ -169,7 +169,7 @@ trace = simulate(generate_all_points, (xs, prob_outliers, noises, slopes, interc
 
 # We see that the `generate_all_points` function has traced 5 calls to `generate_single_point`, under namespaces `1` through `5`.  The `Map` combinator automatically adds these indices to the trace address.
 
-println(get_choices(trace))
+display(get_choices(trace))
 
 # Now, let's replace the Julia `for` loop in our model with a call to this new function:
 
@@ -186,7 +186,7 @@ end;
 # Note that this new model has the same address structure as our original model had, so our inference code will not need to change. For example, the 5th data point's $y$ coordinate will be stored at the address `:data => 5 => :y`, just as before. (The `:data` comes from our `@trace` invocation in the `better_model` definition, and the `:y` comes from `generate_point`; only the `5` has been inserted automatically by `Map`.)
 
 trace = simulate(model_with_map, (xs,));
-println(get_choices(trace))
+display(get_choices(trace))
 
 # Let's test the running time of the inference program, applied to this new model:
 

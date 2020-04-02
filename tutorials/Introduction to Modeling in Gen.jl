@@ -127,7 +127,7 @@ Gen.get_args(trace)
 
 # The trace also contains the value of the random choices, stored in a map from address to value called a *choice map*. This map is available through the API method [`get_choices`]():
 
-println(Gen.get_choices(trace))
+display(Gen.get_choices(trace))
 
 # We can pull out individual values from this map using Julia's subscripting syntax `[...]`:
 
@@ -539,12 +539,12 @@ end;
 # We first show the addresses sampled by `bar`:
 
 trace = Gen.simulate(bar, ())
-println(Gen.get_choices(trace))
+display(Gen.get_choices(trace))
 
 # And the addresses sampled by `bar_using_namespace`:
 
 trace = Gen.simulate(bar_using_namespace, ())
-println(Gen.get_choices(trace))
+display(Gen.get_choices(trace))
 
 # Using `@trace` with a namespace can help avoid address collisions for complex models.
 

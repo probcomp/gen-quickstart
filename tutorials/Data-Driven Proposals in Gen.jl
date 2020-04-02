@@ -280,7 +280,7 @@ end;
 # We can propose values of random choices from the proposal function using [`Gen.propose`](https://probcomp.github.io/Gen/dev/ref/gfi/#Gen.propose). This method returns the choices, as well as some other information, which we won't need for our purposes. For now, you can think of `Gen.propose` as similar to `Gen.initialize` except that it does not produce a full execution trace (only the choices), and it does not accept constraints. We can see the random choices for one run of the proposal on our data set:
 
 (proposed_choices, _, _) = Gen.propose(custom_dest_proposal, (measurements, scene))
-println(proposed_choices)
+display(proposed_choices)
 
 # The function below runs the proposal 1000 times. For each run, it generates a trace of the model where the `:dest_x` and `:dest_y` choices are constrained to the proposed values, and then visualizes the resulting traces. We make the proposal a parameter of the function because we will be visualizing the output distribution of various proposals later in the notebook.
 

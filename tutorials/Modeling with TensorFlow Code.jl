@@ -78,7 +78,7 @@ println(size(probs))
 
 #  Note that generative functions constructed using GenTF do not make random choices:
 
-println(Gen.get_choices(trace))
+display(Gen.get_choices(trace))
 
 # The return value is the Julia value corresponding to the Tensor `y`:
 
@@ -107,7 +107,7 @@ end;
 
 # We see that the `net` generative function does not make any random choices. The only random choices are the digit labels for each input input:
 
-println(Gen.get_choices(trace))
+display(Gen.get_choices(trace))
 
 # Before the `digit_model` will be useful for anything, it needs to be trained. We load some code for loading batches of MNIST training data.
 

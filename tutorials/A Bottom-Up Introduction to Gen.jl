@@ -265,7 +265,7 @@ trace[:initial_n]
 # +
 using Gen: get_choices
 
-println(get_choices(trace))
+display(get_choices(trace))
 # -
 
 # Gen also stores the arguments on which the function was called:
@@ -360,7 +360,7 @@ end
 
 using Gen: get_score
 trace = simulate(foo, (0.3,))
-println(get_choices(trace))
+display(get_choices(trace))
 println("log probability: $(get_score(trace))")
 
 # Check this value against the hand-computed value in our table above.
@@ -388,7 +388,7 @@ using Gen: choicemap
 
 constraints = choicemap((:a, true), (:c, false))
 
-println(constraints)
+display(constraints)
 # -
 
 # The `choicemap` constructor above took two elements of the form `(address, value`). This is equivalent to constructing an empty choice map and then populating it:
@@ -411,7 +411,7 @@ using Gen: generate
 #
 # Let's check that the trace actually agrees with our constraints:
 
-println(get_choices(trace))
+display(get_choices(trace))
 
 # We can also check the return value:
 
