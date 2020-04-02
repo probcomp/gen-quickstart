@@ -1,15 +1,16 @@
 # ---
 # jupyter:
 #   jupytext:
+#     formats: ipynb,jl:light
 #     text_representation:
 #       extension: .jl
 #       format_name: light
 #       format_version: '1.5'
 #       jupytext_version: 1.3.3
 #   kernelspec:
-#     display_name: Julia 1.1.1
+#     display_name: Julia 1.4.0
 #     language: julia
-#     name: julia-1.1
+#     name: julia-1.4
 # ---
 
 # # Tutorial: Introduction to Modeling in Gen
@@ -127,7 +128,7 @@ Gen.get_args(trace)
 
 # The trace also contains the value of the random choices, stored in a map from address to value called a *choice map*. This map is available through the API method [`get_choices`]():
 
-display(Gen.get_choices(trace))
+Gen.get_choices(trace)
 
 # We can pull out individual values from this map using Julia's subscripting syntax `[...]`:
 
@@ -539,12 +540,12 @@ end;
 # We first show the addresses sampled by `bar`:
 
 trace = Gen.simulate(bar, ())
-display(Gen.get_choices(trace))
+Gen.get_choices(trace)
 
 # And the addresses sampled by `bar_using_namespace`:
 
 trace = Gen.simulate(bar_using_namespace, ())
-display(Gen.get_choices(trace))
+Gen.get_choices(trace)
 
 # Using `@trace` with a namespace can help avoid address collisions for complex models.
 

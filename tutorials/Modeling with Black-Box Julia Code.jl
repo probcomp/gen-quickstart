@@ -1,15 +1,16 @@
 # ---
 # jupyter:
 #   jupytext:
+#     formats: ipynb,jl:light
 #     text_representation:
 #       extension: .jl
 #       format_name: light
 #       format_version: '1.5'
 #       jupytext_version: 1.3.3
 #   kernelspec:
-#     display_name: Cora Julia 1.1.1
+#     display_name: Julia 1.4.0
 #     language: julia
-#     name: cora-julia-1.1
+#     name: julia-1.4
 # ---
 
 # # Modeling with black-box Julia code 
@@ -166,7 +167,6 @@ end;
 planner_params = PlannerParams(300, 3.0, 2000, 1.)
 (trace, _) = Gen.generate(agent_model, (scene, dt, num_ticks, planner_params));
 choices = Gen.get_choices(trace)
-display(choices)
 
 # Next we explore the assumptions of the model by sampling many traces from the generative function and visualizing them. We have created a visualization specialized for this generative function for use with the `GenViz` package, in the directory `../inverse-planning/grid-viz/dist`. We have also defined a `trace_to_dict` method to convert the trace into a value that can be automatically serialized into a JSON string for use by the visualization:
 
