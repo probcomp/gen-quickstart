@@ -7,9 +7,9 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.3.3
 #   kernelspec:
-#     display_name: Julia 1.0.2
+#     display_name: Cora Julia 1.1.1
 #     language: julia
-#     name: julia-1.0
+#     name: cora-julia-1.1
 # ---
 
 # # Modeling with black-box Julia code 
@@ -88,7 +88,7 @@ info = Dict("scene" => scene)
 viz = Viz(viz_server, joinpath(@__DIR__, "../inverse-planning/overlay-viz/dist"), info)
 displayInNotebook(viz)
 
-# Next, we load a file that defines a `Path` data type (a sequence of `Points`), and a `plan_path` method, which  uses a path planning algorithm based on rapidly exploring random tree (RRT, [1]) to find a sequence of `Point`s beginning with `start` and ending in `dest` such that the line segment between each consecutive pair of points does nt intersect any obstacles in the scene. The planning algorithm may fail to find a valid path, in which case it will return a value of type `Nothing`.
+# Next, we load a file that defines a `Path` data type (a sequence of `Points`), and a `plan_path` method, which  uses a path planning algorithm based on rapidly exploring random tree (RRT, [1]) to find a sequence of `Point`s beginning with `start` and ending in `dest` such that the line segment between each consecutive pair of points does not intersect any obstacles in the scene. The planning algorithm may fail to find a valid path, in which case it will return a value of type `Nothing`.
 #
 # `path::Union{Path,Nothing} = plan_path(start::Point, dest::Point, scene::Scene, planner_params::PlannerParams)`
 #
@@ -217,7 +217,7 @@ end
 displayInNotebook(viz)
 # -
 
-# In this visualization, the start location is represented by a blue dot, and the destination is represented by a red dot. The measured coordinates at each time point are represented by black dots. The path, if path planning was succesfull, is shown as a gray line fro the start point to the destination point. Notice that the speed of the agent is different in each case.
+# In this visualization, the start location is represented by a blue dot, and the destination is represented by a red dot. The measured coordinates at each time point are represented by black dots. The path, if path planning was succesfull, is shown as a gray line from the start point to the destination point. Notice that the speed of the agent is different in each case.
 
 # ### Exercise
 #

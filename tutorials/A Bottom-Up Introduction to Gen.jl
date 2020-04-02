@@ -7,9 +7,9 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.3.3
 #   kernelspec:
-#     display_name: Julia 1.0.2
+#     display_name: Julia 1.1.1
 #     language: julia
-#     name: julia-1.0
+#     name: julia-1.1
 # ---
 
 # # A Bottom-Up Introduction to Gen
@@ -48,7 +48,7 @@ end;
 #     n = uniform_discrete(1, 10)
 # ```
 #
-# Then, with probability `p`, it multiplies by `n` by two:
+# Then, with probability `p`, it multiplies `n` by two:
 # ```julia
 #     if bernoulli(p)
 #         n *= 2
