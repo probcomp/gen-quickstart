@@ -361,7 +361,7 @@ end
 
 using Gen: get_score
 trace = simulate(foo, (0.3,))
-get_choices(trace)
+display(get_choices(trace))
 println("log probability: $(get_score(trace))")
 
 # Check this value against the hand-computed value in our table above.
