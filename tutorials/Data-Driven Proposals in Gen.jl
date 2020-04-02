@@ -7,9 +7,9 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.3.3
 #   kernelspec:
-#     display_name: Julia 1.0.2
+#     display_name: Julia 1.1.1
 #     language: julia
-#     name: julia-1.0
+#     name: julia-1.1
 # ---
 
 # # Tutorial: Data-Driven Proposals in Gen

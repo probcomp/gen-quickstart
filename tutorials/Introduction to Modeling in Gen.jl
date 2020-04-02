@@ -7,9 +7,9 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.3.3
 #   kernelspec:
-#     display_name: Julia 1.0.2
+#     display_name: Julia 1.1.1
 #     language: julia
-#     name: julia-1.0
+#     name: julia-1.1
 # ---
 
 # # Tutorial: Introduction to Modeling in Gen
@@ -125,7 +125,7 @@ println(trace)
 
 Gen.get_args(trace)
 
-# The trace also contains the value of the random choices, stored in map from address to value called a *choice map*. This map is available through the API method [`get_choices`]():
+# The trace also contains the value of the random choices, stored in a map from address to value called a *choice map*. This map is available through the API method [`get_choices`]():
 
 println(Gen.get_choices(trace))
 
@@ -347,10 +347,10 @@ function predict_new_data(model, trace, new_xs::Vector{Float64}, param_addrs)
     end
     
     # Run the model with new x coordinates, and with parameters 
-    # fixed to be the inferred values
+    # fixed to be the inferred values.
     (new_trace, _) = Gen.generate(model, (new_xs,), constraints)
     
-    # Pull out the y-values and return them
+    # Pull out the y-values and return them.
     ys = [new_trace[(:y, i)] for i=1:length(new_xs)]
     return ys
 end;
@@ -392,7 +392,7 @@ plot_predictions(xs, ys, new_xs, pred_ys)
 
 # The results look reasonable, both within the interval of observed data and in the extrapolated predictions on the right.
 
-# Now consider the same experiment run with following data set, which has significantly more noise.
+# Now consider the same experiment run with the following data set, which has significantly more noise.
 
 ys_noisy = [5.092, 4.781, 2.46815, 1.23047, 0.903318, 1.11819, 2.10808, 1.09198, 0.0203789, -2.05068, 2.66031];
 
@@ -415,7 +415,7 @@ plot_predictions(xs, ys_noisy, new_xs, pred_ys)
     return nothing
 end;
 
-# Then, we compare the predictions using inference the unmodified and modified model on the `ys` data set:
+# Then, we compare the predictions using inference of the unmodified and modified models on the `ys` data set:
 
 # +
 figure(figsize=(6,3))
@@ -433,7 +433,7 @@ plot_predictions(xs, ys, new_xs, pred_ys)
 
 # Notice that there is more uncertainty in the predictions made using the modified model.
 #
-# We also compare the predictions using inference the unmodified and modified model on the `ys_noisy` data set:
+# We also compare the predictions using inference of the unmodified and modified models on the `ys_noisy` data set:
 
 # +
 figure(figsize=(6,3))
@@ -454,7 +454,7 @@ plot_predictions(xs, ys_noisy, new_xs, pred_ys)
 # -------------------------
 # ### Exercise
 #
-# Write a modified version the sine model that makes noise into a random choice. Compare the predicted data with the observed data `infer_and_predict` and `plot_predictions` for the unmodified and modified model, and for the `ys_sine` and `ys_noisy` datasets. Discuss the results. Experiment with the amount of inference computation used. The amount of inference computation will need to be higher for the model with the noise random choice.
+# Write a modified version of the sine model that makes noise into a random choice. Compare the predicted data with the observed data using `infer_and_predict` and `plot_predictions` for the unmodified and modified models, and for the `ys_sine` and `ys_noisy` data sets. Discuss the results. Experiment with the amount of inference computation used. The amount of inference computation will need to be higher for the model with the noise as a random choice.
 #
 # We have provided you with starter code:
 
@@ -667,7 +667,7 @@ overlay(render_combined_refactored, traces)
 
 # ## 6. Modeling with an unbounded number of parameters  <a name="infinite-space"></a>
 
-# Gen's built-in modeling language can be used to express models that use an unbounded number of parameters. This section walks you through development of a model of data that does not a-priori specify an upper bound on the complexity of the model, but instead infers the complexity of the model as well as the parameters. This is a simple example of a *Bayesian nonparametric* model.
+# Gen's built-in modeling language can be used to express models that use an unbounded number of parameters. This section walks you through development of a model of data that does not a priori specify an upper bound on the complexity of the model, but instead infers the complexity of the model as well as the parameters. This is a simple example of a *Bayesian nonparametric* model.
 
 # We will consider two data sets:
 
@@ -689,7 +689,7 @@ scatter(xs_dense, ys_complex, color="black", s=10)
 gca().set_ylim((-1, 3))
 # -
 
-# The data set on the left appears to be best explained as a contant function with some noise. The data set on the right appears to include two changepoints, with a constant function in between the changepoints. We want a model that does not a-priori choose the number of changepoints in the data. To do this, we will recursively partition the interval into regions. We define a Julia data structure that represents a binary tree of intervals; each leaf node represents a region in which the function is constant.
+# The data set on the left appears to be best explained as a contant function with some noise. The data set on the right appears to include two changepoints, with a constant function in between the changepoints. We want a model that does not a priori choose the number of changepoints in the data. To do this, we will recursively partition the interval into regions. We define a Julia data structure that represents a binary tree of intervals; each leaf node represents a region in which the function is constant.
 
 struct Interval
     l::Float64
@@ -755,7 +755,7 @@ grid(render_segments_trace, traces)
 
 # Because we only sub-divide an interval with 30% probability, most of these sampled traces have only one segment.
 
-# Now that we have generative function that generates a random piecewise-constant function, we write a model that adds noise to the resulting constant functions to generate a data set of y-coordinates. The noise level will be a random choice.
+# Now that we have a generative function that generates a random piecewise-constant function, we write a model that adds noise to the resulting constant functions to generate a data set of y-coordinates. The noise level will be a random choice.
 
 # +
 # get_value_at searches a binary tree for
@@ -774,7 +774,7 @@ function get_value_at(x::Float64, node::InternalNode)
     end
 end
 
-# Out full model
+# Our full model
 @gen function changepoint_model(xs::Vector{Float64})
     node = @trace(generate_segments(minimum(xs), maximum(xs)), :tree)
     noise = @trace(gamma(1, 1), :noise)
