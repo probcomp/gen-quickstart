@@ -17,9 +17,10 @@ RUN             git config --global user.email "email@example.com"
 RUN             virtualenv -p /usr/bin/python3 /venv
 RUN             . /venv/bin/activate && pip install jupyter jupytext matplotlib tensorflow torch
 
-RUN             wget https://julialang-s3.julialang.org/bin/linux/x64/1.3/julia-1.3.1-linux-x86_64.tar.gz
-RUN             tar -xzv < julia-1.3.1-linux-x86_64.tar.gz
-RUN             ln -s /julia-1.3.1/bin/julia /usr/bin/julia
+RUN             wget https://julialang-s3.julialang.org/bin/linux/x64/1.5/julia-1.5.3-linux-x86_64.tar.gz && \
+                tar -xzv < julia-1.5.3-linux-x86_64.tar.gz && \
+                ln -s /julia-1.5.3/bin/julia /usr/bin/julia && \
+                rm julia-1.5.3-linux-x86_64.tar.gz
 
 ADD             . /gen-quickstart
 ENV             JULIA_PROJECT=/gen-quickstart
