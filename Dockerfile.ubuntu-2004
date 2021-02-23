@@ -14,18 +14,12 @@ RUN             apt update -qq && apt install -qq -y \
                     zlib1g-dev && \
                 rm -rf /var/lib/apt/lists/*
 
-# Since Tensorflow only supports Python up to 3.7 and not 3.8 (default in 20.04) instead of tensorflow or tf-nightly-cpu we use
-# Tensorflow wheel files from https://pypi.org/project/tf-nightly/2.2.0.dev20200307/#files
-RUN             wget https://files.pythonhosted.org/packages/30/8e/650b282491e126a39e2b256f1ad790d566c53465dfd801a7703e421431e3/tf_nightly-2.2.0.dev20200307-cp38-cp38-manylinux2010_x86_64.whl && \
-                python3 -m pip install --upgrade pip && \
-                python3 -m pip install tf_nightly-2.2.0.dev20200307-cp38-cp38-manylinux2010_x86_64.whl && \
-                rm tf_nightly-2.2.0.dev20200307-cp38-cp38-manylinux2010_x86_64.whl
-
 RUN             git config --global user.name "Gen User"
 RUN             git config --global user.email "email@example.com"
 
 # Could use virtual environment - "RUN virtualenv -p /usr/bin/python3 /venv" and ". /venv/bin/activate" && in front of pip and julia commands
-RUN             python3 -m pip install jupyter jupytext matplotlib
+RUN             python3 -m pip install --upgrade pip
+RUN             python3 -m pip install jupyter jupytext matplotlib tensorflow
 
 # Specify Julia version. Find current version on https://julialang.org/downloads/
 ARG             JULIA_VERSION_SHORT="1.5"
