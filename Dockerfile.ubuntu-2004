@@ -19,7 +19,7 @@ RUN             git config --global user.email "email@example.com"
 
 # Could use virtual environment - "RUN virtualenv -p /usr/bin/python3 /venv" and ". /venv/bin/activate" && in front of pip and julia commands
 RUN             python3 -m pip install --upgrade pip
-RUN             python3 -m pip install jupyter jupytext matplotlib tensorflow
+RUN             python3 -m pip install jupyter jupytext matplotlib tensorflow torch
 
 # Specify Julia version. Find current version on https://julialang.org/downloads/
 ARG             JULIA_VERSION_SHORT="1.5"
