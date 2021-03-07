@@ -4,7 +4,8 @@ MAINTAINER      MIT Probabilistic Computing Project
 # Avoid tzdata configuration dialog
 ENV             DEBIAN_FRONTEND=noninteractive
 
-RUN             apt update -qq && apt install -qq -y \
+RUN             apt-get update -qq && \
+                apt-get install -qq -y \
                     hdf5-tools \
                     git \
                     python3-dev \
@@ -14,12 +15,11 @@ RUN             apt update -qq && apt install -qq -y \
                     zlib1g-dev && \
                 rm -rf /var/lib/apt/lists/*
 
-RUN             git config --global user.name "Gen User"
-RUN             git config --global user.email "email@example.com"
+RUN             git config --global user.name "Gen User" && \
+                git config --global user.email "email@example.com"
 
-# Could use virtual environment - "RUN virtualenv -p /usr/bin/python3 /venv" and ". /venv/bin/activate" && in front of pip and julia commands
-RUN             python3 -m pip install --upgrade pip
-RUN             python3 -m pip install jupyter jupytext matplotlib tensorflow torch
+RUN             python3 -m pip install --upgrade pip && \
+                python3 -m pip install jupyter jupytext matplotlib tensorflow torch
 
 # Specify Julia version. Find current version on https://julialang.org/downloads/
 ARG             JULIA_VERSION_SHORT="1.5"
