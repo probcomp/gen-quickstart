@@ -17,9 +17,18 @@ RUN             git config --global user.email "email@example.com"
 RUN             virtualenv -p /usr/bin/python3 /venv
 RUN             . /venv/bin/activate && pip install jupyter jupytext matplotlib tensorflow torch
 
-RUN             wget https://julialang-s3.julialang.org/bin/linux/x64/1.3/julia-1.3.1-linux-x86_64.tar.gz
-RUN             tar -xzv < julia-1.3.1-linux-x86_64.tar.gz
-RUN             ln -s /julia-1.3.1/bin/julia /usr/bin/julia
+# Specify Julia version. Find current version on https://julialang.org/downloads/
+ARG             JULIA_VERSION_SHORT="1.5"
+ARG             JULIA_VERSION_FULL="${JULIA_VERSION_SHORT}.3"
+ENV             JULIA_INSTALLATION_PATH=/opt/julia
+
+RUN             wget https://julialang-s3.julialang.org/bin/linux/x64/${JULIA_VERSION_SHORT}/julia-${JULIA_VERSION_FULL}-linux-x86_64.tar.gz && \
+                tar zxf julia-${JULIA_VERSION_FULL}-linux-x86_64.tar.gz && \
+                mkdir -p "${JULIA_INSTALLATION_PATH}" && \
+                mv julia-${JULIA_VERSION_FULL} "${JULIA_INSTALLATION_PATH}/" && \
+                ln -fs "${JULIA_INSTALLATION_PATH}/julia-${JULIA_VERSION_FULL}/bin/julia" /usr/local/bin/ && \
+                rm julia-${JULIA_VERSION_FULL}-linux-x86_64.tar.gz && \
+                julia -e 'import Pkg; Pkg.add("IJulia")'
 
 ADD             . /gen-quickstart
 ENV             JULIA_PROJECT=/gen-quickstart
