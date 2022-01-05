@@ -47,9 +47,10 @@
 #   
 # - **Inference**: You then need to do the hard part: inference, that is, 
 #   solving the problem. In this notebook, we'll use a particularly simple 
-#   *generic* inference algorithm. With enough computation, the algorithm 
-#   can solve any modeling and inference problem, but for most problems of
-#   interest in practice, it is too slow to achieve accurate results in a reasonable amount of time. 
+#   *generic* inference algorithm: importance sampling with the prior as our
+#   proposal distributions. With enough computation, the algorithm 
+#   can in theory solve any modeling and inference problem, but in practice, for most problems of
+#   interest, it is too slow to achieve accurate results in a reasonable amount of time. 
 #   **Future tutorials introduce some of Gen's**
 #   **programmable inference features**, 
 #   which let you tailor the inference algorithm for use with more complex models (Gen will still automate the math!).
