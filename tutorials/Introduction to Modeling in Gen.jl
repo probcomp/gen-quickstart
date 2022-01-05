@@ -34,7 +34,7 @@
 # these tutorials will be to introduce you to a subset of them,
 # from a unified probabilistic programming perspective.
 #
-# #### In this Problem Set
+# #### In this Tutorial
 #
 # Approaching a problem from a probabilistic perspective requires both *modeling*
 # and *inference*:
