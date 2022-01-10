@@ -1,4 +1,6 @@
-struct Scene
+import Base: @kwdef
+
+@kwdef struct Scene
     xmin::Float64
     xmax::Float64
     ymin::Float64
@@ -6,7 +8,7 @@ struct Scene
     obstacles::Vector{Obstacle}
 end
 
-Scene(xmin, xmax, ymin, ymax) = Scene(xmin, xmax, ymin, ymax, Obstacle[])
+Scene(; xmin, xmax, ymin, ymax) = Scene(xmin, xmax, ymin, ymax, Obstacle[])
 
 add_obstacle!(scene, obstacle::Obstacle) = push!(scene.obstacles, obstacle)
 

@@ -2,3 +2,5 @@
 Manifest.toml
 .DS_Store
 tutorials/tmp.gif
+tutorials/pytorch/.python-version
+tutorials/pytorch/venv

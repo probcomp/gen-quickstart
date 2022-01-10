@@ -1,9 +1,7 @@
 # First, we want a data type for a location in a two-dimensional plane:
 
-struct Point
-    x::Float64
-    y::Float64
-end
+import Base: @kwdef
+using Luxor: Point
 
 # We will need to measure the distance between two points, so we define a method for this:
 
@@ -57,7 +55,7 @@ end
 # also define a method to compute whether a given line is obstructed by any
 # obstacles in the scene.
 
-struct Scene
+@kwdef struct Scene
     xmin::Float64
     xmax::Float64
     ymin::Float64
