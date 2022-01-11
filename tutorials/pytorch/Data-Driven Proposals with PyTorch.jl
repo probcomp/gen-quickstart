@@ -6,7 +6,7 @@
 #       extension: .jl
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.4
+#       jupytext_version: 1.13.5
 #   kernelspec:
 #     display_name: Julia 1.7.1
 #     language: julia
@@ -17,9 +17,6 @@
 
 # This tutorial is a short extension to [Data-Driven Proposals in Gen](../Data-Driven%20Proposals%20in%20Gen.jl), 
 # which shows how to use PyTorch for easier specification of the proposal.
-
-# Make sure we're in the special project directory for this tutorial.
-import Pkg; Pkg.activate(".")
 
 # For this tutorial, you'll need to ensure that you have PyCall installed, and pointing to a Python that has Torch installed.
 

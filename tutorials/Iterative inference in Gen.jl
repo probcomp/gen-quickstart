@@ -7,7 +7,7 @@
 #       extension: .jl
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.4
+#       jupytext_version: 1.13.5
 #   kernelspec:
 #     display_name: Julia 1.7.1
 #     language: julia
@@ -742,16 +742,17 @@ gif(viz)
 end;
 # -
 
-# BEGIN ANSWER KEY
-@gen function ransac_proposal_noise_based(prev_trace, xs, ys)
-    eps = prev_trace[:noise]
-    params = RANSACParams(10, 3, eps)
-    (slope_guess, intercept_guess) = ransac(xs, ys, params)
-    slope ~ normal(slope_guess, 0.1)
-    intercept ~ normal(intercept_guess, 1.0)
-    return params, slope, intercept # (return values just for testing)
-end;
-# END ANSWER KEY
+# <!-- # BEGIN ANSWER KEY
+# @gen function ransac_proposal_noise_based(prev_trace, xs, ys)
+#     eps = prev_trace[:noise]
+#     params = RANSACParams(10, 3, eps)
+#     (slope_guess, intercept_guess) = ransac(xs, ys, params)
+#     slope ~ normal(slope_guess, 0.1)
+#     intercept ~ normal(intercept_guess, 1.0)
+#     return params, slope, intercept # (return values just for testing)
+# end;
+# # END ANSWER KEY -->
+# <hr>
 
 # The code below runs the RANSAC inference as above, but using `ransac_proposal_noise_based`.
 
@@ -840,47 +841,7 @@ function inlier_heuristic_update(tr)
     end
     tr
 end
-
-# +
-# BEGIN ANSWER KEY 2B.2
-
-@gen function inlier_heuristic_proposal(prev_trace, xs, ys)
-    # get_indeces for inliers.
-    inlier_indeces = filter(
-        i -> !prev_trace[:data => i => :is_outlier], 
-        1:length(xs)
-    )
-    xs_inlier = xs[inlier_indeces]
-    ys_inlier = ys[inlier_indeces]
-    # estimate slope and intercept using least squares.
-    A = hcat(xs_inlier, ones(length(xs_inlier)))
-    inlier_slope, inlier_intercept = A \ ys_inlier
-    
-    # Make a noisy proposal.
-    slope     ~ normal(inlier_slope, 0.5)
-    intercept ~ normal(inlier_intercept, 0.5)
-    # We return values here for testing; normally, proposals don't have to return values.
-    return inlier_slope, inlier_intercept
-end;
-
-function inlier_heuristic_update(tr)
-    # Use inlier heuristics to (potentially) jump to a better line
-    # from wherever we are.
-    (tr, _) = mh(tr, inlier_heuristic_proposal, (xs, ys))    
-    # Spend a while refining the parameters, using Gaussian drift
-    # to tune the slope and intercept, and resimulation for the noise
-    # and outliers.
-    for j=1:20
-        (tr, _) = mh(tr, select(:prob_outlier))
-        (tr, _) = mh(tr, select(:noise))
-        (tr, _) = mh(tr, line_proposal, ())
-        # Reclassify outliers
-        for i=1:length(get_args(tr)[1])
-            (tr, _) = mh(tr, select(:data => i => :is_outlier))
-        end
-    end
-    tr
-end;
+# -
 
 tr, = Gen.generate(regression_with_outliers, (xs,), observations)
 viz = @animate for i in 1:50
@@ -889,9 +850,49 @@ viz = @animate for i in 1:50
     visualize_trace(tr; title="Iteration $i")
 end
 gif(viz)
-# END ANSWER KEY
-# -
-# -----------
+
+# <!-- # BEGIN ANSWER KEY 2B.2
+#
+# @gen function inlier_heuristic_proposal(prev_trace, xs, ys)
+#     # get_indeces for inliers.
+#     inlier_indeces = filter(
+#         i -> !prev_trace[:data => i => :is_outlier], 
+#         1:length(xs)
+#     )
+#     xs_inlier = xs[inlier_indeces]
+#     ys_inlier = ys[inlier_indeces]
+#     # estimate slope and intercept using least squares.
+#     A = hcat(xs_inlier, ones(length(xs_inlier)))
+#     inlier_slope, inlier_intercept = A \ ys_inlier
+#     
+#     # Make a noisy proposal.
+#     slope     ~ normal(inlier_slope, 0.5)
+#     intercept ~ normal(inlier_intercept, 0.5)
+#     # We return values here for testing; normally, proposals don't have to return values.
+#     return inlier_slope, inlier_intercept
+# end;
+#
+# function inlier_heuristic_update(tr)
+#     # Use inlier heuristics to (potentially) jump to a better line
+#     # from wherever we are.
+#     (tr, _) = mh(tr, inlier_heuristic_proposal, (xs, ys))    
+#     # Spend a while refining the parameters, using Gaussian drift
+#     # to tune the slope and intercept, and resimulation for the noise
+#     # and outliers.
+#     for j=1:20
+#         (tr, _) = mh(tr, select(:prob_outlier))
+#         (tr, _) = mh(tr, select(:noise))
+#         (tr, _) = mh(tr, line_proposal, ())
+#         # Reclassify outliers
+#         for i=1:length(get_args(tr)[1])
+#             (tr, _) = mh(tr, select(:data => i => :is_outlier))
+#         end
+#     end
+#     tr
+# end;
+#
+# # END ANSWER KEY -->
+# ----
 
 # ### Exercise: Initialization
 #
@@ -900,6 +901,8 @@ gif(viz)
 # If we don't do this, the performance decreases sharply, despite the fact that
 # we still propose new slope/intercept pairs from RANSAC once the loop starts.
 # Why is this?
+
+# ----
 
 # ## 7. MAP Optimization  <a name="map"></a>
 

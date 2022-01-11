@@ -4,3 +4,5 @@ Manifest.toml
 tutorials/tmp.gif
 tutorials/pytorch/.python-version
 tutorials/pytorch/venv
+tutorials/tensorflow/.python-version
+tutorials/tensorflow/venv

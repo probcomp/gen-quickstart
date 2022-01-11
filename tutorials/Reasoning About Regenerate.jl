@@ -6,11 +6,11 @@
 #       extension: .jl
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.3
+#       jupytext_version: 1.13.4
 #   kernelspec:
-#     display_name: Julia 1.4.0
+#     display_name: Julia 1.7.1
 #     language: julia
-#     name: julia-1.4
+#     name: julia-1.7
 # ---
 
 # # Reasoning About Regenerate
@@ -19,17 +19,17 @@
 #
 # This notebook aims to help you understand the computation that `regenerate` is performing.
 
-using Gen: bernoulli, @gen, @trace
+using Gen: bernoulli, @gen
 
 # Let's start by defining a simple generative function:
 
 @gen function foo(prob_a)
     val = true
-    if @trace(bernoulli(prob_a), :a)
-        val = @trace(bernoulli(0.6), :b) && val
+    if ({:a} ~ bernoulli(prob_a))
+        val = ({:b} ~ bernoulli(0.6)) && val
     end
     prob_c = val ? 0.9 : 0.2
-    val = @trace(bernoulli(prob_c), :c) && val
+    val = ({:c} ~ bernoulli(prob_c)) && val
     return val
 end;
 
@@ -206,7 +206,7 @@ log((0.7 * 0.9)/(0.3 * 0.4 * 0.2)) + log((0.3 * 0.4)/(0.7))
 
 trace, weight = generate(foo, (0.3,), choicemap((:a, true), (:b, false), (:c, true)));
 (trace, weight, retdiff) = regenerate(trace, (0.3,), (NoChange(),), select(:a));
-get_choices(trace)
+display(get_choices(trace))
 println("weight: $weight");
 
 # Aren't we glad this is automated by Gen!

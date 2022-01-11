@@ -6,20 +6,20 @@
 #       extension: .jl
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.3
+#       jupytext_version: 1.13.4
 #   kernelspec:
-#     display_name: Julia 1.4.0
+#     display_name: Julia 1.7.1
 #     language: julia
-#     name: julia-1.4
+#     name: julia-1.7
 # ---
 
 # # Scaling with Combinators and the Static Modeling Language
 
-# Up until this point, we have been using [Gen's generic built-in modeling language](https://probcomp.github.io/Gen/dev/ref/modeling/#Built-in-Modeling-Language-1), which is a very flexible modeling language that is shallowly embedded in Julia. However, better performance and scaling characteristics can be obtained using specialized modeling languages or modeling constructs. This notebook introduces two built-in features of Gen:
+# Up until this point, we have been using [Gen's generic built-in modeling language](https://www.gen.dev/dev/ref/modeling/), which is a very flexible modeling language that is shallowly embedded in Julia. However, better performance and scaling characteristics can be obtained using specialized modeling languages or modeling constructs. This notebook introduces two built-in features of Gen:
 #
-# - A more specialized [Static Modeling Language](https://probcomp.github.io/Gen/dev/ref/modeling/#Static-Modeling-Language-1) which is built-in to Gen.
+# - A more specialized [Static Modeling Language](https://www.gen.dev/dev/ref/modeling/#Static-Modeling-Language-1) which is built-in to Gen.
 #
-# - A class of modeling constructs called [Generative function combinators](https://probcomp.github.io/Gen/dev/ref/combinators/).
+# - A class of modeling constructs called [Generative function combinators](https://www.gen.dev/dev/ref/combinators/).
 #
 # These features provide both constant-factor speedups, as well as improvements in asymptotic orders of growth, over the generic built-in modeling language.
 #
@@ -40,22 +40,24 @@ using Gen
 
 # ## 1. Studying the scaling behavior of an inference program <a name="studying"></a>
 
-# Recall the regression model used to introduce iterative inference in an earlier tutorial:
+# Recall the robust regression model used to introduce iterative inference in [an earlier tutorial](Iterative%20Inference%20In%20Gen.ipynb):
 
 @gen function model(xs::Vector{Float64})
-    slope = @trace(normal(0, 2), :slope)
-    intercept = @trace(normal(0, 2), :intercept)
-    noise = @trace(gamma(1, 1), :noise)
-    prob_outlier = @trace(uniform(0, 1), :prob_outlier)
+    slope ~ normal(0, 2)
+    intercept ~ normal(0, 2)
+    noise ~ gamma(1, 1)
+    prob_outlier ~ uniform(0, 1)
+    
     n = length(xs)
-    ys = Vector{Float64}(undef, n)    
+    ys = Vector{Float64}(undef, n)
+    
     for i = 1:n
-        if @trace(bernoulli(prob_outlier), :data => i => :is_outlier)
+        if ({:data => i => :is_outlier} ~ bernoulli(prob_outlier))
             (mu, std) = (0., 10.)
         else
             (mu, std) = (xs[i] * slope + intercept, noise)
         end
-        ys[i] = @trace(normal(mu, std), :data => i => :y)
+        ys[i] = {:data => i => :y} ~ normal(mu, std)
     end
     ys
 end;
@@ -117,11 +119,9 @@ end
 
 # We now plot the running time versus the number of data points:
 
-using PyPlot
+using Plots
 
-plot(ns, times)
-xlabel("number of data points")
-ylabel("running time (seconds)");
+plot(ns, times, xlabel="number of data points", ylabel="running time (seconds)", label=nothing)
 
 # The inference program seems to scale quadratically in the number of data points.
 #
@@ -148,10 +148,10 @@ ylabel("running time (seconds)");
 
 @gen function generate_single_point(x::Float64, prob_outlier::Float64, noise::Float64,
                                     slope::Float64, intercept::Float64)
-    is_outlier = @trace(bernoulli(prob_outlier), :is_outlier)
-    mu = is_outlier ? 0. : x * slope + intercept
+    is_outlier ~ bernoulli(prob_outlier)
+    mu  = is_outlier ? 0. : x * slope + intercept
     std = is_outlier ? 10. : noise
-    y = @trace(normal(mu, std), :y)
+    y ~ normal(mu, std)
     return y
 end;
 
@@ -161,11 +161,11 @@ generate_all_points = Map(generate_single_point);
 
 # This new generative function has one argument for each argument of `generate_single_point`, except that these arguments are now vector-valued instead of scalar-valued. We can run the generative function on some fake data to test this:
 
-xs = [0, 1, 2, 3, 4]
+xs = Float64[0, 1, 2, 3, 4]
 prob_outliers = fill(0.5, 5)
 noises = fill(0.2, 5)
 slopes = fill(0.7, 5)
-intercepts = fill(-2, 5)
+intercepts = fill(-2.0, 5)
 trace = simulate(generate_all_points, (xs, prob_outliers, noises, slopes, intercepts));
 
 # We see that the `generate_all_points` function has traced 5 calls to `generate_single_point`, under namespaces `1` through `5`.  The `Map` combinator automatically adds these indices to the trace address.
@@ -175,16 +175,16 @@ get_choices(trace)
 # Now, let's replace the Julia `for` loop in our model with a call to this new function:
 
 @gen function model_with_map(xs::Vector{Float64})
-    slope = @trace(normal(0, 2), :slope)
-    intercept = @trace(normal(0, 2), :intercept)
-    noise = @trace(gamma(1, 1), :noise)
-    prob_outlier = @trace(uniform(0, 1), :prob_outlier)
+    slope ~ normal(0, 2)
+    intercept ~ normal(0, 2)
+    noise ~ gamma(1, 1)
+    prob_outlier ~ uniform(0, 1)
     n = length(xs)
-    ys = @trace(generate_all_points(xs, fill(prob_outlier, n), fill(noise, n), fill(slope, n), fill(intercept, n)), :data)
-    ys
+    data ~ generate_all_points(xs, fill(prob_outlier, n), fill(noise, n), fill(slope, n), fill(intercept, n))
+    return data
 end;
 
-# Note that this new model has the same address structure as our original model had, so our inference code will not need to change. For example, the 5th data point's $y$ coordinate will be stored at the address `:data => 5 => :y`, just as before. (The `:data` comes from our `@trace` invocation in the `better_model` definition, and the `:y` comes from `generate_point`; only the `5` has been inserted automatically by `Map`.)
+# Note that this new model has the same address structure as our original model had, so our inference code will not need to change. For example, the 5th data point's $y$ coordinate will be stored at the address `:data => 5 => :y`, just as before. (The `:data` comes from our `data ~ ...` invocation in the `better_model` definition, and the `:y` comes from `generate_point`; only the `5` has been inserted automatically by `Map`.)
 
 trace = simulate(model_with_map, (xs,));
 get_choices(trace)
@@ -202,18 +202,15 @@ end
 
 # We plot the results and compare them to the original model, which used the Julia `for` loop:
 
-plot(ns, times, label="original")
-plot(ns, with_map_times, label="with map")
-xlabel("number of data points")
-ylabel("running time (seconds)")
-legend();
+plot(ns, times, label="original", xlabel="number of data points", ylabel="running time (seconds)")
+plot!(ns, with_map_times, label="with map")
 
 # We see that the quadratic scaling did not improve. In fact, we actually got a that happed was a constant factor **slowdown**.
 
 # We can understand why we still have quadratic scaling, by examining the call to `generate_single_point`:
 #
 # ```julia
-# ys = @trace(generate_all_points(xs, fill(prob_outlier, n), fill(noise, n), fill(slope, n), fill(intercept, n)), :data)
+# data ~ generate_all_points(xs, fill(prob_outlier, n), fill(noise, n), fill(slope, n), fill(intercept, n))
 # ```
 
 # Even though the function `generate_all_points` knows that each of the calls to `generate_single_point` is conditionally independent, and even it knows that each update to `is_outlier` only involves a single application of `generate_single_point`, it does not know that **none of its arguments change** within an update to `is_outlier`. Therefore, it needs to visit each call to `generate_single_point`. The generic built-in modeling language does not provide this information the generative functions that it invokes.
@@ -223,16 +220,16 @@ legend();
 # In order to provide `generate_all_points` with the knowledge that its arguments do not change during an update to the `is_outlier` variable, we need to write the top-level model generative function that calls `generate_all_points` in the [Static Modeling Language](https://probcomp.github.io/Gen/dev/ref/modeling/#Static-Modeling-Language-1), which is a restricted variant of the built-in modeling language that uses static analysis of the computation graph to generate specialized trace data structures and specialized implementations of trace operations. We indicate that a function is to be interpreted using the static language using the `static` annotation:
 
 @gen (static) function static_model_with_map(xs::Vector{Float64})
-    slope = @trace(normal(0, 2), :slope)
-    intercept = @trace(normal(0, 2), :intercept)
-    noise = @trace(gamma(1, 1), :noise)
-    prob_outlier = @trace(uniform(0, 1), :prob_outlier)
+    slope ~ normal(0, 2)
+    intercept ~ normal(0, 2)
+    noise ~ gamma(1, 1)
+    prob_outlier ~ uniform(0, 1)
     n = length(xs)
-    ys = @trace(generate_all_points(xs, fill(prob_outlier, n), fill(noise, n), fill(slope, n), fill(intercept, n)), :data)
-    return ys
+    data ~ generate_all_points(xs, fill(prob_outlier, n), fill(noise, n), fill(slope, n), fill(intercept, n))
+    return data
 end;
 
-# The static language has a number of restrictions that make it more amenable to static analysis than the unrestricted modeling language. For example, we cannot use Julia `for` loops, and the return value needs to explicitly use the `return` keyword, followed by a symbol (e.g. `ys`). Also, each symbol used on the left-hand side of an assignment must be unique. A more complete list of restrictions is given in the documentation.
+# The static language has a number of restrictions that make it more amenable to static analysis than the unrestricted modeling language. For example, we cannot use Julia `for` loops, and the return value needs to explicitly use the `return` keyword, followed by a symbol (e.g. `data`). Also, each symbol used on the left-hand side of an assignment must be unique. A more complete list of restrictions is given in the documentation.
 
 # Below, we show the static dependency graph that Gen builds for this function. Arguments are shown as diamonds, Julia computations are shown as squares, random choices are shown as circles, and calls to other generative function are shown as stars. The call that produces the return value of the function is shaded in blue.
 #
@@ -247,7 +244,7 @@ end;
 
 # However, before we can use a function written in the static modeling language, we need to run the following function (this is required for technical reasons, because functions written in the static modeling language use a staged programming feature of Julia called *generated functions*).
 
-Gen.load_generated_functions()
+Gen.@load_generated_functions
 
 # Finally, we can re-run the experiment with our model that combines the map combinator with the static language:
 
@@ -262,41 +259,40 @@ end
 
 # We compare the results to the results for the earlier models:
 
-plot(ns, times, label="original")
-plot(ns, with_map_times, label="with map")
-plot(ns, static_with_map_times, label="with map and static outer fn")
-xlabel("number of data points")
-ylabel("running time (seconds)")
-legend();
+plot(ns, times, label="original", xlabel="number of data points", ylabel="running time (seconds)")
+plot!(ns, with_map_times, label="with map")
+plot!(ns, static_with_map_times, label="with map and static outer fn")
 
 # We see that we now have the linear running time that we expected.
 
 # ## 4. Constant-factor performance gains from the static modeling language <a name="constant"></a>
 
-# Note that in our latest model above, `generate_single_point` was still written in the generic modeling language. It is not necessary to write `generate_single_point` in the static language, but doing so can provide modest constant-factor performance improvements. Here we rewrite this function in the static language. Note that we had to make some changes to fit into the more restrictive syntax of the static language:
+# **Note:** *the following section was drafted using an earlier version of Julia. As of Julia 1.7, the dynamic modeling language is fast enough in some cases that you may not see constant-factor performance gains by switching simple dynamic models, with few choices and no control flow, to use the static modeling language. Based on the experiment below, this model falls into that category.*
+
+# Note that in our latest model above, `generate_single_point` was still written in the dynamic modeling language. It is not necessary to write `generate_single_point` in the static language, but doing so might provide modest constant-factor performance improvements. Here we rewrite this function in the static language. The static modeling language does not support `if` statements, but does support ternary expressions (`a ? b : c`):
 
 @gen (static) function static_generate_single_point(x::Float64, prob_outlier::Float64, noise::Float64,
                                     slope::Float64, intercept::Float64)
-    is_outlier = @trace(bernoulli(prob_outlier), :is_outlier)
+    is_outlier ~ bernoulli(prob_outlier)
     mu = is_outlier ? 0. : x * slope + intercept
     std = is_outlier ? 10. : noise
-    y = @trace(normal(mu, std), :y)
+    y ~ normal(mu, std)
     return y
 end;
 
 static_generate_all_points = Map(static_generate_single_point);
 
 @gen (static) function fully_static_model_with_map(xs::Vector{Float64})
-    slope = @trace(normal(0, 2), :slope)
-    intercept = @trace(normal(0, 2), :intercept)
-    noise = @trace(gamma(1, 1), :noise)
-    prob_outlier = @trace(uniform(0, 1), :prob_outlier)
+    slope ~ normal(0, 2)
+    intercept ~ normal(0, 2)
+    noise ~ gamma(1, 1)
+    prob_outlier ~ uniform(0, 1)
     n = length(xs)
-    ys = @trace(static_generate_all_points(xs, fill(prob_outlier, n), fill(noise, n), fill(slope, n), fill(intercept, n)), :data)
-    return ys
+    data ~ static_generate_all_points(xs, fill(prob_outlier, n), fill(noise, n), fill(slope, n), fill(intercept, n))
+    return data
 end;
 
-Gen.load_generated_functions()
+Gen.@load_generated_functions
 
 # Now, we re-run the experiment with our new model:
 
@@ -309,15 +305,12 @@ for n in ns
     push!(fully_static_with_map_times, (time_ns() - start) / 1e9)
 end
 
-# We see that we get a modest improvement in running time:
+# In earlier versions of Julia, we saw a modest improvement in running time, but here (running Julia 1.7.1) we see it makes little to no difference:
 
-plot(ns, times, label="original")
-plot(ns, with_map_times, label="with map")
-plot(ns, static_with_map_times, label="with map and static outer fn")
-plot(ns, fully_static_with_map_times, label="with map and static outer and inner fns")
-xlabel("number of data points")
-ylabel("running time (seconds)")
-legend();
+plot(ns, times, label="original", xlabel="number of data points", ylabel="running time (seconds)")
+plot!(ns, with_map_times, label="with map")
+plot!(ns, static_with_map_times, label="with map and static outer fn")
+plot!(ns, fully_static_with_map_times, label="with map and static outer and inner fns")
 
 # ## 5. Checking the inference programs <a name="checking"></a>
 
@@ -343,52 +336,36 @@ end
 ys[end-3] = 14
 ys[end-5] = 13;
 
-figure(figsize=(4,4))
-scatter(xs, ys);
-ax = gca()
-ax.set_xlim(-7, 7)
-ax.set_ylim(-7, 15);
+scatter(xs, ys, xlim=(-7,7), ylim=(-7,15), label=nothing)
 
 # We write a trace rendering function that shows the inferred line on top of the observed data set:
 
-function render_trace(trace)
+function render_trace(trace, title)
     xs,  = get_args(trace)
-    choices = get_choices(trace)
     xlim = [-5, 5]
-    slope = choices[:slope]
-    intercept = choices[:intercept]
-    plot(xlim, slope * xlim .+ intercept, color="black")
-    ys = [choices[:data => i => :y] for i=1:length(xs)]
-    scatter(xs, ys)
-    ax = gca()
-    ax.set_xlim(-7, 7)
-    ax.set_ylim(-7, 15)
+    slope = trace[:slope]
+    intercept = trace[:intercept]
+    plot(xlim, slope * xlim .+ intercept, color="black", xlim=(-7,7), ylim=(-7,15), title=title, label=nothing)
+    ys = [trace[:data => i => :y] for i=1:length(xs)]
+    scatter!(xs, ys, label=nothing)
 end;
 
 # Finally, we run the experiment. We will visualize just one trace produced by applying our inference program to each of the four variants of our model:
 
 # +
-figure(figsize=(16, 4))
-
-subplot(1, 4, 1)
 tr = block_resimulation_inference(model, xs, ys)
-render_trace(tr)
-title("model")
+fig1 = render_trace(tr, "model")
 
-subplot(1, 4, 2)
 tr = block_resimulation_inference(model_with_map, xs, ys)
-render_trace(tr)
-title("model with map")
+fig2 = render_trace(tr, "model with map")
 
-subplot(1, 4, 3)
 tr = block_resimulation_inference(static_model_with_map, xs, ys)
-render_trace(tr)
-title("static model with map")
+fig3 = render_trace(tr, "static model with map")
 
-subplot(1, 4, 4)
 tr = block_resimulation_inference(fully_static_model_with_map, xs, ys)
-render_trace(tr)
-title("fully static model with map");
+fig4 = render_trace(tr, "fully static model with map")
+
+plot(fig1, fig2, fig3, fig4)
 # -
 
 # It looks like inference in all the models seems to be working reasonably.

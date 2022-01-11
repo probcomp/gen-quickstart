@@ -73,7 +73,7 @@ function plot_histogram(p)
     histogram([f(p) for _=1:100000], bins=bins, title="p=$p", label=nothing)
 end
 
-Plots.plot(map(plot_histogram, [0.1, 0.5, 0.9])...)
+plot(map(plot_histogram, [0.1, 0.5, 0.9])...)
 # -
 
 # Suppose we wanted to see what the distribution on return values would be if the initial value of `n` was `2`. Because we don't know what random values were sampled during a given execution, we can't use simulations of `f` to answer this question. We would have to modify `f` first, to return the initial value of `n`:
@@ -102,7 +102,7 @@ function plot_histogram_filtered(p)
     end
     histogram(results, bins=bins, title="p=$p", label=nothing)
 end;
-Plots.plot(map(plot_histogram_filtered, [0.1, 0.5, 0.9])...)
+plot(map(plot_histogram_filtered, [0.1, 0.5, 0.9])...)
 
 # Suppose we wanted to ask more questions. We might need to modify each time we have a new question, to make sure that the function returns the particular pieces of information about the execution that the question requires.
 #
@@ -179,12 +179,12 @@ function query(p, observed_result_value::Int)
 #    title("p = $p")
 end;
 
-Plots.plot(map(p -> query(p, 4), [0.1, 0.5, 0.9])...)
+plot(map(p -> query(p, 4), [0.1, 0.5, 0.9])...)
 # -
 
 # What about a result value that is greater than 10?
 
-Plots.plot(map(p -> query(p, 14), [0.1, 0.5, 0.9])...)
+plot(map(p -> query(p, 14), [0.1, 0.5, 0.9])...)
 
 # ## 2. Tracing the values of random choices in generative functions
 
@@ -258,7 +258,7 @@ function gen_query(p, observed_result_value::Int)
     histogram(do_branch, bins=[0, 1, 2], align="left", title="p=$p", 
         label=nothing, xticks=(0:1, ["false", "true"]))
 end;
-Plots.plot(map(p -> gen_query(p, 14), [0.1, 0.5, 0.9])...)
+plot(map(p -> gen_query(p, 14), [0.1, 0.5, 0.9])...)
 
 # ## 3. The probability distribution represented by a generative function
 
@@ -459,7 +459,7 @@ function importance_query(p, N)
         label=nothing, xticks=([0, 1], ["a = false", "a = true"]), titlefontsize=10)
 end
     
-Plots.plot(map(N -> importance_query(0.3, N), [1, 10, 100])...)
+plot(map(N -> importance_query(0.3, N), [1, 10, 100])...)
 # -
 
 # Indeed, the estimated probability that `a = true` is approaching the true probability that we manually computed.

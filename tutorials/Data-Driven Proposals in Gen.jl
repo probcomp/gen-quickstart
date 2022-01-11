@@ -6,7 +6,7 @@
 #       extension: .jl
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.4
+#       jupytext_version: 1.13.5
 #   kernelspec:
 #     display_name: Julia 1.7.1
 #     language: julia
@@ -247,6 +247,7 @@ end;
 # display(choices)
 #
 # # END ANSWER KEY -->
+# <hr>
 
 # Next we explore the assumptions of the model by sampling many traces from the
 # generative function and visualizing them. We have created a specialized visualization
@@ -273,7 +274,10 @@ end
 # the we observe the agent for a fixed amount of time, in which they may or may not
 # finish walking their planned path.
 
-# ### Problem 2A.2
+# <hr>
+#
+# ### Exercise
+#
 # Edit the constraints passed to the inference algorithm:
 #
 # 1. Constrain the start of the agent to be at $x = 0.9$, $y = 0.1$.
@@ -281,12 +285,9 @@ end
 #
 #
 # Visualize the resulting prior. We have provided some starter code.
-#
-
-# ### Solution 2A.2
 
 # +
-# < put our code here>
+# < put your code here>
 traces_constrained = []
 for i in 1:12
     # Modify the following line:
@@ -294,44 +295,37 @@ for i in 1:12
     push!(traces_constrained, trace_constrained)
 end
 
-# For the autograder, take one:
-trace_constrained = last(traces_constrained)
-
 # Visualize:
 visualize_grid(traces_constrained, 4, 600; separators="gray") do trace, frame
     draw_trace(trace, frame; draw_measurements=true)
 end
-
-# +
-# BEGIN ANSWER KEY 2A.2
-
-constraints = Gen.choicemap()
-constraints[:start_x] = 0.9
-constraints[:start_y] = 0.1
-
-constraints[:dest_x] = 0.9
-constraints[:dest_y] = 0.8
-
-traces_constrained = []
-for i in 1:12
-    # Modify the following line:
-    (trace_constrained, _) = Gen.generate(agent_model, (scene, dt, num_ticks, planner_params), constraints)
-    push!(traces_constrained, trace_constrained)
-end
-
-
-# For the autograder, take one:
-trace_constrained = last(traces_constrained)
-
-# Visualize:
-visualize_grid(traces_constrained, 4, 600; separators="gray") do trace, frame
-    draw_trace(trace, frame; draw_measurements=true)
-end
-
-# END ANSWER KEY
 # -
 
-# ### Optional Exercise
+# <!-- # BEGIN ANSWER KEY 2A.2
+#
+# constraints = Gen.choicemap()
+# constraints[:start_x] = 0.9
+# constraints[:start_y] = 0.1
+#
+# constraints[:dest_x] = 0.9
+# constraints[:dest_y] = 0.8
+#
+# traces_constrained = []
+# for i in 1:12
+#     # Modify the following line:
+#     (trace_constrained, _) = Gen.generate(agent_model, (scene, dt, num_ticks, planner_params), constraints)
+#     push!(traces_constrained, trace_constrained)
+# end
+#
+# # Visualize:
+# visualize_grid(traces_constrained, 4, 600; separators="gray") do trace, frame
+#     draw_trace(trace, frame; draw_measurements=true)
+# end
+#
+# # END ANSWER KEY -->
+# <hr>
+
+# ### Exercise
 # The `rrt_iters` field of `PlannerParams` is the number of iterations of the RRT
 # algorithm to use. The `refine_iters` field of `PlannerParams` is the number of
 # iterations of path refinement. These parameters affect the distribution on
@@ -357,6 +351,8 @@ visualize_grid(traces, 4, 600; separators="gray") do trace, frame
 end
 # -
 
+# <hr>
+
 # For the next few sections of the notebook, let's reset any variables that may have changed during your exploration with the model.
 
 start = Point(0.1, 0.1)
@@ -379,6 +375,8 @@ measurements = [
     Point(0.124597, 0.462056),
     Point(0.126227, 0.498338)];
 
+# <hr>
+#
 # ### Exercise
 #
 # Run inference using Gen's built-in importance resampling implementation. Use
@@ -465,6 +463,8 @@ visualize_inference(measurements, scene, start, computation_amt=50, samples=500)
 # This motivates us to find more efficient inference algorithms, that will
 # require fewer model evaluations to produce good results.
 
+# <hr>
+
 # ### Exercise
 
 # In this problem, you'll explore the effect of changing the _scene_ on the
@@ -521,6 +521,7 @@ visualize_inference(measurements, scene_2doors, start, computation_amt=100, samp
 #    more often rejected by importance sampling in the two-door scene than in
 #    the one-door scene?)
 
+# <hr>
 # <!-- # BEGIN ANSWER KEY 2.4
 #
 # scene_2doors = Scene(xmin=0, xmax=1, ymin=0, ymax=1)
@@ -721,6 +722,8 @@ visualize_custom_destination_proposal(measurements, start, custom_dest_proposal,
 # a subset of the unobserved random choices made by the generative model. In
 # our case, these addresses are `:dest_x` and `:dest_y`.
 
+# <hr>
+#
 # ### Exercise
 #
 # Implement an inference program that uses this second variant of importance resampling. 
@@ -768,6 +771,21 @@ function visualize_data_driven_inference(measurements, scene, start, proposal; a
 end;
 # -
 
+visualize_data_driven_inference(measurements, scene, start, custom_dest_proposal; amt_computation=5, samples=1000)
+
+# The code executes much more quickly than before, because we are only taking five proposal samples to generate each.
+
+# We compare this to the original algorithm that used the default proposal, for
+# the same "amount of computation" of 5.
+
+visualize_inference(measurements, scene, start, computation_amt=5, samples=1000)
+
+# We should see that the results are somewhat more accurate using the
+# data-driven proposal.  In particular, there is less probability mass in the
+# lower left corner when using the data-driven proposal.
+
+# <hr>
+#
 # <!-- # BEGIN ANSWER KEY 2A.5
 #
 # function do_inference_data_driven(
@@ -805,21 +823,7 @@ end;
 #     end
 # end;
 #
-#
 # # END ANSWER KEY -->
-
-visualize_data_driven_inference(measurements, scene, start, custom_dest_proposal; amt_computation=5, samples=1000)
-
-# The code executes much more quickly than before, because we are only taking five proposal samples to generate each.
-
-# We compare this to the original algorithm that used the default proposal, for
-# the same "amount of computation" of 5.
-
-visualize_inference(measurements, scene, start, computation_amt=5, samples=1000)
-
-# We should see that the results are somewhat more accurate using the
-# data-driven proposal.  In particular, there is less probability mass in the
-# lower left corner when using the data-driven proposal.
 
 # ## 4. Training the parameters of a data-driven proposal <a name="training"></a>
 
@@ -965,6 +969,8 @@ visualize_data_driven_inference(measurements, scene, start, custom_dest_proposal
 # Can you devise a data-driven proposal for the speed of the agent? If so, would you
 # expect it to work equally well on all data sets?
 
+# <hr>
+
 # ## 5. Writing and training a deep learning based data-driven proposal <a name="deep"></a>
 
 # The heuristic data-driven proposal above gave some improvement in efficiency,
@@ -1100,7 +1106,7 @@ visualize_custom_destination_proposal(measurements, start, custom_dest_proposal_
 
 update = Gen.ParamUpdate(Gen.FixedStepGradientDescent(0.001), custom_dest_proposal_neural);
 
-# We use 100 epochs of training. In each epoch, we generate 100 training
+# We use 50 epochs of training. In each epoch, we generate 100 training
 # examples, and we apply 100 gradient updates, where each update is based on
 # the gradient estimate obtained from a random set of 100 of the trainable
 # examples. At the end of each epoch, we estimate the objective function value
