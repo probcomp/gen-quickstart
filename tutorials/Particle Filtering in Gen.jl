@@ -7,7 +7,7 @@
 #       extension: .jl
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.4
+#       jupytext_version: 1.13.5
 #   kernelspec:
 #     display_name: Julia 1.6.3
 #     language: julia
@@ -460,7 +460,7 @@ end;
 # +
 @time pf_rejuv_traces = particle_filter_rejuv_resim(5000, zs, 200);
 
-overlay(pf_rejuv_traces)
+overlay(render, pf_rejuv_traces)
 # -
 
 # You may notice slightly more variety in the initial state, compared to our first round of particle filtering.
