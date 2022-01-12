@@ -7,7 +7,7 @@
 #       extension: .jl
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.4
+#       jupytext_version: 1.13.5
 #   kernelspec:
 #     display_name: Julia 1.7.1
 #     language: julia
@@ -673,11 +673,15 @@ plot(fixed_noise_plot, inferred_noise_plot)
 @gen function sine_model_fancy(xs::Vector{Float64})
 
     # < your code here >
+    
+    function y(x)
+        # <your code here>
+    end
 
     for (i, x) in enumerate(xs)
-        {(:y, i)} ~ normal(0., 0.1) # < edit this line >
+        {(:y, i)} ~ normal(y(x), 0.1)
     end
-    return nothing
+    return y
 end;
 
 # +
@@ -703,7 +707,7 @@ inferred_noise_plot = plot_predictions(xs, ys_noisy, new_xs, pred_ys; title="Inf
 Plots.plot(fixed_noise_plot, inferred_noise_plot)
 # -
 
-# <hr>
+# ----
 # <!-- # Solution
 # @gen function sine_model_fancy(xs::Vector{Float64})
 #     period = ({:period} ~ gamma(5, 1))
