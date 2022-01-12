@@ -87,6 +87,8 @@
 
 using Gen, Plots
 
+# **Warning: this notebook has its kernel set to Julia 1.6.3, and not Julia 1.7.1 like the other notebooks. This is because an [apparent bug in Julia 1.7](https://github.com/JuliaLang/julia/issues/43783) causes the demo in Section 4 to crash.**
+
 # ## 1. Implementing the generative model <a name="basic-model"></a>
 #
 # We will implement a generative model for the movement of a point in the x-y
