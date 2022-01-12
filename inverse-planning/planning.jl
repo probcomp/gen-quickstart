@@ -169,7 +169,7 @@ function refine_path(scene::Scene, original::Path, iters::Int, std::Float64)
     Path(new_points)
 end
 
-struct PlannerParams
+@kwdef struct PlannerParams
     rrt_iters::Int
     rrt_dt::Float64
     refine_iters::Int

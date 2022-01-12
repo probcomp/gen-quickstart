@@ -6,11 +6,11 @@
 #       extension: .jl
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.3
+#       jupytext_version: 1.13.4
 #   kernelspec:
-#     display_name: Julia 1.4.0
+#     display_name: Julia 1.7.1
 #     language: julia
-#     name: julia-1.4
+#     name: julia-1.7
 # ---
 
 # # A Bottom-Up Introduction to Gen
@@ -65,25 +65,15 @@ end;
 # If we run this function many times, we can see the probability distribution on its return values. The distribution depends on the argument `p` to the function:
 
 # +
-using PyPlot
+using Plots
 
 bins = collect(range(0, 21))
 
 function plot_histogram(p)
-    hist([f(p) for _=1:100000], bins=bins)
-    title("p = $p")
+    histogram([f(p) for _=1:100000], bins=bins, title="p=$p", label=nothing)
 end
 
-figure(figsize=(12, 2))
-
-subplot(1, 3, 1)
-plot_histogram(0.1)
-
-subplot(1, 3, 2)
-plot_histogram(0.5)
-
-subplot(1, 3, 3)
-plot_histogram(0.9);
+plot(map(plot_histogram, [0.1, 0.5, 0.9])...)
 # -
 
 # Suppose we wanted to see what the distribution on return values would be if the initial value of `n` was `2`. Because we don't know what random values were sampled during a given execution, we can't use simulations of `f` to answer this question. We would have to modify `f` first, to return the initial value of `n`:
@@ -100,7 +90,6 @@ end;
 
 # Then, we could only include executions in which our desired events did happen, when making our histogram:
 
-# +
 function plot_histogram_filtered(p)
     executions = 0
     results = []
@@ -111,21 +100,9 @@ function plot_histogram_filtered(p)
             executions += 1
         end
     end
-    hist(results, bins=bins)
-    title("p = $p")
+    histogram(results, bins=bins, title="p=$p", label=nothing)
 end;
-
-figure(figsize=(12, 2))
-
-subplot(1, 3, 1)
-plot_histogram_filtered(0.1)
-
-subplot(1, 3, 2)
-plot_histogram_filtered(0.5)
-
-subplot(1, 3, 3)
-plot_histogram_filtered(0.9);
-# -
+plot(map(plot_histogram_filtered, [0.1, 0.5, 0.9])...)
 
 # Suppose we wanted to ask more questions. We might need to modify each time we have a new question, to make sure that the function returns the particular pieces of information about the execution that the question requires.
 #
@@ -196,37 +173,18 @@ function query(p, observed_result_value::Int)
             executions += 1
         end
     end
-    hist(do_branch, bins=[0, 1, 2], align="left")
-    xticks([0, 1], ["false", "true"])
-    title("p = $p")
+    histogram(do_branch, bins=[0, 1, 2], align="left", title="p=$p", 
+        label=nothing, xticks=(0:1, ["false", "true"]))
+#    xticks([0, 1], ["false", "true"])
+#    title("p = $p")
 end;
 
-figure(figsize=(12, 2))
-
-subplot(1, 3, 1)
-query(0.1, 4)
-
-subplot(1, 3, 2)
-query(0.5, 4)
-
-subplot(1, 3, 3)
-query(0.9, 4);
+plot(map(p -> query(p, 4), [0.1, 0.5, 0.9])...)
 # -
 
 # What about a result value that is greater than 10?
 
-# +
-figure(figsize=(12, 2))
-
-subplot(1, 3, 1)
-query(0.1, 14)
-
-subplot(1, 3, 2)
-query(0.5, 14)
-
-subplot(1, 3, 3)
-query(0.9, 14);
-# -
+plot(map(p -> query(p, 14), [0.1, 0.5, 0.9])...)
 
 # ## 2. Tracing the values of random choices in generative functions
 
@@ -235,18 +193,18 @@ query(0.9, 14);
 # Below, we write a `@gen function` version of the function `f` defined above, this time using Gen's tracing instead of our own:
 
 # +
-using Gen: @gen, @trace
+using Gen: @gen
 
 @gen function gen_f(p)
-    n = @trace(uniform_discrete(1, 10), :initial_n)
-    if @trace(bernoulli(p), :do_branch)
+    n = {:initial_n} ~ uniform_discrete(1, 10)
+    if ({:do_branch} ~ bernoulli(p))
         n *= 2
     end
-    return @trace(categorical([i == n ? 0.5 : 0.5/19 for i=1:20]), :result)
+    return {:result} ~ categorical([i == n ? 0.5 : 0.5/19 for i=1:20])
 end;
 # -
 
-# The `@trace` keyword records the value of the given random choice at the given address into an *implicit trace data structure*. The trace data structure itself is not a variable in the function, and that code in the body of the function cannot read from the trace. It is an error to call `@trace` with the same address twice. Addresses can be arbitrary Julia values. In this notebook, all the addresses will be Julia symbols.
+# The `{address} ~ distribution(args...)` expression records the value of the given random choice at the given address into an *implicit trace data structure*. The trace data structure itself is not a variable in the function, and that code in the body of the function cannot read from the trace. It is an error to use this syntax with the same address twice. Addresses can be arbitrary Julia values. In this notebook, all the addresses will be Julia symbols.
 #
 # Also note that the trace is not part of the return value:
 
@@ -287,7 +245,6 @@ get_retval(trace)
 
 # Now, we will answer the same question as above, but this time using our `@gen` function:
 
-# +
 function gen_query(p, observed_result_value::Int)
     executions = 0
     do_branch = []
@@ -298,22 +255,10 @@ function gen_query(p, observed_result_value::Int)
             executions += 1
         end
     end
-    hist(do_branch, bins=[0, 1, 2], align="left")
-    xticks([0, 1], ["false", "true"])
-    title("p = $p")
+    histogram(do_branch, bins=[0, 1, 2], align="left", title="p=$p", 
+        label=nothing, xticks=(0:1, ["false", "true"]))
 end;
-
-figure(figsize=(12, 2))
-
-subplot(1, 3, 1)
-gen_query(0.1, 14)
-
-subplot(1, 3, 2)
-gen_query(0.5, 14)
-
-subplot(1, 3, 3)
-gen_query(0.9, 14);
-# -
+plot(map(p -> gen_query(p, 14), [0.1, 0.5, 0.9])...)
 
 # ## 3. The probability distribution represented by a generative function
 
@@ -321,11 +266,11 @@ gen_query(0.9, 14);
 
 @gen function foo(prob_a)
     val = true
-    if @trace(bernoulli(prob_a), :a)
-        val = @trace(bernoulli(0.6), :b) && val
+    if ({:a} ~ bernoulli(prob_a))
+        val = ({:b} ~ bernoulli(0.6)) && val
     end
     prob_c = val ? 0.9 : 0.2
-    val = @trace(bernoulli(prob_c), :c) && val
+    val = ({:c} ~ bernoulli(prob_c)) && val
     return val
 end;
 
@@ -424,7 +369,7 @@ get_retval(trace)
 #
 # where $\mbox{dom}$ stands for 'domain', and gives the set of addresses in a choice map.
 #
-# The specific internal proposal distribution used by `@gen` functions is based on **ancestral sampling**, which operates as follows: We run the function. To evaluate a `@trace` expression, we look up the address in the constraints choice map. If the address is present in the constraints choice map, we deterministically return the value stored in the constraints for that address. If the address is not present in the constraints, we sample the value from the distribution in the `@trace` expression. For the function `foo`, with constraints $u = \{a \mapsto \mbox{true}, c \mapsto \mbox{false}\}$, the internal proposal distribution is:
+# The specific internal proposal distribution used by `@gen` functions is based on **ancestral sampling**, which operates as follows: We run the function. To evaluate a `~` expression, we look up the address in the constraints choice map. If the address is present in the constraints choice map, we deterministically return the value stored in the constraints for that address. If the address is not present in the constraints, we sample the value from the distribution in the `~` expression. For the function `foo`, with constraints $u = \{a \mapsto \mbox{true}, c \mapsto \mbox{false}\}$, the internal proposal distribution is:
 #
 # $$
 # \begin{array}{l|l}
@@ -505,45 +450,19 @@ prob_a_true = (p1 + p2) / (p1 + p2 + p3)
 # We can sample approximately from this disribution using our importance sampler. As we increase the number of traces, the actual distribution approaches the desired distribution:
 
 # +
-figure(figsize=(10, 2))
-
-subplot(1, 3, 1)
-as = []
-for i=1:10000
-    trace = my_importance_sampler(foo, (0.3,), choicemap((:c, false)), 1)
-    push!(as, trace[:a])
+using StatsBase: mean
+function importance_query(p, N)
+    constraints = choicemap((:c, false))
+    as = [my_importance_sampler(foo, (p,), constraints, N)[:a] for _ in 1:10000]
+    est_prob_a_true = mean(as)
+    histogram(as, bins=[0, 1, 2], align="left", title="using $N particle(s), estimate: $est_prob_a_true",
+        label=nothing, xticks=([0, 1], ["a = false", "a = true"]), titlefontsize=10)
 end
-hist(as, bins=[0, 1, 2], align="left")
-xticks([0, 1], ["a = false", "a = true"]);
-est_prob_a_true = sum(as) / 10000
-title("using 1 trace, estimate: $est_prob_a_true")
-
-subplot(1, 3, 2)
-as = []
-for i=1:10000
-    trace = my_importance_sampler(foo, (0.3,), choicemap((:c, false)), 10)
-    push!(as, trace[:a])
-end
-hist(as, bins=[0, 1, 2], align="left")
-xticks([0, 1], ["a = false", "a = true"]);
-est_prob_a_true = sum(as) / 10000
-title("using 10 traces, estimate: $est_prob_a_true")
-
-subplot(1, 3, 3)
-as = []
-for i=1:10000
-    trace = my_importance_sampler(foo, (0.3,), choicemap((:c, false)), 100)
-    push!(as, trace[:a])
-end
-hist(as, bins=[0, 1, 2], align="left")
-xticks([0, 1], ["a = false", "a = true"]);
-est_prob_a_true = sum(as) / 10000
-title("using 100 traces, estimate: $est_prob_a_true");
+    
+plot(map(N -> importance_query(0.3, N), [1, 10, 100])...)
 # -
 
-# Indeed, the estimated probability that `a = true` is approaching the true probability that we manually computed:
-
-prob_a_true
+# Indeed, the estimated probability that `a = true` is approaching the true probability that we manually computed.
 
 # ## 5. Updating a trace
 
@@ -552,7 +471,7 @@ prob_a_true
 # Consider the function `foo` from above. Let's obtain an initial trace:
 
 (trace, weight) = generate(foo, (0.3,), choicemap((:a, true), (:b, true), (:c, true)));
-println(get_choices(trace))
+get_choices(trace)
 
 # Now, we use the [`update`](https://probcomp.github.io/Gen/dev/ref/gfi/#Gen.update) method, to change the value of `:c` from `true` to `false`:
 
@@ -561,7 +480,7 @@ using Gen: update, NoChange
 
 constraints = choicemap((:c, false))
 (new_trace, weight, discard, retdiff) = update(trace, (0.3,), (NoChange(),), constraints)
-println(get_choices(new_trace))
+get_choices(new_trace)
 # -
 
 # The `update` method returns the new trace, as well as a weight, which the log ratio of probabilities of the new choice map ($t'$) and the old choice map ($t$):
@@ -579,20 +498,20 @@ weight
 # Doing an update can also cause some addresses to leave the choice map altogether. For example, if we set `:a` to `false`, then choice at address `:b` is no longer include in the choice map.
 
 (trace, weight, retdiff, discard) = update(trace, (0.3,), (NoChange(),), choicemap((:a, false)))
-println(get_choices(trace))
+get_choices(trace)
 
 # The *discard* choice map that is returned by `update` contains the valus for any addresses that were removed from the choice map, as well as any the previous values for any addresses that were constrained:
 
-println(discard)
+discard
 
 # Note that if we now apply the discard as the constraints, we will get back the original choice map:
 
 (trace, weight, retdiff, discard) = update(trace, (0.3,), (NoChange(),), discard);
 
-println(get_choices(trace))
+get_choices(trace)
 
 # The new discard choice map now contains the old constraints:
 
-println(discard)
+discard
 
 # This illustrates a useful notion of **reversibility** of the `update` method, which will be important when using it as a primitive in Metropolis-Hastings algorithms.
