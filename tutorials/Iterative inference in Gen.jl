@@ -1123,6 +1123,8 @@ gif(viz)
 # the two modes, by running multiple times and keeping track of how often the
 # slope is positive/negative for each, for a few different initializations.
 
+# **Warning: the following cell may take a few minutes to run.**
+
 total_runs = 25;
 
 for (index, value) in enumerate([(1, 0), (-1, 0), ransac(xs, ys_bimodal, RANSACParams(10, 3, 1.))])
@@ -1172,7 +1174,6 @@ for (index, value) in enumerate([(1, 0), (-1, 0), ransac(xs, ys_bimodal, RANSACP
             elseif tr_map[:slope] < 0
                 neg_map = true
             end
-
         end
 
         if pos_drift
@@ -1195,3 +1196,5 @@ for (index, value) in enumerate([(1, 0), (-1, 0), ransac(xs, ys_bimodal, RANSACP
     println("\ndrift: $(n_neg_drift)                  $(n_pos_drift)")
     println("\nMAP:   $(n_neg_map)                    $(n_pos_map)")
 end
+
+# Although this experiment is imperfect, we can broadly see that the drift kernel often explores both modes within a single run, whereas this is rarer for the MAP kernel (in 25 runs, the MAP kernel visits on average 1.08 of the 2 modes, whereas the drift kernel visits 1.6).
