@@ -15,7 +15,7 @@ function visualize_trace(trace::Trace; title="")
 
     outliers = [pt for (pt, outlier) in zip(trace[:points], trace[:outliers]) if outlier]
     inliers =  [pt for (pt, outlier) in zip(trace[:points], trace[:outliers]) if !outlier]
-    Plots.scatter(map(first, inliers), map(last, inliers), markercolor="blue", label=nothing, xlim=[-5, 5], ylim=[-20, 20], title=title) 
+    Plots.scatter(map(first, inliers), map(last, inliers), markercolor="blue", label=nothing, xlims=[-5, 5], ylims=[-20, 20], title=title) 
     Plots.scatter!(map(first, outliers), map(last, outliers), markercolor="red", label=nothing)
 
     inferred_line(x) = trace[:slope] * x + trace[:intercept]
@@ -23,7 +23,7 @@ function visualize_trace(trace::Trace; title="")
     left_y  = inferred_line(left_x)
     right_x = 5
     right_y = inferred_line(right_x)
-    Plots.plot!([left_x, right_x], [left_y, right_y], linecolor="black", label=nothing)
+    Plots.plot!([left_x, right_x], [left_y, right_y], color="black", label=nothing)
 
     # Inlier noise
     inlier_std = trace[:inlier_std]
