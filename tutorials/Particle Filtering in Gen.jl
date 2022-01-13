@@ -9,12 +9,12 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.13.5
 #   kernelspec:
-#     display_name: Julia 1.6.3
+#     display_name: Julia 1.6.5
 #     language: julia
 #     name: julia-1.6
 # ---
 
-# # Problem Set 3: Particle Filtering in Gen _(with applications to Object Tracking)_
+# # Tutorial: Particle Filtering in Gen _(with applications to Object Tracking)_
 #
 # ### What is this notebook about?
 #
@@ -87,7 +87,7 @@
 
 using Gen, Plots
 
-# **Warning: this notebook has its kernel set to Julia 1.6.3, and not Julia 1.7.1 like the other notebooks. This is because an [apparent bug in Julia 1.7](https://github.com/JuliaLang/julia/issues/43783) causes the demo in Section 4 to crash.**
+# **Warning: this notebook has its kernel set to Julia 1.6.5, and not Julia 1.7.1 like the other notebooks. This is because an [apparent bug in Julia 1.7](https://github.com/JuliaLang/julia/issues/43783) causes the demo in Section 4 to crash.**
 
 # ## 1. Implementing the generative model <a name="basic-model"></a>
 #
@@ -205,7 +205,7 @@ function render(trace; show_data=true, max_T=get_args(trace)[1], overlay=false)
     end
     
     f = overlay ? scatter! : scatter
-    fig = f(xs[1:max_T+1], ys[1:max_T+1], s=:auto, label=nothing)
+    fig = f(xs[1:max_T+1], ys[1:max_T+1], msize=3, msw=1, label=nothing)
     
     if show_data
         for z in zs[1:max_T+1]
@@ -220,8 +220,8 @@ end;
 
 # We visualize the synthetic trace below:
 
-plot(label=nothing)
 render(trace)
+title!("Observed bearings (lines) and positions (dots)")
 
 # Note that these are the observed *bearings*, but we are not plotting the
 # "ground truth" *locations* of the ship. There are many trajectories consistent
@@ -322,8 +322,8 @@ end;
 # renderings:
 
 function overlay(renderer, traces; same_data=true, args...)
-    fig = plot(title="Observed bearings (red) and \npositions of individual traces (one color per trace)",
-            xlabel="X", ylabel="Y")
+    fig = plot(xlabel="X", ylabel="Y",
+        title="Observed bearings (red) and \npositions of individual traces (one color per trace)")
     
     renderer(traces[1], show_data=true, overlay=true, args...)
     for i=2:length(traces)
@@ -490,11 +490,9 @@ function particle_filter_rejuv_resim(num_particles::Int, zs::Vector{Float64}, nu
     return Gen.sample_unweighted_traces(state, num_samples)
 end;
 
-# +
-@time pf_rejuv_traces = particle_filter_rejuv_resim(5000, zs, 200);
-
-overlay(render, pf_rejuv_traces)
-# -
+@time pf_rejuv_resim_traces = particle_filter_rejuv_resim(5000, zs, 200);
+overlay(render, pf_rejuv_resim_traces)
+title!("Rejuvenation with resimulation MH on the starting points")
 
 # You may notice slightly more variety in the initial state, compared to our first round of particle filtering.
 
@@ -558,6 +556,7 @@ end;
 # We render the traces:
 
 overlay(render, pf_rejuv_traces)
+title!("Rejuvenation with resimulation MH on the starting points")
 
 # ----
 # <!-- 
@@ -736,7 +735,7 @@ function unfold_render(trace; show_data=true, max_T=get_args(trace)[1], overlay=
         zs[t+1] = choices[:chain => t => :z]
     end
     f = overlay ? scatter! : scatter
-    fig = f(xs[1:max_T+1], ys[1:max_T+1], s=:auto, label=nothing)
+    fig = f(xs[1:max_T+1], ys[1:max_T+1], msize=3, msw=1, label=nothing)
     if show_data
         for z in zs[1:max_T+1]
             dx = cos(z) * 0.5
@@ -785,5 +784,6 @@ num_observations_list = [1, 3, 10, 30, 50, 100, 150, 200, 500]
 
 # Notice that the running time of the inference program without unfold appears to be quadratic in the number of observations, whereas the inference program that uses unfold appears to scale linearly:
 
-plot(num_observations_list, times, color="blue", xlabel="# observations", ylabel="running time (sec.)", label="for loop")
+plot(num_observations_list, times, color="blue", 
+    xlabel="# observations", ylabel="running time (sec.)", label="for loop")
 plot!(num_observations_list, times_unfold, color="red", label="unfold")

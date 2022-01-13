@@ -719,7 +719,7 @@ visualize_mh_alg(xs_dense, ys_complex, custom_update_inv, 75, 10)
 
 # ## 4. Bayesian synthesis of Gaussian Process kernel programs  <a name="synthesis"></a>
 
-# We now consider a more complex model, adapted from the [Bayesian synthesis paper](https://popl19.sigplan.org/details/POPL-2019-Research-Papers/79/Bayesian-Synthesis-of-Probabilistic-Programs-for-Automatic-Data-Modeling) by Saad et al. that you saw in lecture.
+# We now consider a more complex model, adapted from the [Bayesian synthesis paper](https://popl19.sigplan.org/details/POPL-2019-Research-Papers/79/Bayesian-Synthesis-of-Probabilistic-Programs-for-Automatic-Data-Modeling) by Saad et al.
 #
 # Our goal is to analyze time-series data: for some sequence of times $t_1, t_2, \dots, t_n$, we have observed points $x(t_1), x(t_2), \dots, x(t_n)$. We'll model a time series as arising from a Gaussian process with a particular _covariance kernel_. A covariance kernel is a function that takes in two times $t_1$ and $t_2$, and
 # computes a covariance between the random variables $x(t_1)$ and $x(t_2)$. Different covariance kernels can encode various structured patterns in the data. For example:
@@ -869,7 +869,7 @@ end
 
 function eval_cov_mat(node::Times, xs::Vector{Float64})
     eval_cov_mat(node.left, xs) .* eval_cov_mat(node.right, xs)
-end
+end;
 # -
 
 # More helper functions for evaluating covariances:
@@ -929,7 +929,7 @@ function predict_ys(covariance_fn::Kernel, noise::Float64,
     (conditional_mu, conditional_cov_matrix) = compute_predictive(
         covariance_fn, noise, xs, ys, new_xs)
     mvnormal(conditional_mu, conditional_cov_matrix)
-end
+end;
 # -
 
 # ### A prior over kernel programs
@@ -1013,10 +1013,11 @@ function visualize_gp_trace(tr, xmin, xmax; title="")
     curveYs = [predict_ys(get_retval(tr), 0.000001, data_xs, data_ys, curveXs) for i=1:50]
     fig = plot()
     for (i, curveYSet) in enumerate(curveYs)
-        plot!(curveXs, curveYSet, title=title, xlims=(xmin, xmax), label=nothing, color="lightgreen")
+        plot!(curveXs, curveYSet, title=title, xlims=(xmin, xmax), 
+            label=nothing, color="lightgreen")
     end
     scatter!(data_xs, data_ys, color="black", label=nothing)
-end
+end;
 
 traces = [first(generate(model, (collect(Float64, -1:0.1:1),))) for i in 1:12]
 plot([visualize_gp_trace(t, -1, 1) for t in traces]...)
@@ -1035,7 +1036,7 @@ plot([visualize_gp_trace(t, -1, 1) for t in traces]...)
 function initialize_trace(xs::Vector{Float64}, ys::Vector{Float64})
     tr, = generate(model, (xs,), choicemap(:ys => ys))
     return tr
-end
+end;
 
 # Next, we write a helper generative function that randomly chooses a node
 # in a kernel program's syntax tree. It starts at the root, and flips a coin
@@ -1130,7 +1131,7 @@ function subtree_involution(trace, forward_choices, path_to_subtree, proposal_ar
     # Run update and get the new weight.
     new_trace, weight, = update(trace, get_args(trace), (UnknownChange(),), new_trace_choices)
     (new_trace, backward_choices, weight)
-end
+end;
 
 # We'll run our MCMC on a dataset of airline passenger volume over a number of years.
 
@@ -1149,7 +1150,7 @@ function get_airline_dataset()
     ys .-= mean(ys) # set y mean to 0.
     ys *= 4 / (maximum(ys) - minimum(ys)) # make it fit in the window [-2, 2]
     return (xs, ys)
-end
+end;
 
 
 (xs, ys) = get_airline_dataset();
@@ -1170,7 +1171,7 @@ function run_mcmc(trace, frames::Int, iters_per_frame::Int)
     println("Final program:")
     println(get_retval(trace))
     gif(viz)
-end
+end;
 
 t = initialize_trace(xs, ys);
 run_mcmc(t, 100, 100)

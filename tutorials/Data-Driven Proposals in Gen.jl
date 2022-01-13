@@ -62,7 +62,6 @@
 # **Section 4.** [Training the parameters of a data-driven proposal](#training)
 
 
-# This cell will take a few seconds to run.
 using Gen, Distributions
 
 # ## 1: A generative model of an autonomous agent   <a name="model"></a>
@@ -78,18 +77,7 @@ using Gen, Distributions
 
 include("../inverse-planning/geometric_primitives.jl");
 
-# The file we loaded gives us the `Point` data type (imported from [Luxor.jl](https://juliagraphics.github.io/Luxor.jl/)), which has fields `x` and `y`:
-#
-# ```julia
-# """
-# The Point type holds two coordinates. It's immutable, you can't
-# change the values of the x and y values directly.
-# """
-# struct Point
-#    x::Float64
-#    y::Float64
-# end
-# ```
+# The file we loaded gives us the `Point` data type (imported from [Luxor.jl](https://juliagraphics.github.io/Luxor.jl/)), which has fields `x` and `y`.
 
 point = Point(1.0, 2.0)
 println(point.x)
@@ -171,8 +159,8 @@ include("../inverse-planning/planning.jl");
 
 start = Point(0.1, 0.1)
 dest = Point(0.5, 0.5)
-planner_params = PlannerParams(
-    rrt_iters=300, rrt_dt=3.0, refine_iters=2000, refine_std=1.)
+planner_params = PlannerParams(rrt_iters=600, rrt_dt=3.0,
+                               refine_iters=3500, refine_std=1.)
 example_path = plan_path(start, dest, scene, planner_params)
 
 # We visualize the path below with the function `visualize` (defined in the
@@ -255,8 +243,8 @@ end;
 
 # <!-- # BEGIN ANSWER KEY 2A.1
 #
-# planner_params = PlannerParams(rrt_iters=300, rrt_dt=3.0,
-#                                refine_iters=2000, refine_std=1.)
+# planner_params = PlannerParams(rrt_iters=600, rrt_dt=3.0,
+#                                refine_iters=3500, refine_std=1.)
 # trace = Gen.simulate(agent_model, (scene, dt, num_ticks, planner_params));
 # choices = Gen.get_choices(trace)
 # display(choices)
@@ -360,7 +348,8 @@ constraints[:start_y] = 0.1;
 # Modify the `PlannerParams` in the cell below.
 
 # +
-planner_params = PlannerParams(rrt_iters=300, rrt_dt=3.0, refine_iters=2000, refine_std=1.) # < change this line>
+planner_params = PlannerParams(
+    rrt_iters=300, rrt_dt=3.0, refine_iters=2000, refine_std=1.) # < change this line>
 
 traces = [Gen.generate(agent_model, (scene, dt, num_ticks, planner_params), constraints)[1] for i in 1:12];
 visualize_grid(traces, 4, 600; separators="gray") do trace, frame 
@@ -375,7 +364,7 @@ end
 start = Point(0.1, 0.1)
 dt = 0.1
 num_ticks = 10
-planner_params = PlannerParams(rrt_iters=600, rrt_dt=0.05,
+planner_params = PlannerParams(rrt_iters=600, rrt_dt=3.0,
                                refine_iters=3500, refine_std=1.);
 
 # We will infer the destination of the agent for the given sequence of observed locations:
@@ -451,7 +440,7 @@ end;
 #
 # # END ANSWER KEY -->
 # #### Visualize your answer
-# Below, we run this algorithm 1000 times, to generate 1000 approximate samples
+# Below, we run this algorithm 500 times, to generate 500 approximate samples
 # from the posterior distribution on the destination. The inferred destinations
 # should appear as red rhombuses on the map. The following function
 # visualizes the paths overlaid on the scene.
@@ -468,13 +457,14 @@ end;
 #
 # And now we run it! Note that this might take a while.
 
-visualize_inference(measurements, scene, start, computation_amt=50, samples=500)
+visualize_inference(
+    measurements, scene, start, computation_amt=100, samples=500)
 
 # The algorithm has made reasonable inferences about where the agent was likely
 # trying to go.
 
 # Note that the above illustration takes a while to produce. This is
-# because computing each endpoint requires sampling 50 times from the default proposal (which
+# because computing each endpoint requires sampling 100 times from the default proposal (which
 # runs the RRT planner). When our models contain more expensive components, like
 # the path-planner, the computational demands of inference increase accordingly.
 # This motivates us to find more efficient inference algorithms, that will
@@ -963,8 +953,9 @@ update = Gen.ParamUpdate(Gen.FixedStepGradientDescent(0.001), custom_dest_propos
 
 using Plots
 plot(scores,
-  xlabel="Iterations of stochastic gradient descent", labelfontsize=8, 
-  ylabel="Estimate of expected conditional log probability density", label=nothing)
+    xlabel="Iterations of stochastic gradient descent",
+    ylabel="Estimate of expected\nconditional log probability density", 
+    label=nothing)
 
 # We can read out the new value for `score_high`:
 
@@ -974,14 +965,18 @@ println(exp(Gen.get_param(custom_dest_proposal_trainable, :log_score_high)))
 # initial guess. This validates that the heuristic is indeed a useful one. We
 # visualize the proposal distribution below:
 
-visualize_custom_destination_proposal(measurements, start, custom_dest_proposal_trainable, num_samples=1000)
+visualize_custom_destination_proposal(
+    measurements, start, custom_dest_proposal_trainable, 
+    num_samples=1000)
 
 # We can visualize the results of inference, using this newly trained proposal:
 
-visualize_data_driven_inference(measurements, scene, start, custom_dest_proposal_trainable,
+visualize_data_driven_inference(
+    measurements, scene, start, custom_dest_proposal_trainable,
     amt_computation=5, samples=1000)
 
-visualize_data_driven_inference(measurements, scene, start, custom_dest_proposal_trainable,
+visualize_data_driven_inference(
+    measurements, scene, start, custom_dest_proposal_trainable,
     amt_computation=10, samples=1000)
 
 # ------------
@@ -1162,8 +1157,10 @@ end;
 
 # We plot the estimate of the objective function over epochs:
 
-plot(scores, xlabel="Epochs", ylabel="Estimate of expected conditional log probability density", 
-    labelfontsize=8, label=nothing)
+plot(scores,
+    xlabel="Epochs", 
+    ylabel="Estimate of expected\nconditional log probability density", 
+    label=nothing)
 
 # Below, we visualize the trained proposal distribution for our data set:
 
