@@ -163,14 +163,12 @@ bearing(x, y) = atan(y, x)
 end;
 # -
 
-# Note that the `model` function itself uses mutation to evolve the variables
-# `x`, `y`, `vx`, and `vy` over time. The `{addr} ~ distribution()` syntax keeps
-# the names of traced random variables (for which each address may only be used
-# once) separate from the names of program variables, like `x`, which may be
-# reassigned multiple times during the function's execution.
+# Note that the `model` function itself uses mutation to evolve the variables `x`, `y`, `vx`, and `vy`
+# over time. The `{addr} ~ distribution()` syntax keeps the names of traced random variables (for which
+# each address may only be used once) separate from the names of program variables, like `x`, which may
+# be reassigned multiple times during the function's execution.
 
-# We generate a data set of positions, and observed bearings, by sampling from
-# this model, with `T=50`:
+# We generate a data set of positions, and observed bearings, by sampling from this model, with `T=50`:
 
 # +
 import Random
@@ -190,9 +188,7 @@ for t=1:T
 end
 # -
 
-# We next write a visualization for full traces of this model. It shows the ship's
-# positions (as dots) as well as the observed bearings (as fixed length line 
-# segments from the origin):
+# We next write a visualization for traces of this model below. It shows the positions and dots and the observed bearings as lines from the origin:
 
 function render(trace; show_data=true, max_T=get_args(trace)[1], overlay=false)
     (T,) = Gen.get_args(trace)
@@ -223,15 +219,7 @@ end;
 plot(label=nothing)
 render(trace)
 
-# Note that these are the observed *bearings*, but we are not plotting the
-# "ground truth" *locations* of the ship. There are many trajectories consistent
-# with these bearings; for each of the red rays in the above plot, the ship
-# could be anywhere along the ray (or even slightly off it, given that our
-# measurements are noisy). However, our assumptions about the dynamics of the
-# situation &mdash; that is, the conditional distributions $P(x_{t+1}, y_{t+1}
-# \mid x_t, y_t)$ &mdash; will ensure that physics-defying trajectories (e.g.,
-# where the ship moves from a very high Y coordinate to a very low one in a
-# short time) are ruled out.
+# Note that these are the observed *bearings*, but we are not plotting the "ground truth" *locations* of the ship. There are many trajectories consistent with these bearings; for each of the red rays in the above plot, the ship could be anywhere along the ray (or even slightly off it, given that our measurements are noisy). However, our assumptions about the dynamics of the situation &mdash; that is, the conditional distributions $P(x_{t+1}, y_{t+1} \mid x_t, y_t)$ &mdash; will ensure that physics-defying trajectories (e.g., where the ship moves from a very high Y coordinate to a very low one in a short time) are ruled out.
 
 # ## 2. Implementing a basic particle filter <a name="basic-pf"></a>
 #
@@ -264,18 +252,18 @@ render(trace)
 # - `Gen.sample_unweighted_traces`
 
 function particle_filter(num_particles::Int, zs::Vector{Float64}, num_samples::Int)
-
+    
     # construct initial observations
     init_obs = Gen.choicemap((:z0, zs[1]))
     state = Gen.initialize_particle_filter(model, (0,), init_obs, num_particles)
-
+    
     # steps
     for t=1:length(zs)-1
         Gen.maybe_resample!(state, ess_threshold=num_particles/2)
         obs = Gen.choicemap(((:z, t), zs[t+1]))
         Gen.particle_filter_step!(state, (t,), (UnknownChange(),), obs)
     end
-
+    
     # return a sample of unweighted traces from the weighted collection
     return Gen.sample_unweighted_traces(state, num_samples)
 end;
@@ -312,14 +300,11 @@ end;
 #   contains the latest measurement.
 #
 
-# We run this particle filter with 5000 particles, and return a sample of 200
-# particles. This will take 30-60 seconds. We will see one way of speeding up
-# the particle filter in a later section.
+# We run this particle filter with 5000 particles, and return a sample of 100 particles. This will take 30-60 seconds. We will see one way of speeding up the particle filter in a later section.
 
 @time pf_traces = particle_filter(5000, zs, 200);
 
-# To render these traces, we first define a function that overlays many
-# renderings:
+# To render these traces, we first define a function that overlays many renderings:
 
 function overlay(renderer, traces; same_data=true, args...)
     fig = plot(title="Observed bearings (red) and \npositions of individual traces (one color per trace)",
@@ -337,15 +322,7 @@ end;
 
 overlay(render, pf_traces)
 
-# We see a broad posterior; many trajectories (i.e. x- and y-positions) explain
-# the observed bearings.
-#
-# Notice that as during the period of denser bearing measurements, the
-# trajectories tend to turn so that the heading is more parallel to the bearing
-# vector. An alternative explanation is that the point maintained a constant
-# heading, but just slowed down significantly. It is interesting to see that the
-# inferences favor the "turning explanation" over the "slowing down
-# explanation".
+# We see a broad posterior; many trajectories explain this particular set of observed bearings. Notice that during the period of denser bearing measurements, the trajectories tend to turn so that the heading is more parallel to the bearing vector. An alternative explanation is that the point maintained a constant heading, but just slowed down significantly. It is interesting to see that the inferences favor the "turning explanation" over the "slowing down explanation".
 
 # ----
 #
@@ -356,14 +333,11 @@ overlay(render, pf_traces)
 
 # ## Exercise 
 #
-# Run the particle filter without the `maybe_resample!` step, and visualize the
-# results.  What do you observe? Why do you think this is? Answer in the free
-# response section below.
+# Run the particle filter without the `maybe_resample!` step, and visualize the results.
+# What do you observe? Why do you think this is? Answer in the free response section below.
 #
 #
-# The code for particle_filter (from above) is copied in the body of the
-# function below. Modify it so that it does NOT perform resampling after each
-# time step.
+# The code for particle_filter (from above) is copied in the body of the function below. Modify it so that it does NOT perform resampling after each time step.
 
 function particle_filter_no_resampling(num_particles::Int, zs::Vector{Float64}, num_samples::Int)
 
@@ -409,9 +383,7 @@ overlay(render, pf_traces_no_resampling)
 #
 #
 #
-# # Without resampling, we get particle collapse, because the model converges on
-# # one best guess. This is not desirable; we have lost diversity in our
-# # samples.
+# # Without resampling, we get particle collapse, because the model converges on one best guess. This is not desirable; we have lost diversity in our samples.
 #
 # # END ANSWER KEY -->
 
@@ -419,8 +391,7 @@ overlay(render, pf_traces_no_resampling)
 
 # The particle filter we developed above works as follows:
 #
-# * At the start, guess many possible initial positions and velocities for the
-#   ship.
+# * At the start, guess many possible initial positions and velocities for the ship.
 # * Score these proposals based on the initial observation, `z0`. 
 # * Use `maybe_resample!` to clone the guesses that explain `z0` well, and cull
 #   the guesses that explain it poorly.
@@ -434,41 +405,39 @@ overlay(render, pf_traces_no_resampling)
 #
 # A problem with this procedure is that after the initial guesses for a quantity
 # have been made, they are never revised. This is despite the fact that learning
-# about later bearings may tell us a lot about earlier positions. This can be
-# especially problematic in the presence of *resampling*: notice how, in the
-# above results, the starting locations of all the particles are likely nearly
-# identical, even though the paths become more diverse as time goes on. This is
-# because "good" particles at the first step were likely cloned and propagated
-# through the particle filter, never changing the `x0` and `y0` values.
+# about later bearings may tell us a lot about earlier positions. This can be especially
+# problematic in the presence of *resampling*: notice how, in the above results,
+# the starting locations of all the particles are likely nearly identical, even though
+# the paths become more diverse as time goes on. This is because "good" particles at the
+# first step were likely cloned and propagated through the particle filter, never
+# changing the `x0` and `y0` values.
 #
-# Therefore, it is sometimes useful to add MCMC moves to particles in a particle
-# filter between steps. These MCMC moves are often called "rejuvenation moves"
-# [4].  Each rejuvenation move targets the *current posterior distribution* at
-# the given step. For example, when applying the rejuvenation move after
+# Therefore, it is sometimes useful to add MCMC moves to particles in a particle filter
+# between steps. These MCMC moves are often called "rejuvenation moves" [4].
+# Each rejuvenation move targets the *current posterior distribution* at the
+# given step. For example, when applying the rejuvenation move after
 # incorporating 3 observations, our rejuvenation moves have as their stationary
 # distribution the conditional distribution on the latent variables, given the
 # first three observations.
 #
-# Rejuvenation moves can target any portion of the latent space. It is common
-# for rejuvenation moves to target "global" variables that affect every time
-# step (e.g., the initial position of the ship), or a sliding window of _recent_
-# variables, e.g., the velocities from the previous five time steps. 
+# Rejuvenation moves can target any portion of the latent space. It is common for
+# rejuvenation moves to target "global" variables that affect every time step (e.g.,
+# the initial position of the ship), or a sliding window of _recent_ variables,
+# e.g., the velocities from the previous five time steps. 
 #
-# In this section, we write two new versions of the particle filter, each of
-# which uses Metropolis-Hastings rejuvenation moves to adjust each particle at
-# every time step.  The first version uses so-called "resimulation MH" to adjust
-# the initial choices (`x0`, `y0`, and the initial velocities). This means that
-# the proposal distribution for MH is equal to the prior of the generative
-# model.  The proposed next state under this rejuvenation move is independent of
-# the current state.  By contrast, the second version we write will use Gaussian
-# drift proposals, and therefore we refer to it as "random walk MH." The
-# Gaussian drift rejuvenation moves will target a sliding window of recent
-# velocities, perturbing them to see if &mdash; in light of new data &mdash; we
-# can find better values for them.
+# In this section, we write two new versions of the particle filter, each of which uses
+# Metropolis-Hastings rejuvenation moves to adjust each particle at every time step. 
+# The first version uses so-called "resimulation MH" to adjust the initial choices (`x0`, `y0`,
+# and the initial velocities). This means that the proposal distribution for
+# MH is equal to the prior of the generative model.  The proposed next state
+# under this rejuvenation move is independent of the current state.  By
+# contrast, the second version we write will use Gaussian drift proposals, and
+# therefore we refer to it as "random walk MH." The Gaussian drift rejuvenation moves
+# will target a sliding window of recent velocities, perturbing them to see if &mdash; in
+# light of new data &mdash; we can find better values for them.
 #
-# First, the resimulation MH rejuvenation move (this function is the same as the
-# previous, but with the addition of a rejuvenation move targeting the initial
-# choices of each particle):
+# First, the resimulation MH rejuvenation move (this function is the same as the previous, 
+# but with the addition of a rejuvenation move targeting the initial choices of each particle):
 
 function particle_filter_rejuv_resim(num_particles::Int, zs::Vector{Float64}, num_samples::Int)
     init_obs = Gen.choicemap((:z0, zs[1]))
@@ -527,31 +496,28 @@ function perturbation_move(trace, a::Int, b::Int)
 end;
 # -
 
-# We add this into our particle filtering inference program below. We apply the
-# rejuvenation move to adjust the velocities for the previous 5 time steps.
+# We add this into our particle filtering inference program below. We apply the rejuvenation move to adjust the velocities for the previous 5 time steps.
 
 function particle_filter_rejuv(num_particles::Int, zs::Vector{Float64}, num_samples::Int)
     init_obs = Gen.choicemap((:z0, zs[1]))    
     state = Gen.initialize_particle_filter(model, (0,), init_obs, num_particles)
     for t=1:length(zs)-1
-
+        
         # apply a rejuvenation move to each particle
         for i=1:num_particles
             state.traces[i], _ = perturbation_move(state.traces[i], max(1, t-5), t-1)
         end
-
+        
         Gen.maybe_resample!(state, ess_threshold=num_particles/2)
         obs = Gen.choicemap(((:z, t), zs[t+1]))
         Gen.particle_filter_step!(state, (t,), (UnknownChange(),), obs)
     end
-
+    
     # return a sample of unweighted traces from the weighted collection
     return Gen.sample_unweighted_traces(state, num_samples)
 end;
 
-# We run the particle filter with rejuvenation below. This will take a minute
-# or two. We will see one way of speeding up the particle filter in a later
-# section.
+# We run the particle filter with rejuvenation below. This will take a minute or two. We will see one way of speeding up the particle filter in a later section.
 
 @time pf_rejuv_traces = particle_filter_rejuv(5000, zs, 200);
 
@@ -659,14 +625,12 @@ chain = Gen.Unfold(kernel)
 Gen.@load_generated_functions # To allow use of the generative function written in the static modeling language above.
 # -
 
-# We can understand the behavior of `chain` by getting a trace of it and
-# printing the random choices:
+# We can understand the behavior of `chain` by getting a trace of it and printing the random choices:
 
 trace = Gen.simulate(chain, (4, State(0., 0., 0., 0.), 0.01, 0.01))
 Gen.get_choices(trace)
 
-# We now write a new version of the generative model that invokes `chain`
-# instead of using the Julia `for` loop:
+# We now write a new version of the generative model that invokes `chain` instead of using the Julia `for` loop:
 
 # +
 @gen (static) function unfold_model(T::Int)
@@ -750,14 +714,7 @@ end;
 
 overlay(unfold_render, unfold_pf_traces, same_data=true)
 
-# We now empirically investigate the scaling behavior of 
-# 1. the inference program that uses the Julia `for` loop (`particle_filter`),
-# and 
-# 2. the equivalent inference program that uses `Unfold`
-# (`unfold_particle_filter`). 
-#
-# We will use a synthetic long vector of z data, and we will investigate how the
-# running time depends on the number of observations.
+# We now empirically investigate the scaling behavior of (1) the inference program that uses the Julia `for` loop,  and (2) the equivalent inference program that uses Unfold. We will use a fake long vector of z data, and we will investigate how the running time depends on the number of observations.
 
 # +
 fake_zs = rand(1000);

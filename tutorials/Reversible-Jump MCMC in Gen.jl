@@ -42,7 +42,7 @@
 #
 # **Section 2.** [Basic Metropolis-Hastings inference](#basic-mh)
 #
-# **Section 3.** [Reversible-Jump "Split-Merge" proposals](#split-merge)
+# **Section 3.** [Reversilbe-Jump "Split-Merge" proposals](#split-merge)
 #
 # **Section 4.** [Bayesian program synthesis of GP kernels](#synthesis)
 #
@@ -59,40 +59,27 @@ Logging.disable_logging(Logging.Info);
 #
 # In [the intro to modeling tutorial](Introduction%20to%20Modeling%20in%20Gen.ipynb), you worked with a model of _piecewise constant_ functions, with unknown changepoints. Here, we model the same scenario, but somewhat differently.
 #
-# Given a dataset of `xs`, our model will randomly divide the range `(xmin, xmax)` 
-# into a random number of segments.
+# Given a dataset of `xs`, our model will randomly divide the range `(xmin, xmax)` into a random number of segments.
 #
-# It does this by sampling a number of segments (`:segment_count`), then
-# sampling a vector of _proportions_ from a Dirichlet distribution
-# (`:fractions`). The vector is guaranteed to sum to 1: if there are, say, three
-# segments, this vector might be `[0.3, 0.5, 0.2]`. The length of each segment
-# is the fraction of the interval assigned to it, times the length of the entire
-# interval (e.g., the third segment above would be length `0.2 * (xmax - xmin)`). 
-# For each segment, we generate a `y` value from a normal distribution.
-# Finally, we sample the `y` values near the piecewise constant function
-# described by the segments.
+# It does this by sampling a number of segments (`:segment_count`), then sampling a vector of _proportions_ from a Dirichlet distribution (`:fractions`). The vector is guaranteed to sum to 1: if there are, say, three segments, this vector might be `[0.3, 0.5, 0.2]`. The length of each segment is the fraction of the interval assigned to it, times the length of the entire interval, e.g. `0.2 * (xmax - xmin)`. For each segmment, we generate a `y` value from a normal distribution. Finally, we sample the `y` values near the piecewise constant function described by the segments.
 #
 # ### Using `@dist` to define new distributions for convenience 
-# To sample the number of segments, we need a distribution with support only on
-# the positive integers. We create one using the [`@dist` DSL](https://www.gen.dev/dev/ref/distributions/#dist_dsl-1):
+# To sample the number of segments, we need a distribution with support only on the positive integers. We create one using the [Distributions DSL](https://probcomp.github.io/Gen/dev/ref/distributions/#dist_dsl-1):
 
 # A distribution that is guaranteed to be 1 or higher.
 @dist poisson_plus_one(rate) = poisson(rate) + 1;
 
-# Distributions declared with `@dist` can be used to make random choices inside
-# of Gen models, just like native Gen distributions like `poisson` or
-# `bernoulli`. Behind the scenes, `@dist` has analyzed the code and figured out
-# how to evaluate the `logpdf`, or log density, of our newly defined
-# distribution. So we can ask, e.g., what the density of `poisson_plus_one(1)`
-# is at the point `3`:
+# Distributions declared with `@dist` can be used to make random choices inside of Gen models.
+# Behind the scenes, `@dist` has analyzed the code and figured out how to evaluate the `logpdf`,
+# or log density, of our newly defined distribution. So we can ask, e.g., what the density of
+# `poisson_plus_one(1)` is at the point `3`:
 #
 #
 
 logpdf(poisson_plus_one, 3, 1)
 
-# Note that this is the same as the logpdf of `poisson(1)` at the point `2` —
-# `@dist`'s main job is to automate the logic of converting the above call into
-# this one:
+# Note that this is the same as the logpdf of `poisson(1)` at the point `2` — `@dist`'s main job is to
+# automate the logic of converting the above call into this one:
 
 logpdf(poisson, 2, 1)
 
@@ -122,9 +109,9 @@ logpdf(poisson, 2, 1)
     segment_count ~ poisson_plus_one(1)
     
     # To determine changepoints, draw a vector on the simplex from a Dirichlet
-    # distribution. This gives us the proportions of the entire interval that
-    # each segment takes up. (The entire interval is determined by the minimum
-    # and maximum x values.)
+    # distribution. This gives us the proportions of the entire interval that each
+    # segment takes up. (The entire interval is determined by the minimum and maximum
+    # x values.)
     fractions ~ dirichlet([1.0 for i=1:segment_count])
     
     # Generate values for each segment
@@ -154,8 +141,7 @@ end;
 
 xs_dense = collect(range(-5, stop=5, length=50));
 
-# Don't worry about understanding the following code, which we use for
-# visualization.
+# Don't worry about understanding the following code, which we use for visualization.
 
 # +
 function trace_to_dict(tr)
@@ -185,28 +171,24 @@ traces = [simulate(piecewise_constant, (xs_dense,)) for _ in 1:9]
 plot([visualize_trace(t) for t in traces]...)
 # -
 
-# Many of the samples involve only one segment, but many of them involve more.
-# The level of noise also varies from sample to sample.
+# Many of the samples involve only one segment, but many of them involve more. The level of noise also varies from sample to sample.
 
 # ## 2. Basic Metropolis-Hastings inference <a name="basic-mh" />
 
-# Let's create three synthetic datasets, each more challenging than the last, to
-# test out our inference capabilities.
+# Let's create three synthetic datasets, each more challenging than the last, to test out our inference capabilities.
 
 ys_simple  = ones(length(xs_dense)) .+ randn(length(xs_dense)) * 0.1
 ys_medium  = Base.ifelse.(Int.(floor.(abs.(xs_dense ./ 3))) .% 2 .== 0,
                           2, 0) .+ randn(length(xs_dense)) * 0.1;
 ys_complex = Int.(floor.(abs.(xs_dense ./ 2))) .% 5 .+ randn(length(xs_dense)) * 0.1;
 
-# We'll need a helper function for creating a choicemap of constraints from a
-# vector of `ys`:
+# We'll need a helper function for creating a choicemap of constraints from a vector of `ys`:
 
 function make_constraints(ys)
     choicemap([(:y, i) => ys[i] for i=1:length(ys)]...)
 end;
 
-# As we saw in the last problem set, importance sampling does a decent job on
-# the simple dataset:
+# As we saw in the last problem set, importance sampling does a decent job on the simple dataset:
 
 # +
 NUM_CHAINS = 9
@@ -215,8 +197,7 @@ traces = [first(importance_resampling(piecewise_constant, (xs_dense,), make_cons
 Plots.plot([visualize_trace(t) for t in traces]...)
 # -
 
-# But on the complex dataset, it takes many more particles (here, we use 50,000)
-# to do even an OK job:
+# But on the complex dataset, it takes many more particles (here, we use 50,000) to do even an OK job:
 
 traces = [first(importance_resampling(piecewise_constant, (xs_dense,), make_constraints(ys_complex), 50000)) for _ in 1:9]
 scores = [get_score(t) for t in traces]
@@ -250,21 +231,19 @@ end;
 
 # And now the MH algorithm itself.
 #
-# We'll use a basic Block Resimulation sampler, which cycles through the
-# following blocks of variables:
-# * Block 1: `:segment_count` and `:fractions`. Resampling these tries proposing
-#   a completely new division of the interval into pieces. However, it reuses
-#   the `(:segments, i)` values wherever possible; that is, if we currently have
-#   three segments and `:segment_count` is proposed to change to 5, only two new
-#   segment values will be sampled.
+# We'll use a basic Block Resimulation sampler, which cycles through the following blocks of variables:
+# * Block 1: `:segment_count` and `:fractions`. Resampling these tries proposing a completely
+#   new division of the interval into pieces. However, it reuses the `(:segments, i)` values 
+#   wherever possible; that is, if we currently have three segments and `:segment_count` is proposed
+#   to change to 5, only two new segment values will be sampled.
 #
-# * Block 2: `:fractions`. This proposal tries leaving the number of segments
-#   the same, but resamples their relative lengths.
+# * Block 2: `:fractions`. This proposal tries leaving the number of segments the same, but
+#   resamples their relative lengths.
 #
 # * Block 3: `:noise`. This proposal adjusts the global noise parameter.
 #
-# * Blocks 4 and up: `(:segments, i)`. Tries separately proposing new values for
-#   each segment (and accepts or rejects each proposal independently).
+# * Blocks 4 and up: `(:segments, i)`. Tries separately proposing new values for each segment (and accepts
+#   or rejects each proposal independently).
 
 function simple_update(tr, xs, ys)
     tr, = mh(tr, select(:segment_count, :fractions))
@@ -274,14 +253,13 @@ function simple_update(tr, xs, ys)
         tr, = mh(tr, select((:segments, i)))
     end
     tr
-end;
+end
 
 # Our algorithm makes quick work of the simple dataset:
 
 visualize_mh_alg(xs_dense, ys_simple, simple_update, 100, 1)
 
-# On the medium dataset, it does an OK job with less computation than we used in
-# importance sampling:
+# On the medium dataset, it does an OK job with less computation than we used in importance sampling:
 
 visualize_mh_alg(xs_dense, ys_medium, simple_update, 50, 10)
 
@@ -293,30 +271,26 @@ visualize_mh_alg(xs_dense, ys_complex, simple_update, 50, 10)
 #
 # ### Exercise
 
-# One problem with the simple block resimulation algorithm is that the proposals
-# for `(:segments, i)` are totally uninformed by the data. In this problem,
-# you'll write a custom proposal (using the techniques we covered in
-# Problem Set 1B) that uses the data to propose good values of `y` for each segment.
+# One problem with the simple block resimulation algorithm is that the proposals for `(:segments, i)` are
+# totally uninformed by the data. In this problem, you'll write a custom proposal (using the techniques we
+# covered in Problem Set 1B) that uses the data to propose good values of `y` for each segment.
 #
-# Write a generative function `segments_proposal` that can serve as a smart
-# proposal distribution for this problem. It should:
+# Write a generative function `segments_proposal` that can serve as a smart proposal distribution for 
+# this problem. It should:
 #
 # * Propose a new `:segment_count` from `poisson_plus_one(1)` (the prior).
-# * Propose a new `:fractions` from `dirichlet([1.0 for i=1:segment_count])`
-#   (the prior).
-# * In each segment, propose the function value `(:segments, i)` to be (a noisy
-#   version of) the average of the `y` values in our dataset from the given
-#   segment. Draw `(:segments, i)` from a normal distribution with that mean,
-#   and a small standard deviation (e.g. 0.3).
-#
-# We will use this proposal to replace the "Block 1" move from our previous
-# algorithm. This should make it easier to have proposals accepted, because
-# whenever we propose a new segmentation of the interval, we propose it with
-# reasonable `y` values attached.
+# * Propose a new `:fractions` from `dirichlet([1.0 for i=1:segment_count])` (the prior).
+# * In each segment, propose the function value `(:segments, i)` to be (a noisy version of) the
+#   average of the `y` values in our dataset from the given segment. Draw `(:segments, i)` from
+#   a normal distribution with that mean, and a small standard deviation (e.g. 0.3).
+#   
+# We will use this proposal to replace the "Block 1" move from our previous algorithm. This should
+# make it easier to have proposals accepted, because whenever we propose a new segmentation of the
+# interval, we propose it with reasonable `y` values attached.
 
 # We have provided some starter code:
 
-@gen function segments_proposal(t, xs, ys)
+@gen function segments_proposal(t,xs, ys)
     xmin, xmax = minimum(xs), maximum(xs)
     x_range = xmax - xmin
     
@@ -332,8 +306,7 @@ visualize_mh_alg(xs_dense, ys_complex, simple_update, 50, 10)
     end
 end;
 
-# We define `custom_update` to use `segments_proposal` in place of the first
-# block from `simple_update`.
+# We define `custom_update` to use `segments_proposal` in place of the first block from `simple_update`.
 
 function custom_update(tr, xs, ys)
     (tr, _) = mh(tr, segments_proposal, (xs, ys))
@@ -343,7 +316,7 @@ function custom_update(tr, xs, ys)
         (tr, _) = mh(tr, select((:segments, i)))
     end
     tr
-end;
+end
 
 # Let's see how this one does on each dataset:
 
@@ -351,11 +324,7 @@ visualize_mh_alg(xs_dense, ys_medium, custom_update, 50, 10)
 
 visualize_mh_alg(xs_dense, ys_complex, custom_update, 50, 10)
 
-# This will often outperform the simplest MH solution, but still leaves
-# something to be desired. The smart `segment_proposal` helps find good function
-# values for each segment, but doesn't help us in cases where the segment
-# proportions are wrong; in these cases, the model just decides that noise must
-# be high.
+# This will often outperform the simplest MH solution, but still leaves something to be desired. The smart `segment_proposal` helps find good function values for each segment, but doesn't help us in cases where the segment proportions are wrong; in these cases, the model just decides that noise must be high.
 
 # ----
 # <!-- # BEGIN ANSWER KEY 2.9
@@ -378,80 +347,64 @@ visualize_mh_alg(xs_dense, ys_complex, custom_update, 50, 10)
 
 # ## 3. Involution MH for Split-Merge proposals <a name="split-merge" />
 
-# How might we improve on the MH algorithms from the previous section, to more
-# effectively search for good values of the `fractions` variable?
+# How might we improve on the MH algorithms from the previous section, to more effectively search for good values of the `fractions` variable?
 #
-# One approach is to add new proposals to the mix that _iteratively refine_ the
-# `fractions`, rather than relying on blind resimulation. A natural strategy
-# might be to add _split_ and _merge_ proposals:
+# One approach is to add new proposals to the mix that _iteratively refine_ the `fractions`, rather than
+# relying on blind resimulation. A natural strategy might be to add _split_ and _merge_ proposals:
 #
-# * A _split_ chooses a segment to break into two pieces at a random point (and
-#   chooses new values for the two segments).
-# * A _merge_ chooses two adjacent segments to merge together into one segment
-#   (with a shared value).
+# * A _split_ chooses a segment to break into two pieces at a random point (and chooses new values for the two segments).
+# * A _merge_ chooses two adjacent segments to merge together into one segment (with a shared value).
 #
 #
 # ### MCMC, Metropolis-Hastings, and Reversibility
-# Note that alone, neither of these two proposals makes for a valid
-# Metropolis-Hastings transition proposal. Why? One requirement of MCMC
-# algorithms is that each transition kernel (kernel, not proposal: **in MH, the
-# kernel includes the accept-reject step**) _leave the posterior distribution
-# stationary_. What does this mean? Suppose we somehow obtained an oracle that
-# let us sample a trace from the exact posterior, $t \sim p(t \mid
-# \text{observations})$. Then if we run an MCMC transition kernel $T$ on the
-# trace to obtain a new trace $t' \sim T(t' \leftarrow t)$, the marginal
-# distribution of $t'$ should still be the posterior. In simpler terms, no one
-# should be able to tell the difference between "traces sampled from the
-# posterior" (i.e., using the output of the oracle directly) and "traces sampled
-# from the posterior then sent through a transition kernel" (i.e., passing the
-# output of the oracle as the input to the transition kernel and using the
-# result). As a formula,
+# Note that alone, neither of these two proposals makes for a valid Metropolis-Hastings transition proposal. 
+# Why? One requirement of MCMC algorithms is that each transition kernel (kernel, not proposal: **in MH,
+# the kernel includes the accept-reject step**) _leave the posterior distribution stationary_. 
+# What does this mean? Suppose we somehow obtained an oracle that let us sample a trace from the exact posterior,
+# $t \sim p(t \mid \text{observations})$. Then if we run an MCMC transition kernel $T$ on the
+# trace to obtain a new trace $t' \sim T(t' \leftarrow t)$, the marginal distribution of $t'$ should still
+# be the posterior. In simpler terms, no one should be able to tell the difference between "traces sampled
+# from the posterior" (i.e., using the output of the oracle directly) and "traces sampled from the posterior
+# then sent through a transition kernel" (i.e., passing the output of the oracle as the input to the transition
+# kernel and using the result).
+# As a formula,
 #
-# $$\int p(t \mid \text{observations}) \, T(t' \leftarrow t) \, \mathrm{d}t =
-# p(t' \mid \text{observations})$$
+# $$\int p(t \mid \text{observations}) \, T(t' \leftarrow t) \, \mathrm{d}t = p(t' \mid \text{observations})$$
 #
-# This is the stationarity requirement. Now suppose we set our transition kernel
-# $T$ to a Metropolis-Hastings `split` move. The `split` move _always_ increases
-# the number of segments. So if `t` comes from the true posterior, then the
-# distribution of `t'`, in terms of number of segments, will necessarily be
-# shifted upward (unless MH deterministically _rejects_ every proposal -- which
-# is what MH in Gen will do if given a `split` proposal). The same issue exists,
+# Now suppose we set our transition kernel $T$ to a Metropolis-Hastings `split` move. The `split` move
+# _always_ increases the number of segments. So if `t` comes from the true posterior, then the distribution 
+# of `t'`, in terms of number of segments, will necessarily be shifted upward (unless MH deterministically
+# _rejects_ every proposal -- which is what MH in Gen will do if given a `split` proposal). The same issue exists, 
 # in reverse, for the `merge` proposal.
 #
-# In general, this "stationarity" rule means that our Metropolis-Hastings
-# proposals must be *reversible*, meaning that if there is some probability that
-# a proposal can take you from one region of the state space to another, it must
-# also have some probability of sending you back from the new region to the old
-# region. If this criterion is satisfied, then the MH accept-reject step can
-# accept and reject proposals with the proper probabilities to ensure that the
-# stationarity property described above holds.
+# In general, this "stationarity" rule means that our Metropolis-Hastings proposals must be
+# *reversible*, meaning that if there is some probability that a proposal can take you 
+# from one region of the state space to another, it must also have some probability of sending
+# you back from the new region to the old region. If this criterion is satisfied, then the MH
+# accept-reject step can accept and reject proposals with the proper probabilities to ensure that
+# the stationarity property described above holds.
 #
-# To make "split" and "merge" fulfill this "reversibility" criterion, we can
-# think of them as a constituting a *single* proposal, which *randomly chooses*
-# whether to split or merge at each iteration. This is an example of a
-# _reversible-jump_ proposal [1].
+# To make "split" and "merge" fulfill this "reversibility" criterion, we can think of them as a 
+# constituting a *single* proposal, which *randomly chooses* whether to split or merge at each iteration. 
+# This is an example of a _reversible-jump_ proposal [1].
 #
 # **References:**
 # 1. Green, Peter J., and David I. Hastie. "Reversible jump MCMC." Genetics 155.3 (2009): 1391-1403.
 #
 # ### Implementing Split-Merge in Gen
-# This is a sensible proposal. But if we try to write this proposal in Gen, we
-# quickly hit several roadblocks. For example:
+# This is a sensible proposal. But if we try to write this proposal in Gen, we quickly hit several roadblocks. For example:
 #
-# * The proposal needs to make several random choices that are *not* meant to
-#   serve as proposals for corresponding random choices in the model. For
-#   example, the proposal must decide whether to "split" or "merge," and then it
-#   needs to decide _at which index_ it will split or merge. But Gen interprets
-#   every traced random choice made by a proposal as corresponding to some
-#   choice in the model.
-# * Once we choose to split (or merge), it's unclear how we should propose to
-#   the various relevant addresses: from what distribution should the proposal
-#   sample `fractions`, for example? What we need is to propose a
-#   _deterministic_ value for `fractions`, _based on_ the random choices the
-#   proposal makes.
+# * The proposal needs to make several random choices that are *not* meant to serve as 
+#   proposals for corresponding random choices in the model. For example, the proposal
+#   must decide whether to "split" or "merge," and then it needs to decide _at which index_ it
+#   will split or merge. But Gen interprets every traced random choice made by a proposal
+#   as corresponding to some choice in the model.
+# * Once we choose to split (or merge), it's unclear how we should propose to the various
+#   relevant addresses: from what distribution should the proposal sample `fractions`, for
+#   example? What we need is to propose a _deterministic_ value for `fractions`, _based on_
+#   the random choices the proposal makes.
 #
-# To get around these issues, Gen provides a variant of Metropolis-Hastings that
-# is a bit trickier to use but is ultimately more flexible.
+# To get around these issues, Gen provides a variant of Metropolis-Hastings that is a bit trickier to use but is ultimately more flexible.
 #
 
 # The idea is this: first, we write a generative function that samples all the randomness
@@ -484,7 +437,7 @@ visualize_mh_alg(xs_dense, ys_complex, custom_update, 50, 10)
         index ~ uniform_discrete(1, old_n-1) # merge i and i+1
         
         # Sample a new value for the merged segment, near the mean of the
-        # two existing segments' values.
+        # two existing segments.
         new_value ~ normal((t[(:segments, index)] + t[(:segments, index+1)]) / 2.0, 0.1)
     end
 end;
@@ -494,55 +447,39 @@ end;
 tr, = generate(piecewise_constant, (xs_dense,), make_constraints(ys_complex,));
 get_choices(simulate(split_merge_proposal_randomness, (tr,)))
 
-# We now need to write an ordinary Julia function that tells Gen how to use the
-# proposal _randomness_ generated by the generative function above to create a
-# proposed next trace for Metropolis-Hastings.
+# We now need to write an ordinary Julia function that tells Gen how to use
+# the proposal _randomness_ generated by the generative function above to create
+# a proposed next trace for Metropolis-Hastings.
 
 # The function takes four **inputs**:
 #
-# * The previous trace, `t`
-# * The proposal randomness generated by our generative function above,
-#   `forward_choices`
-# * The return value, `forward_retval`, of the generative function we defined --
-#   we won't use this for now
-# * `proposal_args`: the arguments, other than `t`, that were used to generate
-#   `forward_choices` from the generative function written above. In our case,
-#   that function has no additional arguments, so this will always be empty.
+# * The previous trace `t`
+# * The proposal randomness generated by our generative function above, `forward_randomness`
+# * The return value of the generative function we defined, `forward_ret` -- we won't use this for now
+# * The arguments, other than `t`, that were used to generate `forward_randomness` from the generative function written above. In our case, that function has no additional arguments, so this will always be empty.
 
 # It is supposed to return three **outputs**:
 #
-# * `new_trace`: an updated trace to propose. We can construct this however we
-#   want based on `t` and `forward_choices`.
-# * `backward_choices`: a choicemap for the `proposal_randomness` generative
-#   function, capable of "sending `new_trace` back to the old trace `t`". For
-#   example, if we are enacting a `split` proposal, this would specify the
-#   precise `merge` proposal necessary to undo the split. This serves as "proof"
-#   that our proposal really is reversible.
-# * `weight`: usually, `get_score(new_trace) - get_score(t)`. The reason we need
-#   to return this is that it is possible to write proposals that need to return
-#   something different here; if your proposal involves deterministically
-#   transforming continuous random variables in non-volume-preserving ways, see
-#   the Gen documentation for details on how `weight` should change. In this
-#   notebook, `weight` will always be `get_score(new_trace) - get_score(t)`.
+# * `new_trace`: an updated trace to propose. We can construct this however we want based on `t` and `forward_choices`.
+# * `backward_choices`: a choicemap for the `proposal_randomness` generative function, capable of "sending `new_trace` back to the old trace `t`". For example, if we are enacting a `split` proposal, this would specify the precise `merge` proposal necessary to undo the split. This serves as "proof" that our proposal really is reversible.
+# * `weight`: usually, `get_score(new_trace) - get_score(t)`. The reason we need to return this is that it is possible to write proposals that need to return something different here; if your proposal involves deterministically transforming continuous random variables in non-volume-preserving ways, see the Gen documentation for details on how `weight` should change. In this notebook, `weight` will always be `get_score(new_trace) - get_score(t)`.
 
-# We call the Julia function an *involution*, because it must have the following
-# property. Suppose we had an old trace `old_trace`, and we propose a new trace
-# using `proposal_randomness_func` and then our Julia function `f`:
+# We call the Julia function an *involution*, because it must have the following property. 
+# Suppose we propose a new trace using `proposal_randomness_func` and then our Julia function
+# `f`:
 #
 # ```
 # forward_choices = get_choices(simulate(proposal_randomness_func, (old_trace,)))
 # new_trace, backward_choices, = f(old_trace, forward_choices, ...)
 # ```
 #
-# Now suppose we use `backward_choices` and ask what `f` would do to
-# `new_trace`:
+# Now suppose we use `backward_choices` and ask what `f` would do to `new_trace`:
 #
 # ```
 # back_to_the_first_trace_maybe, backward_backward_choices, = f(new_trace, backward_choices, ...)
 # ```
 #
-# Then we require that `backward_backward_choices == forward_choices`, and that
-# `back_to_the_first_trace_maybe == old_trace`.
+# Then we require that `backward_backward_choices == forward_choices`, and that `back_to_the_first_trace_maybe == old_trace`.
 
 # Here's an involution for Split-Merge:
 
@@ -609,27 +546,24 @@ function involution(t, forward_choices, forward_retval, proposal_args)
     end
     new_trace_choices[:segment_count] = length(fractions)
     
-    # Obtain an updated trace matching the choicemap, and a weight (no change to the arguments)
+    # Obtain an updated trace matching the choicemap, and a weight
     new_trace, weight, = update(t, get_args(t), (NoChange(),), new_trace_choices)
     (new_trace, backward_choices, weight)
-end;
+end
 
-# Look at the last two lines of the involution. The involution is responsible
-# for returning a *new trace*, not just a new *choicemap*. So, the common
-# pattern to follow in involutions is:
+# Look at the last two lines of the involution. The involution is responsible for returning a
+# *new trace*, not just a new *choicemap*. So, the common pattern to follow in involutions is:
 #
-# * Throughout the involution, fill a choicemap (here, `new_trace_choices`) with
-#   the updates that you want to make to the old trace `t`.
-# * At the end, call Gen's `update` function, passing in (1) the old trace `t`,
-#   (2) the model function's arguments, (3) a tuple of "argdiffs" (in our case,
-#   we know that the argument `xs` has not changed, so we pass in `NoChange()`),
-#   and (4) the choicemap of updates. `update` returns two useful values: the
-#   new trace, and a `weight`, which is equal to `get_score(t') - get_score(t)`.
+# * Throughout the involution, fill a choicemap (here, `new_trace_choices`) with the updates
+#   that you want to make to the old trace `t`.
+# * At the end, call Gen's `update` function, passing in (1) the old trace `t`, (2) the model
+#   function's arguments, (3) a tuple of "argdiffs" (in our case, we know that the argument `xs`
+#   has not changed, so we pass in `NoChange()`), and (4) the choicemap of updates. `update` returns
+#   two useful values: the new trace, and a `weight`, which is equal to `get_score(t') - get_score(t)`.
 #   This is the weight we need to return from the involution.
 #
 
-# We can create a new MH update that uses our proposal, and test it on the new
-# dataset:
+# We can create a new MH update that uses our proposal, and test it on the new dataset:
 
 # +
 @gen function mean_segments_proposal(t, xs, ys, i)
@@ -658,34 +592,29 @@ visualize_mh_alg(xs_dense, ys_complex, custom_update_inv, 75, 10)
 #
 # ## Exercise
 
-# Here are some possible "improvements" to the above split-merge proposal, which
-# may sound reasonable, but which are all in fact _invalid_. For each, state why
-# it is invalid, and briefly describe a version of the suggested improvement
-# that _would_ be valid.
+# Here are some possible "improvements" to the above split-merge proposal, which are all in fact _invalid_.
+# For each, explain why it is invalid, and briefly describe a version of the suggested improvement that _would_ 
+# be valid.
 #
-# 1. Proposed improvement: 
-#    make the `split` smarter, by always setting `split_proportion` to split
-#    somewhere between points `i` and `i+1`, where `i` and `i+1` are the two
-#    adjacent datapoints that have the largest $|y_i - y_{i+1}|$ value. The
-#    precise split proportion can still be random, drawn so that the split
-#    occurs uniformly between $x_i$ and $x_{i+1}$
+# 1. Proposed improvement: make the `split` smarter, by always setting `split_proportion` to split
+#    somewhere between points `i` and `i+1`, where `i` and `i+1` are the two adjacent datapoints that have
+#    the largest $|y_i - y_{i+1}|$ value. The precise split proportion can still be random, drawn so that
+#    the split occurs uniformly between $x_i$ and $x_{i+1}$
 #
-# 2. Proposed improvement:
-#    when choosing an index to split or merge, make smart choices: when
-#    splitting, choose the segment that currently explains its data least well
-#    (according to the likelihood of the `y` points that fall on the segment),
-#    and when merging, choose the two adjacent segments whose existing values
-#    are closest to one another.
+# 2. Proposed improvement: when choosing an index to split or merge, make smart choices: when splitting, 
+#    choose the segment that currently explains its data least well (according to the likelihood of the `y`
+#    points that fall on the segment), and when merging, choose the two adjacent segments whose existing
+#    values are closest to one another.
 #    
-# 3. Proposed improvement:
-#    when splitting, do not sample `:new_value_1` and `:new_value_2` randomly;
-#    instead, in the involution, set them equal to the mean values of the
-#    datapoints that fall within their segment intervals.
+# 3. Proposed improvement: when splitting, do not sample `:new_value_1` and `:new_value_2` randomly; instead,
+#    in the involution, set them equal to the mean values of the datapoints that fall within their segment
+#    intervals.
 #    
 #
 
 # ----
 # <!-- # BEGIN ANSWER KEY 2.10
+#
 #
 # "Improvement" 1: 
 # Why it's invalid: Not reversible: when we merge two datapoints, 
