@@ -726,7 +726,7 @@ visualize_mh_alg(xs_dense, ys_complex, custom_update_inv, 75, 10)
 #
 # * A _squared exponential_ kernel assigns high covariance to pairs of time points that are nearby, and lower covariance to pairs of time points that are far away.  This kernel encodes a _smoothness_ prior: the time series does not change drastically from one moment to the next.
 #
-# * A _periodic_ kernel assigns a covariance that depends on $\sin(f \cdot |t_1 - t_2|)$ for some frequency `f`. This allows it to assign high covariance to points that lie the "right" distance from one another, but not too near or too far, encoding a periodic structure: the time series is highly correlated with itself, some time earlier.
+# * A _periodic_ kernel assigns a covariance that depends on $\sin(f \cdot \lvert t_1 - t_2 \rvert)$ for some frequency $f$. This allows it to assign high covariance to points that lie the "right" distance from one another, but not too near or too far, encoding a periodic structure: the time series is highly correlated with itself, some time earlier.
 #
 # * A _constant_ kernel encodes some constant covariance between $x(t_1)$ and $x(t_2)$, no matter what $t_1$ and $t_2$ are.
 #
