@@ -9,7 +9,7 @@ These notebooks assume some familiarity with the [Julia programming language](ht
 
 For reference on Gen see:
 
-- The [Gen documentation](https://www.gen.dev/dev/)
+- The [Gen documentation](https://www.gen.dev/docs/dev/)
 
 - Documentation for [GenPyTorch.jl](https://probcomp.github.io/GenPyTorch.jl/dev/) and [GenTF.jl](https://probcomp.github.io/GenTF/dev/)
 

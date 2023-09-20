@@ -74,7 +74,7 @@ Logging.disable_logging(Logging.Info);
 #
 # ### Using `@dist` to define new distributions for convenience 
 # To sample the number of segments, we need a distribution with support only on
-# the positive integers. We create one using the [`@dist` DSL](https://www.gen.dev/dev/ref/distributions/#dist_dsl-1):
+# the positive integers. We create one using the [`@dist` DSL](https://www.gen.dev/docs/dev/ref/distributions/#dist_dsl-1):
 
 # A distribution that is guaranteed to be 1 or higher.
 @dist poisson_plus_one(rate) = poisson(rate) + 1;

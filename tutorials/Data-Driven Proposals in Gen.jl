@@ -390,7 +390,7 @@ measurements = [
 #
 # To see how to use the built-in importance resampling function, run
 # ```?Gen.importance_resampling``` or check out the
-# [documentation](https://www.gen.dev/dev/ref/importance/#Gen.importance_resampling).
+# [documentation](https://www.gen.dev/docs/dev/ref/importance/#Gen.importance_resampling).
 
 # We have provided some starter code.
 
@@ -614,7 +614,7 @@ num_x_bins = 5
 num_y_bins = 5;
 
 # We will propose the x-coordinate of the destination from a
-# [piecewise_uniform](https://www.gen.dev/dev/ref/distributions/#Gen.piecewise_uniform)
+# [piecewise_uniform](https://www.gen.dev/docs/dev/ref/distributions/#Gen.piecewise_uniform)
 # distribution, where we set higher probability for certain bins based on the
 # heuristic described above and use a uniform continuous distribution for the
 # coordinate within a bin. The `compute_bin_probs` function below computes the
@@ -839,7 +839,7 @@ visualize_inference(measurements, scene, start, computation_amt=5, samples=1000)
 
 # Our choice of the `score_high` value of 5. was somewhat arbitrary. To use
 # more informed value, we can make `score_high` into a [*trainable
-# parameter*](https://www.gen.dev/dev/ref/gfi/#Trainable-parameters-1)
+# parameter*](https://www.gen.dev/docs/dev/ref/gfi/#Trainable-parameters-1)
 # of the generative function. Below, we write a new version of the proposal
 # function that makes `score_high` trainable. However, the optimization
 # algorithms we will use for training work best with *unconstrained* parameters
@@ -927,7 +927,7 @@ end;
 # Next, we choose type of optimization algorithm we will use for training. Gen
 # supports a set of gradient-based optimization algorithms (see [Optimizing
 # Trainable
-# Parameters](https://www.gen.dev/dev/ref/parameter_optimization/#Optimizing-Trainable-Parameters-1)).
+# Parameters](https://www.gen.dev/docs/dev/ref/parameter_optimization/#Optimizing-Trainable-Parameters-1)).
 # Here we will use gradient descent with a fixed step size of 0.001.
 
 update = Gen.ParamUpdate(Gen.FixedStepGradientDescent(0.001), custom_dest_proposal_trainable);
