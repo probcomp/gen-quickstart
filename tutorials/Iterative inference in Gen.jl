@@ -917,7 +917,7 @@ gif(viz)
 # `is_outlier` score to the most likely possibility. We can do this by
 # iterating over both possible traces, scoring them, and choosing the one with
 # the higher score. We can do this using Gen's
-# [`update`](https://probcomp.github.io/Gen/dev/ref/gfi/#Update-1) function,
+# [`update`](https://www.gen.dev/docs/stable/ref/gfi/#Update-1) function,
 # which allows us to manually update a trace to satisfy some constraints:
 
 function is_outlier_map_update(tr)
