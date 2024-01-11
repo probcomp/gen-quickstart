@@ -140,7 +140,7 @@ plot(ns, times, xlabel="number of data points", ylabel="running time (seconds)",
 #
 # However, it should be possible for the algorithm to scale linearly in the number of data points. Briefly, deciding whether to update a given `is_outlier` variable can be done without referencing the other data points. This is because each `is_outiler` variable is conditionally independent of the outlier variables and y-coordinates of the other data points, conditioned on the parameters.
 #
-# We can make this conditional independence structure explicit using the [Map generative function combinator](https://probcomp.github.io/Gen/dev/ref/combinators/#Map-combinator-1). Combinators like map encapsulate common modeling patterns (e.g., a loop in which each iteration is making independent choices), and when you use them, Gen can take advantage of the restrictions they enforce to implement performance optimizations automatically during inference. The `Map` combinator, like the `map` function in a functional programming language, helps to execute the same generative code repeatedly. 
+# We can make this conditional independence structure explicit using the [Map generative function combinator](https://www.gen.dev/docs/stable/ref/combinators/#Map-combinator-1). Combinators like map encapsulate common modeling patterns (e.g., a loop in which each iteration is making independent choices), and when you use them, Gen can take advantage of the restrictions they enforce to implement performance optimizations automatically during inference. The `Map` combinator, like the `map` function in a functional programming language, helps to execute the same generative code repeatedly. 
 
 # ## 2. Introducing the map combinator <a name="map"></a>
 
@@ -155,7 +155,7 @@ plot(ns, times, xlabel="number of data points", ylabel="running time (seconds)",
     return y
 end;
 
-# We then apply the [`Map`](https://probcomp.github.io/Gen/dev/ref/combinators/#Map-combinator-1), which is a Julia function, to this generative function, to obtain a new generative function:
+# We then apply the [`Map`](https://www.gen.dev/docs/stable/ref/combinators/#Map-combinator-1), which is a Julia function, to this generative function, to obtain a new generative function:
 
 generate_all_points = Map(generate_single_point);
 
@@ -217,7 +217,7 @@ plot!(ns, with_map_times, label="with map")
 
 # ## 3.Combining the map combinator with the static modeling language <a name="combining"></a>
 
-# In order to provide `generate_all_points` with the knowledge that its arguments do not change during an update to the `is_outlier` variable, we need to write the top-level model generative function that calls `generate_all_points` in the [Static Modeling Language](https://probcomp.github.io/Gen/dev/ref/modeling/#Static-Modeling-Language-1), which is a restricted variant of the built-in modeling language that uses static analysis of the computation graph to generate specialized trace data structures and specialized implementations of trace operations. We indicate that a function is to be interpreted using the static language using the `static` annotation:
+# In order to provide `generate_all_points` with the knowledge that its arguments do not change during an update to the `is_outlier` variable, we need to write the top-level model generative function that calls `generate_all_points` in the [Static Modeling Language](https://www.gen.dev/docs/stable/ref/modeling/#Static-Modeling-Language-1), which is a restricted variant of the built-in modeling language that uses static analysis of the computation graph to generate specialized trace data structures and specialized implementations of trace operations. We indicate that a function is to be interpreted using the static language using the `static` annotation:
 
 @gen (static) function static_model_with_map(xs::Vector{Float64})
     slope ~ normal(0, 2)
