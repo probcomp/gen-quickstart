@@ -390,7 +390,7 @@ measurements = [
 #
 # To see how to use the built-in importance resampling function, run
 # ```?Gen.importance_resampling``` or check out the
-# [documentation](https://www.gen.dev/docs/dev/ref/importance/#Gen.importance_resampling).
+# [documentation](https://www.gen.dev/docs/stable/ref/inference/importance/#Gen.importance_resampling).
 
 # We have provided some starter code.
 
@@ -556,7 +556,7 @@ visualize_inference(measurements, scene_2doors, start, computation_amt=100, samp
 # ## 2. Writing a data-driven proposal as a generative function <a name="custom-proposal"></a>
 
 # The inference algorithm above used a variant of
-# [`Gen.importance_resampling`](https://www.gen.dev/docs/stable/ref/importance/#Gen.importance_resampling)
+# [`Gen.importance_resampling`](https://www.gen.dev/docs/stable/ref/inference/importance/#Gen.importance_sampling)
 # that does not take a custom proposal distribution. It uses the default
 # proposal distribution associated with the generative model. For generative
 # functions defined using the built-in modeling DSL, the default proposal
@@ -614,7 +614,7 @@ num_x_bins = 5
 num_y_bins = 5;
 
 # We will propose the x-coordinate of the destination from a
-# [piecewise_uniform](https://www.gen.dev/docs/dev/ref/distributions/#Gen.piecewise_uniform)
+# [piecewise_uniform](https://www.gen.dev/docs/stable/ref/modeling/distributions/#Gen.piecewise_uniform)
 # distribution, where we set higher probability for certain bins based on the
 # heuristic described above and use a uniform continuous distribution for the
 # coordinate within a bin. The `compute_bin_probs` function below computes the
@@ -676,7 +676,7 @@ compute_bin_probs(num_y_bins, scene.ymin, scene.ymax, measurements[1].y, measure
 end;
 
 # We can propose values of random choices from the proposal function using
-# [`Gen.propose`](https://www.gen.dev/docs/stable/ref/gfi/#Gen.propose).
+# [`Gen.propose`](https://www.gen.dev/docs/stable/ref/core/gfi/#Gen.propose).
 # This method returns the choices, as well as some other information, which we
 # won't need for our purposes. For now, you can think of `Gen.propose` as
 # similar to `Gen.generate` except that it does not produce a full execution
@@ -723,7 +723,7 @@ visualize_custom_destination_proposal(measurements, start, custom_dest_proposal,
 
 # We now use our data-driven proposal within an inference algorithm. There is a
 # second variant of
-# [`Gen.importance_resampling`](https://www.gen.dev/docs/stable/ref/importance/#Gen.importance_resampling)
+# [`Gen.importance_resampling`](https://www.gen.dev/docs/stable/ref/inference/importance/#Gen.importance_resampling)
 # that accepts a generative function representing a custom proposal. This
 # proposal generative function makes traced random choices at the addresses of
 # a subset of the unobserved random choices made by the generative model. In
@@ -742,7 +742,7 @@ visualize_custom_destination_proposal(measurements, start, custom_dest_proposal,
 #
 # This time, use only 5 importance samples (`amt_computation`). You can run
 # `?Gen.importance_resampling` or check out the
-# [documentation](https://www.gen.dev/docs/stable/ref/inference/#Importance-Sampling-1)
+# [documentation](https://www.gen.dev/docs/stable/ref/inference/importance/#Gen.importance_sampling)
 # to understand how to supply the arguments to invoke this second version of of
 # importance resampling.
 
@@ -839,7 +839,7 @@ visualize_inference(measurements, scene, start, computation_amt=5, samples=1000)
 
 # Our choice of the `score_high` value of 5. was somewhat arbitrary. To use
 # more informed value, we can make `score_high` into a [*trainable
-# parameter*](https://www.gen.dev/docs/dev/ref/gfi/#Trainable-parameters-1)
+# parameter*](https://www.gen.dev/docs/stable/ref/modeling/dml/#trainable_parameters_modeling)
 # of the generative function. Below, we write a new version of the proposal
 # function that makes `score_high` trainable. However, the optimization
 # algorithms we will use for training work best with *unconstrained* parameters
@@ -927,13 +927,13 @@ end;
 # Next, we choose type of optimization algorithm we will use for training. Gen
 # supports a set of gradient-based optimization algorithms (see [Optimizing
 # Trainable
-# Parameters](https://www.gen.dev/docs/dev/ref/parameter_optimization/#Optimizing-Trainable-Parameters-1)).
+# Parameters](https://www.gen.dev/docs/stable/ref/inference/parameter_optimization/#Parameter-Optimization)).
 # Here we will use gradient descent with a fixed step size of 0.001.
 
 update = Gen.ParamUpdate(Gen.FixedStepGradientDescent(0.001), custom_dest_proposal_trainable);
 
 # Finally, we use the
-# [`Gen.train!`](https://www.gen.dev/docs/stable/ref/inference/#Gen.train!)
+# [`Gen.train!`](https://www.gen.dev/docs/stable/ref/inference/parameter_optimization/#Gen.train!)
 # method to actually do the training.
 #
 # For each epoch, `Gen.train!` makes `epoch_size` calls to the data-generator
