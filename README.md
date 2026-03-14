@@ -19,7 +19,7 @@ You can also find HTML rendered versions of the tutorial notebooks in this repos
 
 ## Getting started
 
-To use the Jupyter notebooks in this repository, you will need to [install Jupyter](https://jupyter.org/install). 
+To use the Jupyter notebooks in this repository, you will need to [install Jupyter](https://jupyter.org/install).
 
 Gen is a package for the Julia language, so you will also need to [download and install Julia](https://julialang.org/downloads/).
 (Click the "help" link under your OS for specific installation instructions; we recommend following the instructions to "add Julia to PATH.")
@@ -37,8 +37,14 @@ to install Gen and its dependencies. You can then run
 $ JULIA_PROJECT=. julia -e 'using IJulia; notebook(; dir=".")'
 ```
 
-to start Jupyter. (It should also work to run `jupyter notebook` from your shell.) 
+to start Jupyter. (It should also work to run `jupyter notebook` from your shell.)
 Navigate to the [Tutorials](Tutorials.ipynb) notebook to get started!
+
+## Getting started on Google Colab
+
+If you want to try Gen immediately, click this `goolge colab` button!!
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/probcomp/gen-quickstart/blob/master/settingGenOnGColab.ipynb)
 
 ## TensorFlow or PyTorch integration
 
